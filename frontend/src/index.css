@@ -1,0 +1,22 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: "Montserrat";
+  list-style: none;
+  outline: none;
+  text-decoration: none;
+}
+
+.react-calendar__tile.highlight-date {
+  background-color: #ff6347; /* Color para resaltar la fecha */
+  color: white;
+  border-radius: 50%;
+}
+
+.react-calendar__tile.highlight-date:hover {
+  background-color: #ff4500; /* Color de fondo al pasar el mouse */
+}
