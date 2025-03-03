@@ -76,7 +76,6 @@ const EventPage = () => {
                     lng={event.coordinates.lng}
                   />
                 )}
-                {console.log(event)}
               </div>
             </div>
           </div>

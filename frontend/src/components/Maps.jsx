@@ -36,9 +36,6 @@ const MapComponent = ({ lat, lng }) => {
 
   if (!isLoaded) return <p>No se pudo cargar el mapa.</p>;
 
-  console.log("Mapa cargado con coordenadas", center);
-  console.log("Marker cargado con:", markerPosition);
-
   return (
     <GoogleMap
       mapContainerStyle={mapContainerStyle}

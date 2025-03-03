@@ -14,10 +14,6 @@ export const useEventStore = create((set, get) => ({
   isFetchingEvent: false,
   isUpdatingEvent: false,
   isDeletingEvent: false,
-  mapData: null,
-  isFetchingMapData: false,
-  coordinates: null,
-  setCoordinates: (coords) => set({ coordinates: coords }),
 
   createEvent: async (eventData) => {
     set({ isCreatingEvent: true });
@@ -159,36 +155,16 @@ export const useEventStore = create((set, get) => ({
     }
   },
 
-  getMapData: async (address) => {
-    set({ isFetchingMapData: true });
-    try {
-      const response = await axios.get(
-        `/api/v1/maps/geocode?address=${encodeURIComponent(address)}`
-      );
+  getEventsBySearch: async (query) => {
+    if (!query.trim()) return;
 
-      if (response.data.lat && response.data.lng) {
-        const location = { lat: response.data.lat, lng: response.data.lng };
-        set({ mapData: location, isFetchingMapData: false });
-        return location;
-      } else {
-        throw new Error("No se encontraron resultados para la direccion");
-      }
-    } catch (error) {
-      set({ isFetchingMapData: false });
-      toast.error("Error al buscar la informacion", error);
-      throw error;
-    }
-  },
-
-  // Funcion para obtener las coordenadas segun el evento
-  getEventCoordinates: async (eventId) => {
+    set({ isLoadingEvents: true });
     try {
-      const response = await axios.get(
-        `/api/v1/maps/event/${eventId}/coordinates`
-      );
-      set({ coordinates: response.data.coordinates });
+      const response = await axios.get(`/api/v1/event/search?query=${query}`);
+      set({ events: response.data.events || [], isLoadingEvents: false });
     } catch (error) {
-      toast.error("Error al obtener las coordenadas del evento", error);
+      set({ isLoadingEvents: false });
+      toast.error(error.response?.data?.message || "Error al buscar eventos");
     }
   },
 }));
