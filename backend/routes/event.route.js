@@ -8,6 +8,7 @@ import {
   getEventsByCategory,
   updateEvent,
   toggleLikeEvent,
+  searchEvents,
 } from "../controllers/event.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
 
@@ -22,5 +23,6 @@ router.get("/categories", getCategories);
 router.put("/events/:id", updateEvent);
 router.delete("/events/:id", deleteEvent);
 router.put("/events/:eventId/like", protectRoute, toggleLikeEvent);
+router.get("/search", searchEvents);
 
 export default router;

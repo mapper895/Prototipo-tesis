@@ -234,3 +234,40 @@ export async function toggleLikeEvent(req, res) {
       .json({ success: false, message: "Error al procesar el like" });
   }
 }
+
+// Buscar eventos
+export async function searchEvents(req, res) {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: "El término de la busqueda es obligatorio",
+      });
+    }
+
+    const regex = new RegExp(query, "i"); // Busqueda insensible a mayusculas y minusculas
+
+    const events = await Event.find({
+      $or: [
+        { title: { $regex: regex } },
+        { description: { $regex: regex } },
+        { address: { $regex: regex } },
+      ],
+    });
+
+    if (events.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No se encontraron eventos" });
+    }
+
+    res.status(200).json({ success: true, events });
+  } catch (error) {
+    console.log("Error en searchEvents controller:", error.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Error al buscar eventos" });
+  }
+}
