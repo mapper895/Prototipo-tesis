@@ -3,10 +3,13 @@ import { useEffect, useState } from "react";
 import { useEventStore } from "../store/eventStore";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
+import { useMapsStore } from "../store/mapsStore";
 import toast from "react-hot-toast";
+import LocationSearch from "../components/LocationSearch";
 
 const SignUpPage = () => {
   const { user } = useAuthStore();
+  const { apiKey, getApiKey } = useMapsStore();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -26,7 +29,12 @@ const SignUpPage = () => {
     getCategories();
   }, [getCategories]);
 
-  const organizer = "mapper";
+  useEffect(() => {
+    if (!apiKey) {
+      getApiKey();
+    }
+  }, [getApiKey, apiKey]);
+
   const navigate = useNavigate();
 
   const handleCreateEvent = async (e) => {
@@ -121,14 +129,11 @@ const SignUpPage = () => {
               >
                 Lugar
               </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
-                placeholder="Lugar del evento"
-                id="location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
+              {apiKey ? (
+                <LocationSearch apiKey={apiKey} onSelect={setLocation} />
+              ) : (
+                <p className="text-gray-500">Cargando google Maps..</p>
+              )}
             </div>
             <div>
               <label
