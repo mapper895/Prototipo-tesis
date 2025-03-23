@@ -73,7 +73,7 @@ const EventBanner = ({ category }) => {
                 className="w-full h-[150px] transition-transform duration-300 ease-in-out group-hover:scale-110 object-cover"
               />
             </div>
-            <div className="font-bold text-lg ml-2">{event.nombre}</div>
+            <div className="font-bold text-lg ml-2">{event.title}</div>
             <div className="text-sm mx-2 mb-2">
               {event.description.length > 50
                 ? `${event.description.slice(0, 50)}...`
