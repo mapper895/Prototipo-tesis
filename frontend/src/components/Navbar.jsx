@@ -1,12 +1,13 @@
-import { ChevronDown, ChevronUp, CircleUserRound, LogOut } from "lucide-react";
+import { ChevronDown, ChevronUp, CircleUserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const Navbar = ({ categories }) => {
   const { user, logout } = useAuthStore();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isUserOpen, setIsUserOpen] = useState(false);
 
   const toggleDropDown = () => {
     setIsOpen(!isOpen);
@@ -15,6 +16,47 @@ const Navbar = ({ categories }) => {
   const closeMenu = () => {
     setIsOpen(false);
   };
+
+  const menuRef = useRef(null);
+  const buttonRef = useRef(null);
+  const navRef = useRef(null);
+  const navButtonRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target)
+      ) {
+        setIsUserOpen(false); // Cerrar menú
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  });
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        navRef.current &&
+        !navRef.current.contains(event.target) &&
+        navButtonRef.current &&
+        !navButtonRef.current.contains(event.target)
+      ) {
+        setIsOpen(false); // Cerrar menú
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  });
 
   return (
     <nav className="w-full h-20 flex items-center justify-between flex-row px-5 bg-[#001f60] text-white">
@@ -25,6 +67,7 @@ const Navbar = ({ categories }) => {
         {" | "}
         <div className="relative inline-block text-left">
           <button
+            ref={navButtonRef}
             className="flex items-center justify-center w-full"
             onClick={toggleDropDown}
           >
@@ -36,7 +79,10 @@ const Navbar = ({ categories }) => {
             )}
           </button>
           {isOpen && (
-            <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-white text-black ring-opacity-5">
+            <div
+              ref={navRef}
+              className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-white text-black ring-opacity-5"
+            >
               {categories.map((category, index) => (
                 <div className="py-2 px-3" key={index}>
                   <Link to={"/category/" + category} onClick={closeMenu}>
@@ -55,15 +101,33 @@ const Navbar = ({ categories }) => {
         </Link>
       ) : (
         <div className="flex gap-5 items-center justify-center">
-          <div className="text-[22px]">Hola {user.username}!</div>
-          <img
-            src={user.image}
-            alt="Avatar"
-            className="h-14 rounded cursor-pointer"
-          />
-          <button onClick={logout}>
-            <LogOut className="size-8" />
-          </button>
+          <Link className="text-[22px]" to={"/create-event"}>
+            Crear evento
+          </Link>
+          <div
+            className="flex flex-row items-center cursor-pointer relative"
+            ref={buttonRef}
+            onClick={() => setIsUserOpen(!isUserOpen)}
+          >
+            <div className="text-[22px]">Hola {user.username}!</div>
+            <img
+              src={user.image}
+              alt="Avatar"
+              className="h-14 rounded cursor-pointer"
+            />
+            {isUserOpen && (
+              <div
+                ref={menuRef}
+                className="origin-top-right absolute right-0 mt-2 top-12 w-56 rounded-md shadow-lg bg-white ring-1 ring-white text-black ring-opacity-5"
+              >
+                <div className="py-2 px-3" onClick={logout}>
+                  Cerrar sesión
+                </div>
+                <div className="py-2 px-3">Mis eventos</div>
+                <div className="py-2 px-3">Mis likes</div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </nav>

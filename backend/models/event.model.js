@@ -21,13 +21,13 @@ const eventSchema = new mongoose.Schema({
   likesCount: { type: Number, default: 0 },
   likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   location: {
-    // Ciudad o region
+    // Direccion en string
     type: String,
     required: true,
     trim: true,
   },
   address: {
-    // Direccion especifica
+    // Direccion en string formateada
     type: String,
     required: true,
     trim: true,
@@ -63,6 +63,7 @@ const eventSchema = new mongoose.Schema({
     trim: true,
   },
   coordinates: {
+    // Direccion en coordenadas en base a direccion formateada
     lat: { type: Number, required: true },
     lng: { type: Number, required: true },
   },

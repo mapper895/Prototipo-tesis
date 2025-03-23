@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useEventStore } from "../store/eventStore"; // Asegúrate de importar correctamente el store
 import { useAuthStore } from "../store/authUser";
 import Navbar from "../components/Navbar";
@@ -63,6 +63,16 @@ const EventPage = () => {
               </button>
               <span className="text-gray-700">{event.likesCount}</span>
             </div>
+            {user && event.createdBy === user._id && (
+              <div className="mt-4">
+                <Link
+                  to={`/edit-event/${id}`}
+                  className="bg-yellow-500 text-white py-2 px-4 rounded mr-2"
+                >
+                  Editar
+                </Link>
+              </div>
+            )}
             <div className="flex flex-col gap-5">
               <div className="text-4xl">Descripción</div>
               <div>{event.description}</div>

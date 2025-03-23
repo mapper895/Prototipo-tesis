@@ -19,17 +19,19 @@ export const useEventStore = create((set, get) => ({
     set({ isCreatingEvent: true });
     try {
       const response = await axios.post(
-        "/api/v1/events/create-event",
+        "/api/v1/event/create-event",
         eventData
       );
-      set({
-        events: [...set.events, response.data.event],
+      set((state) => ({
+        events: [...state.events, response.data.event],
         isCreatingEvent: false,
-      });
+      }));
       toast.success("Evento creado con éxito");
+      return response.data.event;
     } catch (error) {
       set({ isCreatingEvent: false });
       toast.error(error.response?.data?.message || "Error al crear el evento");
+      return null;
     }
   },
 

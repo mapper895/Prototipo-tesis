@@ -11,7 +11,6 @@ export async function createEvent(req, res) {
       description,
       category,
       location,
-      address,
       date,
       time,
       days,
@@ -19,19 +18,33 @@ export async function createEvent(req, res) {
       organizer,
     } = req.body;
 
-    if (!address) {
-      return res.status(400).json({ message: "La direccione es obligatoria" });
+    let organizerId;
+
+    if (organizer) {
+      const existingUser = await User.findOne({ username: organizer });
+      if (!existingUser) {
+        return res.status(400).json({ message: "El organizador no existe" });
+      }
+      organizerId = existingUser._id;
+    } else {
+      const adminUser = await User.findOne({ username: "admin" });
+      if (!adminUser) {
+        return res.status(500).json({
+          message: "No se encontro un administrador en la base de datos",
+        });
+      }
+      organizerId = adminUser._id;
+    }
+
+    if (!location) {
+      return res.status(400).json({ message: "La direccion es obligatoria" });
     }
 
     const googleMapsUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-      address
+      location
     )}&key=${ENV_VARS.GOOGLE_MAPS_API_KEY}`;
 
-    console.log("URL de google maps:", googleMapsUrl);
-
     const response = await axios.get(googleMapsUrl);
-    console.log("Respuesta completa de google maps:", response.data);
-
     const data = response.data;
 
     if (!data || data.status !== "OK" || data.results.length === 0) {
@@ -61,7 +74,7 @@ export async function createEvent(req, res) {
       time,
       days,
       imageUrl,
-      organizer,
+      organizer: organizerId,
       coordinates: { lat, lng },
     });
 
@@ -70,7 +83,7 @@ export async function createEvent(req, res) {
     res.status(201).json({
       success: true,
       event: {
-        ...savedEvent._doc,
+        savedEvent,
       },
     });
   } catch (error) {

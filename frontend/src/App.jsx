@@ -11,6 +11,7 @@ import { Loader } from "lucide-react";
 import NotFoundPage from "./pages/NotFoundPage";
 import CategoryPage from "./pages/CategoryPage";
 import PopularPage from "./pages/PopularPage";
+import EventForm from "./pages/EventForm";
 
 function App() {
   const { user, isCheckingAuth, authCheck } = useAuthStore();
@@ -42,6 +43,8 @@ function App() {
           element={!user ? <SignUpPage /> : <Navigate to={"/"} />}
         />
         <Route path="/events/:id" element={<EventPage />} />
+        <Route path="/create-event" element={<EventForm />} />
+        <Route path="/edit-event/:eventId" element={<EventForm />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/events/category/:category" element={<CategoryPage />} />
         <Route path="/top-10-cdmx" element={<PopularPage />} />
