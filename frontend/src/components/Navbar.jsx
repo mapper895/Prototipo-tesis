@@ -2,9 +2,11 @@ import { ChevronDown, ChevronUp, CircleUserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
 import { useEffect, useRef, useState } from "react";
+import { useEventStore } from "../store/eventStore";
 
-const Navbar = ({ categories }) => {
+const Navbar = () => {
   const { user, logout } = useAuthStore();
+  const { categories, getCategories, isLoadingCategories } = useEventStore();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isUserOpen, setIsUserOpen] = useState(false);
@@ -21,6 +23,10 @@ const Navbar = ({ categories }) => {
   const buttonRef = useRef(null);
   const navRef = useRef(null);
   const navButtonRef = useRef(null);
+
+  useEffect(() => {
+    getCategories();
+  }, [getCategories]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -57,6 +63,8 @@ const Navbar = ({ categories }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   });
+
+  if (isLoadingCategories) return <p>Cargando categorias...</p>;
 
   return (
     <nav className="w-full h-20 flex items-center justify-between flex-row px-5 bg-[#001f60] text-white">
@@ -123,7 +131,9 @@ const Navbar = ({ categories }) => {
                 <div className="py-2 px-3" onClick={logout}>
                   Cerrar sesión
                 </div>
-                <div className="py-2 px-3">Mis eventos</div>
+                <div className="py-2 px-3">
+                  <Link to={"/my-events"}>Mis eventos</Link>
+                </div>
                 <div className="py-2 px-3">Mis likes</div>
               </div>
             )}
