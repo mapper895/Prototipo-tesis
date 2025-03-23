@@ -13,7 +13,6 @@ export async function createEvent(req, res) {
       location,
       date,
       time,
-      days,
       imageUrl,
       organizer,
     } = req.body;
@@ -53,6 +52,23 @@ export async function createEvent(req, res) {
 
     const formattedAddress = data.results[0].formatted_address;
     const { lat, lng } = data.results[0].geometry.location;
+
+    const getDays = (dateISO) => {
+      const weekDays = [
+        "Domingo",
+        "Lunes",
+        "Martes",
+        "Miércoles",
+        "Jueves",
+        "Viernes",
+        "Sábado",
+      ];
+      const newDate = new Date(dateISO);
+      return weekDays[newDate.getUTCDay()];
+    };
+
+    const weekDay = getDays(date);
+    const days = [weekDay];
 
     // Verificar si ya existe un evento con el mismo título y fecha
     const existingEvent = await Event.findOne({ title, date });

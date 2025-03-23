@@ -16,6 +16,8 @@ const SignUpPage = () => {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [location, setLocation] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const {
     createEvent,
@@ -32,6 +34,8 @@ const SignUpPage = () => {
   useEffect(() => {
     if (!apiKey) {
       getApiKey();
+    } else {
+      setIsLoading(false);
     }
   }, [getApiKey, apiKey]);
 
@@ -53,6 +57,7 @@ const SignUpPage = () => {
       time,
       organizer: user.username,
       location,
+      imageUrl,
     });
 
     if (newEvent) {
@@ -60,6 +65,13 @@ const SignUpPage = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-gray-500 text-xl">Cargando...</p>
+      </div>
+    );
+  }
   return (
     <>
       <Navbar />
@@ -163,6 +175,22 @@ const SignUpPage = () => {
                 id="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="image"
+                className="text-sm font-medium text-gray-700 block"
+              >
+                Url de la imagen del evento
+              </label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
+                placeholder="https://imagen.com"
+                id="image"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
               />
             </div>
 
