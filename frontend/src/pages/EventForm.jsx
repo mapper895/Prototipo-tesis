@@ -7,7 +7,7 @@ import { useMapsStore } from "../store/mapsStore";
 import toast from "react-hot-toast";
 import LocationSearch from "../components/LocationSearch";
 
-const SignUpPage = () => {
+const EventPage = () => {
   const { user } = useAuthStore();
   const { apiKey, getApiKey } = useMapsStore();
   const [title, setTitle] = useState("");
@@ -141,11 +141,14 @@ const SignUpPage = () => {
               >
                 Lugar
               </label>
-              {apiKey ? (
-                <LocationSearch apiKey={apiKey} onSelect={setLocation} />
-              ) : (
-                <p className="text-gray-500">Cargando google Maps..</p>
-              )}
+              <input
+                type="text"
+                className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
+                placeholder="Lugar del evento"
+                id="location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              />
             </div>
             <div>
               <label
@@ -207,4 +210,4 @@ const SignUpPage = () => {
   );
 };
 
-export default SignUpPage;
+export default EventPage;
