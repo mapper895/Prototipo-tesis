@@ -1,12 +1,12 @@
 import { ChevronDown, ChevronUp, CircleUserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
+import useCategories from "../hooks/useCategories";
 import { useEffect, useRef, useState } from "react";
-import { useEventStore } from "../store/eventStore";
 
 const Navbar = () => {
   const { user, logout } = useAuthStore();
-  const { categories, getCategories, isLoadingCategories } = useEventStore();
+  const { categories, isLoadingCategories } = useCategories();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isUserOpen, setIsUserOpen] = useState(false);
@@ -23,10 +23,6 @@ const Navbar = () => {
   const buttonRef = useRef(null);
   const navRef = useRef(null);
   const navButtonRef = useRef(null);
-
-  useEffect(() => {
-    getCategories();
-  }, [getCategories]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -64,7 +60,7 @@ const Navbar = () => {
     };
   });
 
-  if (isLoadingCategories) return <p>Cargando categorias...</p>;
+  if (isLoadingCategories) return <div>Cargando categorias...</div>;
 
   return (
     <nav className="w-full h-20 flex items-center justify-between flex-row px-5 bg-[#001f60] text-white">

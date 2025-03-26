@@ -3,8 +3,13 @@ import PopularSectionBanner from "../components/PopularSectionBanner";
 import SearchComponent from "../components/SearchComponent";
 import Footer from "../components/Footer";
 import EventBanner from "../components/EventBanner";
+import useCategories from "../hooks/useCategories";
 
 const HomePage = () => {
+  const { categories, isLoadingCategories } = useCategories();
+
+  if (isLoadingCategories) return <div>Cargando categorias...</div>;
+
   return (
     <>
       <Navbar />
