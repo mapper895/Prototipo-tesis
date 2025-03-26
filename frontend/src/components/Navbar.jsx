@@ -89,7 +89,7 @@ const Navbar = () => {
             >
               {categories.map((category, index) => (
                 <div className="py-2 px-3" key={index}>
-                  <Link to={"/category/" + category} onClick={closeMenu}>
+                  <Link to={"/events/category/" + category} onClick={closeMenu}>
                     {category.replaceAll("_", " ")[0].toUpperCase() +
                       category.replaceAll("_", " ").slice(1)}
                   </Link>
