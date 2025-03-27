@@ -12,6 +12,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import CategoryPage from "./pages/CategoryPage";
 import PopularPage from "./pages/PopularPage";
 import EventForm from "./pages/EventForm";
+import MyEventsPage from "./pages/MyEventsPage";
 
 function App() {
   const { user, isCheckingAuth, authCheck } = useAuthStore();
@@ -46,6 +47,7 @@ function App() {
         <Route path="/create-event" element={<EventForm />} />
         <Route path="/edit-event/:eventId" element={<EventForm />} />
         <Route path="/events" element={<EventsPage />} />
+        <Route path="/my-events" element={<MyEventsPage />} />
         <Route path="/events/category/:category" element={<CategoryPage />} />
         <Route path="/top-10-cdmx" element={<PopularPage />} />
         <Route path="/*" element={<NotFoundPage />} />

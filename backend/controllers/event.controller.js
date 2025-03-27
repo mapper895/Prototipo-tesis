@@ -300,3 +300,13 @@ export async function searchEvents(req, res) {
       .json({ success: false, message: "Error al buscar eventos" });
   }
 }
+
+//Eventos de un usuario
+export async function getUserEvents(req, res) {
+  try {
+    const events = await Event.find({ organizer: req.params.userId });
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener los eventos" });
+  }
+}

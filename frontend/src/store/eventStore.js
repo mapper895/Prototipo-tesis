@@ -169,4 +169,15 @@ export const useEventStore = create((set, get) => ({
       toast.error(error.response?.data?.message || "Error al buscar eventos");
     }
   },
+
+  getUserEvents: async (userId) => {
+    set({ isLoading: true });
+    try {
+      const response = await axios.get(`/api/v1/event/user/${userId}`);
+      set({ events: response.data, isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      toast.error(error.response?.data?.message || "Error al obtener eventos");
+    }
+  },
 }));

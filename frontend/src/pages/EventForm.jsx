@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
 import { useMapsStore } from "../store/mapsStore";
 import toast from "react-hot-toast";
-import LocationSearch from "../components/LocationSearch";
 
 const EventPage = () => {
   const { user } = useAuthStore();
@@ -55,7 +54,7 @@ const EventPage = () => {
       category,
       date,
       time,
-      organizer: user.username,
+      organizer: user._id,
       location,
       imageUrl,
     });
