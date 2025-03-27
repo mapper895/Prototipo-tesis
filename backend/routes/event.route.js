@@ -25,6 +25,6 @@ router.put("/events/:id", updateEvent);
 router.delete("/events/:id", deleteEvent);
 router.put("/events/:eventId/like", protectRoute, toggleLikeEvent);
 router.get("/search", searchEvents);
-router.get("/user/:userId", getUserEvents);
+router.get("/user/:userId", protectRoute, getUserEvents);
 
 export default router;

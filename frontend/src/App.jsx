@@ -47,7 +47,10 @@ function App() {
         <Route path="/create-event" element={<EventForm />} />
         <Route path="/edit-event/:eventId" element={<EventForm />} />
         <Route path="/events" element={<EventsPage />} />
-        <Route path="/my-events" element={<MyEventsPage />} />
+        <Route
+          path="/my-events"
+          element={!user ? <MyEventsPage /> : <Navigate to={"/"} />}
+        />
         <Route path="/events/category/:category" element={<CategoryPage />} />
         <Route path="/top-10-cdmx" element={<PopularPage />} />
         <Route path="/*" element={<NotFoundPage />} />
