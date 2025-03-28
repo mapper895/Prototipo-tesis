@@ -310,3 +310,28 @@ export async function getUserEvents(req, res) {
     res.status(500).json({ message: "Error al obtener los eventos" });
   }
 }
+
+//Eventos a los que un usuario ha dado like
+export async function getUserLikedEvents(req, res) {
+  try {
+    const userId = req.user._id; // EL Id del usuario autenticado
+
+    // Encontramos los eventos donde el usuario esté en el array "likedBy"
+    const events = await Event.find({ likedBy: userId });
+
+    if (!events || events.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No le has dado like a ningun evento",
+      });
+    }
+
+    res.status(200).json(events); // Devolvemos los datos
+  } catch (error) {
+    console.log("Error al obtener eventos likeados: "), error.message;
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener eventos a los que has likeado",
+    });
+  }
+}
