@@ -49,7 +49,7 @@ function App() {
         <Route path="/events" element={<EventsPage />} />
         <Route
           path="/my-events"
-          element={!user ? <MyEventsPage /> : <Navigate to={"/"} />}
+          element={user ? <MyEventsPage /> : <Navigate to={"/"} />}
         />
         <Route path="/events/category/:category" element={<CategoryPage />} />
         <Route path="/top-10-cdmx" element={<PopularPage />} />

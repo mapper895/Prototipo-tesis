@@ -54,7 +54,7 @@ const EventPage = () => {
       category,
       date,
       time,
-      organizer: user._id,
+      organizer: user.username,
       location,
       imageUrl,
     });
