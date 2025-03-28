@@ -13,6 +13,7 @@ import CategoryPage from "./pages/CategoryPage";
 import PopularPage from "./pages/PopularPage";
 import EventForm from "./pages/EventForm";
 import MyEventsPage from "./pages/MyEventsPage";
+import MyLikedEvents from "./pages/MyLikedEvents";
 
 function App() {
   const { user, isCheckingAuth, authCheck } = useAuthStore();
@@ -50,6 +51,10 @@ function App() {
         <Route
           path="/my-events"
           element={user ? <MyEventsPage /> : <Navigate to={"/"} />}
+        />
+        <Route
+          path="/my-liked-events"
+          element={user ? <MyLikedEvents /> : <Navigate to={"/"} />}
         />
         <Route path="/events/category/:category" element={<CategoryPage />} />
         <Route path="/top-10-cdmx" element={<PopularPage />} />

@@ -130,7 +130,9 @@ const Navbar = () => {
                 <div className="py-2 px-3">
                   <Link to={"/my-events"}>Mis eventos</Link>
                 </div>
-                <div className="py-2 px-3">Mis likes</div>
+                <div className="py-2 px-3">
+                  <Link to={"/my-liked-events"}> Mis likes</Link>
+                </div>
               </div>
             )}
           </div>
