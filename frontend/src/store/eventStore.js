@@ -8,12 +8,18 @@ export const useEventStore = create((set, get) => ({
   eventsByCategory: {},
   categories: [],
   event: null,
+  eventToDelete: null,
   isCreatingEvent: false,
   isUpdatingEvent: false,
   isLoadingEvents: true,
   isLoadingCategories: false,
   isFetchingEvent: false,
   isDeletingEvent: false,
+
+  setEvents: (newEvents) => set({ events: newEvents }),
+  setEventToDelete: (id) => set({ eventToDelete: id }),
+  clearEventToDelete: () => set({ eventToDelete: null }),
+  setIsDeletingdEvent: (status) => set({ isDeletingEvent: status }),
 
   createEvent: async (eventData) => {
     set({ isCreatingEvent: true });
@@ -112,18 +118,26 @@ export const useEventStore = create((set, get) => ({
     }
   },
 
-  deleteEvent: async (id) => {
+  deleteEvent: async () => {
+    const state = get(); // Obtenemos el estado actual
+    const { eventToDelete } = state;
+
+    if (!eventToDelete) return;
+
     set({ isDeletingEvent: true });
     try {
-      await axios.delete(`/api/v1/events/${id}`);
-      set((state) => ({
-        events: state.events.filter((event) => event.id !== id),
-        isDeletingEvent: false,
-      }));
+      await axios.delete(`/api/v1/event/events/${eventToDelete}`);
+      set({
+        events: state.events.filter((event) => event._id !== eventToDelete),
+        eventToDelete: null, // Limpia el evento seleccionado
+      });
       toast.success("Evento eliminado con éxito");
     } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Error al eliminar el evento"
+      );
+    } finally {
       set({ isDeletingEvent: false });
-      // toast.error(error.response?.data?.message || "Error al eliminar el evento");
     }
   },
   toggleLike: async (eventId) => {

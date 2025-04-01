@@ -14,7 +14,15 @@ import {
 
 const MyEventsPage = () => {
   const { user } = useAuthStore();
-  const { getUserEvents, events } = useEventStore();
+  const {
+    getUserEvents,
+    events,
+    eventToDelete,
+    setEventToDelete,
+    clearEventToDelete,
+    deleteEvent,
+    isDeletingEvent,
+  } = useEventStore();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,6 +36,10 @@ const MyEventsPage = () => {
       setLoading(false);
     }
   }, [events]);
+
+  const handleDeleteClick = (id) => {
+    setEventToDelete(id);
+  };
 
   if (loading) return <div>Cargando tus eventos...</div>;
 
@@ -92,14 +104,42 @@ const MyEventsPage = () => {
                 >
                   Editar evento <Pencil size={16} />
                 </Link>
-                <Link className="w-1/2 p-2 bg-red-500 flex items-center justify-center gap-2 text-sm">
+                <div
+                  className="w-1/2 p-2 bg-red-500 flex items-center justify-center gap-2 text-sm cursor-pointer"
+                  onClick={() => handleDeleteClick(event._id)}
+                >
                   Eliminar evento <Trash2 size={16} />
-                </Link>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Modal de confirmacion */}
+      {eventToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 rounded-3xl">
+          <div className="bg-white p-6 rounded shadow-md text-center">
+            <h2 className="text-xl font-semibold">¿Estás seguro?</h2>
+            <p>¿Deseas eliminar este evento?</p>
+            <div className="mt-4 flex justify-end space-x-2">
+              <button
+                onClick={clearEventToDelete}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={deleteEvent}
+                className="px-4 py-2 bg-red-500 text-white rounded"
+                disabled={isDeletingEvent} // Deshabilita el botón mientras se está eliminando
+              >
+                {isDeletingEvent ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <Footer />
     </>
   );
