@@ -45,8 +45,14 @@ function App() {
           element={!user ? <SignUpPage /> : <Navigate to={"/"} />}
         />
         <Route path="/events/:id" element={<EventPage />} />
-        <Route path="/create-event" element={<EventForm />} />
-        <Route path="/edit-event/:eventId" element={<EventForm />} />
+        <Route
+          path="/create-event"
+          element={user ? <EventForm /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/edit-event/:eventId"
+          element={user ? <EventForm /> : <Navigate to="/login" />}
+        />
         <Route path="/events" element={<EventsPage />} />
         <Route
           path="/my-events"

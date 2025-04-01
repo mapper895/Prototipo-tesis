@@ -9,10 +9,10 @@ export const useEventStore = create((set, get) => ({
   categories: [],
   event: null,
   isCreatingEvent: false,
+  isUpdatingEvent: false,
   isLoadingEvents: true,
   isLoadingCategories: false,
   isFetchingEvent: false,
-  isUpdatingEvent: false,
   isDeletingEvent: false,
 
   createEvent: async (eventData) => {
@@ -94,17 +94,16 @@ export const useEventStore = create((set, get) => ({
     }
   },
 
-  updateEvent: async (id, eventData) => {
+  updateEvent: async (eventId, updatedEventData) => {
     set({ isUpdatingEvent: true });
     try {
-      const response = await axios.put(`/api/v1/events/${id}`, eventData);
-      set((state) => ({
-        events: state.events.map((event) =>
-          event.id === id ? { ...event, ...response.data.event } : event
-        ),
-        isUpdatingEvent: false,
-      }));
+      const response = await axios.put(
+        `/api/v1/event/events/${eventId}`,
+        updatedEventData
+      );
+      set({ isUpdatingEvent: false });
       toast.success("Evento actualizado con éxito");
+      return response.data.event;
     } catch (error) {
       set({ isUpdatingEvent: false });
       toast.error(

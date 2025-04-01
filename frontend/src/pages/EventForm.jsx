@@ -1,7 +1,7 @@
 import Navbar from "../components/Navbar";
 import { useEffect, useState } from "react";
 import { useEventStore } from "../store/eventStore";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
 import { useMapsStore } from "../store/mapsStore";
 import toast from "react-hot-toast";
@@ -9,6 +9,8 @@ import toast from "react-hot-toast";
 const EventPage = () => {
   const { user } = useAuthStore();
   const { apiKey, getApiKey } = useMapsStore();
+  const { eventId } = useParams(); // Usamos 'eventId' de la URL para saber si estamos en "modo creacion" o "modo edicion"
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -20,15 +22,25 @@ const EventPage = () => {
 
   const {
     createEvent,
+    updateEvent,
     isCreatingEvent,
+    isUpdatingEvent,
+    event,
+    getEventById,
     categories,
     getCategories,
     isLoadingCategories,
   } = useEventStore();
 
+  const navigate = useNavigate();
+
+  // Cuando el componente se monte, obtenemos las categorias y los datos del evento (si estamos editando)
   useEffect(() => {
     getCategories();
-  }, [getCategories]);
+    if (eventId) {
+      getEventById(eventId);
+    }
+  }, [getCategories, getEventById, eventId]);
 
   useEffect(() => {
     if (!apiKey) {
@@ -38,29 +50,50 @@ const EventPage = () => {
     }
   }, [getApiKey, apiKey]);
 
-  const navigate = useNavigate();
+  // Si estamos editando, cargar los datos del evento en el estado
+  useEffect(() => {
+    if (event && eventId) {
+      setTitle(event.title);
+      setDescription(event.description);
+      setCategory(event.category);
+      setLocation(event.location);
+      setImageUrl(event.imageUrl);
+      setDate(event.date);
+      setTime(event.time);
+    }
+  }, [event, eventId]);
 
-  const handleCreateEvent = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!user) {
-      toast.error("Debes iniciar sesion para crear un evento");
+      toast.error("Debes iniciar sesion para crear o editar un evento");
       return;
     }
 
-    const newEvent = await createEvent({
+    const eventData = {
       title,
       description,
       category,
       date,
       time,
-      organizer: user.username,
       location,
       imageUrl,
-    });
+      organizer: user.username,
+    };
 
-    if (newEvent) {
-      navigate("/");
+    let result;
+
+    if (eventId) {
+      // Si estamos en modo edicion, llamamos a la funcion de actualizacion
+      result = await updateEvent(eventId, eventData);
+    } else {
+      // Si estamos en modo creacion, llamamos a la funcion de creacion
+      result = await createEvent(eventData);
+    }
+
+    if (result) {
+      navigate("/"); //Redirige a la pagina principal
     }
   };
 
@@ -71,14 +104,17 @@ const EventPage = () => {
       </div>
     );
   }
+
   return (
     <>
       <Navbar />
       <div className="flex justify-center items-center mt-20 mx-3">
         <div className="w-full max-w-md p-8 space-y-6 bg-grey/60 rounded-lg shadow-md">
-          <h1 className="text-center text-5xl mb-4">Crear evento</h1>
+          <h1 className="text-center text-5xl mb-4">
+            {eventId ? "Editar evento" : "Crear evento"}
+          </h1>
 
-          <form className="space-y-4" onSubmit={handleCreateEvent}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="title"
@@ -200,7 +236,11 @@ const EventPage = () => {
               className="w-full py-2 bg-[#001f60] text-white font-semibold rounded-md hover:bg-[#456eff] "
               disabled={isCreatingEvent}
             >
-              {isCreatingEvent ? "Cargando..." : "Crear Evento"}
+              {isCreatingEvent || isUpdatingEvent
+                ? "Cargando..."
+                : eventId
+                ? "Actualizar Evento"
+                : "Crear Evento"}
             </button>
           </form>
         </div>
