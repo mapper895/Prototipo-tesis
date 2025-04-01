@@ -2,14 +2,17 @@ import { Link, useParams } from "react-router-dom";
 import { useEventStore } from "../store/eventStore";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
-import { Calendar, ChevronDown, SlidersHorizontal } from "lucide-react";
-import { useEffect } from "react";
+import { Calendar } from "lucide-react";
+import { useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
 
 const CategoryPage = () => {
   const { category } = useParams();
   const { eventsByCategory, getEventsByCategory, isLoadingEvents } =
     useEventStore();
   const categoryEvents = eventsByCategory[category] || []; // Obtiene eventos específicos de la categoría
+  const [filter, setFilter] = useState("all");
+  const [selectedDate, setSelectedDate] = useState(null);
 
   // Llama a la acción para obtener los eventos cuando el componente se monta o cambia la categoría
   useEffect(() => {
@@ -18,6 +21,44 @@ const CategoryPage = () => {
       getEventsByCategory(category);
     }
   }, [category, eventsByCategory, getEventsByCategory]);
+
+  const getFilteredCategoryEvents = () => {
+    const now = new Date();
+
+    if (selectedDate) {
+      return categoryEvents.filter((event) => {
+        const eventDate = new Date(event.date);
+        return (
+          eventDate.getDate() === selectedDate.getDate() &&
+          eventDate.getMonth() === selectedDate.getMonth() &&
+          eventDate.getFullYear() === selectedDate.getFullYear()
+        );
+      });
+    }
+
+    if (filter === "today") {
+      return categoryEvents.filter((event) => {
+        const eventDate = new Date(event.date);
+        return (
+          eventDate.getDate() === now.getDate() &&
+          eventDate.getMonth() === now.getMonth() &&
+          eventDate.getFullYear() === now.getFullYear()
+        );
+      });
+    }
+
+    if (filter === "week") {
+      const oneWeekFromNow = new Date();
+      oneWeekFromNow.setDate(now.getDate() + 7);
+
+      return categoryEvents.filter((event) => {
+        const eventDate = new Date(event.date);
+        return eventDate >= now && eventDate <= oneWeekFromNow;
+      });
+    }
+
+    return categoryEvents;
+  };
 
   if (isLoadingEvents && categoryEvents.length === 0) {
     return <div>Cargando eventos...</div>;
@@ -53,22 +94,55 @@ const CategoryPage = () => {
         {/* Filtros de eventos */}
         <div className="flex gap-5 items-center mb-10">
           <div className="flex gap-2 px-5 py-3 border border-[#001f60] items-center justify-center rounded-xl hover:cursor-pointer">
-            <SlidersHorizontal />
-            Ordenar por
-            <ChevronDown />
+            <Calendar className="text-[#001f60]" />
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => {
+                setSelectedDate(date);
+                setFilter("custom");
+              }}
+              placeholderText="Selecciona una fecha"
+              className="bg-transparent outline-none text-sm"
+              dateFormat="dd/MM/yyyy"
+            />
           </div>
-          <div className="flex gap-2 px-5 py-3 border border-[#001f60] items-center justify-center rounded-xl hover:cursor-pointer">
-            <Calendar />
+          <div
+            onClick={() => {
+              setFilter("all");
+              setSelectedDate(null);
+            }}
+            className={`flex gap-2 px-5 py-3 border ${
+              filter === "all" ? "bg-blue-100" : "border-[#001f60]"
+            } items-center justify-center rounded-xl hover:cursor-pointer`}
+          >
+            Todos
+          </div>
+          <div
+            onClick={() => {
+              setFilter("today");
+              setSelectedDate(null);
+            }}
+            className={`flex gap-2 px-5 py-3 border ${
+              filter === "today" ? "bg-blue-100" : "border-[#001f60]"
+            } items-center justify-center rounded-xl hover:cursor-pointer`}
+          >
             Hoy
           </div>
-          <div className="flex gap-2 px-5 py-3 border border-[#001f60] items-center justify-center rounded-xl hover:cursor-pointer">
-            <Calendar />
+          <div
+            onClick={() => {
+              setFilter("week");
+              setSelectedDate(null);
+            }}
+            className={`flex gap-2 px-5 py-3 border ${
+              filter === "week" ? "bg-blue-100" : "border-[#001f60]"
+            } items-center justify-center rounded-xl hover:cursor-pointer`}
+          >
             Esta semana
           </div>
         </div>
 
         <div className="grid grid-cols-4 gap-7 my-5">
-          {categoryEvents.map((event) => (
+          {getFilteredCategoryEvents().map((event) => (
             <Link
               key={event._id}
               className="shadow-lg rounded-lg overflow-hidden "
