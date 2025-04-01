@@ -261,16 +261,29 @@ export async function updateEvent(req, res) {
 // Eliminar un evento
 export async function deleteEvent(req, res) {
   try {
-    const deletedEvent = await Event.findByIdAndDelete(req.params.id);
-    if (!deletedEvent) {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
       return res
         .status(400)
         .json({ success: false, message: "Evento no encontrado" });
     }
+
+    // Verificamos si el usuario actual es el creador del evento
+    if (event.organizer.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "No autorizado para eliminar este evento",
+      });
+    }
+
+    await event.deleteOne();
+
     res
       .status(200)
-      .json({ success: true, message: "Evento eliminado exitosamente" });
+      .json({ success: true, message: "Evento eliminado existosamente" });
   } catch (error) {
+    console.log("Error al eliminar el evento: ", error.message);
     res
       .status(500)
       .json({ success: false, message: "Error al eliminar el evento" });
