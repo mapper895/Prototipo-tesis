@@ -142,7 +142,7 @@ export async function getEventById(req, res) {
   } catch (error) {
     res
       .status(500)
-      .json({ success: true, message: "Error al obtener el evento" });
+      .json({ success: false, message: "Error al obtener el evento" });
   }
 }
 
@@ -183,20 +183,63 @@ export async function getCategories(req, res) {
 // Actualizar un evento
 export async function updateEvent(req, res) {
   try {
+    const eventId = req.params.id; // EL Id del evento que queremos actualizar
+    const updatedEventData = req.body; // Los nuevos datos enviados para actualizar el evento
+    const userId = req.user._id; // EL usuario que esta intentando actualizar el evento
+
+    // Buscamos el evento por ID
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Evento no encontrado" });
+    }
+
+    // Verificamos que el usuario que esta intentando actualizar el evento sea el organizador
+    if (event.organizer.toString() !== userId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "No autorizado a actualizar este evento",
+      });
+    }
+
+    // Si se proporciona una nueva ubicacion, obtenemos las coordenadas usando la API de Google Maps
+    if (updatedEventData.location) {
+      const location = updatedEventData.location;
+
+      const googleMapsUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+        location
+      )}&key=${ENV_VARS.GOOGLE_MAPS_API_KEY}`;
+      const response = await axios.get(googleMapsUrl);
+      const locationData = response.data.results[0]; // Tomamos el primer resultado de la API
+
+      if (locationData) {
+        updatedEventData.address = locationData.formatted_address; // Guardamos la direccion formateada
+        updatedEventData.coordinates = locationData.geometry.location; // Coordenadas (lat, lng)
+      }
+    }
+
+    // Actualizamos el campo 'updatedAt' con la fecha actual
+    updatedEventData.updatedAt = new Date();
+
+    // Actualizamos el evento con los nuevos datos
     const updatedEvent = await Event.findByIdAndUpdate(
-      req.params.id,
-      req.body,
+      eventId,
+      updatedEventData,
       { new: true }
     );
+
     if (!updatedEvent) {
       return res
         .status(400)
-        .json({ success: false, message: "Evento no encontrado" });
+        .json({ success: false, message: "No se pudo actualizar el evento" });
     }
-    res.status(200).json({ success: true, updatedEvent });
+
+    // Respondemos con el evento actualizado
+    res.status(200).json({ success: true, event: updatedEvent });
   } catch (error) {
     res
-      .status(400)
+      .status(500)
       .json({ success: false, message: "Error al actualizar el evento" });
   }
 }

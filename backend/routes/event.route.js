@@ -22,7 +22,7 @@ router.get("/events", getAllEvents);
 router.get("/events/:id", getEventById);
 router.get("/events/category/:category", getEventsByCategory);
 router.get("/categories", getCategories);
-router.put("/events/:id", updateEvent);
+router.put("/events/:id", protectRoute, updateEvent);
 router.delete("/events/:id", deleteEvent);
 router.put("/events/:eventId/like", protectRoute, toggleLikeEvent);
 router.get("/search", searchEvents);
