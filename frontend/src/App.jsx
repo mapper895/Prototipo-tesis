@@ -3,7 +3,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import EventPage from "./pages/EventPage";
-import EventsPage from "./pages/EventsPage";
+import AllEventsPage from "./pages/AllEventsPage";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authUser";
 import { useEffect } from "react";
@@ -53,7 +53,7 @@ function App() {
           path="/edit-event/:eventId"
           element={user ? <EventForm /> : <Navigate to="/login" />}
         />
-        <Route path="/events" element={<EventsPage />} />
+        <Route path="/all-events" element={<AllEventsPage />} />
         <Route
           path="/my-events"
           element={user ? <MyEventsPage /> : <Navigate to={"/"} />}

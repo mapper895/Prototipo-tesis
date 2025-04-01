@@ -35,7 +35,7 @@ const MyLikedEvents = () => {
             {">"}
             <p>Mis Eventos</p>
           </div>
-          <div className="text-6xl font-light">Mis Eventos</div>
+          <div className="text-6xl font-light">Mis Likes</div>
         </div>
 
         {/* Filtros de eventos */}
