@@ -1,71 +1,31 @@
-import { Link, useParams } from "react-router-dom";
-import { useEventStore } from "../store/eventStore";
-import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
-import { Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
-import DatePicker from "react-datepicker";
+import { useParams, Link } from "react-router-dom";
+import { useEventStore } from "../store/eventStore";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import EventFilters from "../components/EventFilters";
+import EventCard from "../components/EventCard";
+import { filterEvents } from "../utils/filterEvents";
 
 const CategoryPage = () => {
   const { category } = useParams();
   const { eventsByCategory, getEventsByCategory, isLoadingEvents } =
     useEventStore();
-  const categoryEvents = eventsByCategory[category] || []; // Obtiene eventos específicos de la categoría
+  const categoryEvents = eventsByCategory[category] || [];
+
   const [filter, setFilter] = useState("all");
   const [selectedDate, setSelectedDate] = useState(null);
 
-  // Llama a la acción para obtener los eventos cuando el componente se monta o cambia la categoría
+  const filteredEvents = filterEvents(categoryEvents, filter, selectedDate);
+
   useEffect(() => {
     if (!eventsByCategory[category]) {
-      // Llama solo si no hay datos de la categoría
       getEventsByCategory(category);
     }
   }, [category, eventsByCategory, getEventsByCategory]);
 
-  const getFilteredCategoryEvents = () => {
-    const now = new Date();
-
-    if (selectedDate) {
-      return categoryEvents.filter((event) => {
-        const eventDate = new Date(event.date);
-        return (
-          eventDate.getDate() === selectedDate.getDate() &&
-          eventDate.getMonth() === selectedDate.getMonth() &&
-          eventDate.getFullYear() === selectedDate.getFullYear()
-        );
-      });
-    }
-
-    if (filter === "today") {
-      return categoryEvents.filter((event) => {
-        const eventDate = new Date(event.date);
-        return (
-          eventDate.getDate() === now.getDate() &&
-          eventDate.getMonth() === now.getMonth() &&
-          eventDate.getFullYear() === now.getFullYear()
-        );
-      });
-    }
-
-    if (filter === "week") {
-      const oneWeekFromNow = new Date();
-      oneWeekFromNow.setDate(now.getDate() + 7);
-
-      return categoryEvents.filter((event) => {
-        const eventDate = new Date(event.date);
-        return eventDate >= now && eventDate <= oneWeekFromNow;
-      });
-    }
-
-    return categoryEvents;
-  };
-
   if (isLoadingEvents && categoryEvents.length === 0) {
-    return <div>Cargando eventos...</div>;
-  }
-
-  if (categoryEvents.length === 0) {
-    return <h2>No se encontraron eventos para la categoría {category}</h2>;
+    return <div className="text-center py-10">Cargando eventos...</div>;
   }
 
   return (
@@ -74,97 +34,29 @@ const CategoryPage = () => {
       <div className="max-w-[1300px] mx-auto">
         <div className="flex flex-col gap-5 my-5">
           <div className="flex gap-2">
-            <Link to={"/"}>Inicio</Link>
+            <Link to="/">Inicio</Link>
             {">"}
-            <p>
-              {category.replaceAll("_", " ")[0].toUpperCase() +
-                category.replaceAll("_", " ").slice(1)}
-            </p>
+            <p className="capitalize">{category.replaceAll("_", " ")}</p>
           </div>
-          <div className="text-6xl font-light">
-            {category.replaceAll("_", " ")[0].toUpperCase() +
-              category.replaceAll("_", " ").slice(1)}
-          </div>
-          <div className="text-lg">
-            Descubre los 10 mejores eventos de {category.replaceAll("_", " ")}{" "}
-            en la Ciudad de México.
-          </div>
+          <h2 className="text-6xl font-light capitalize">
+            {category.replaceAll("_", " ")}
+          </h2>
+          <p className="text-lg">
+            Descubre los mejores eventos de {category.replaceAll("_", " ")} en
+            la Ciudad de México.
+          </p>
         </div>
 
-        {/* Filtros de eventos */}
-        <div className="flex gap-5 items-center mb-10">
-          <div className="flex gap-2 px-5 py-3 border border-[#001f60] items-center justify-center rounded-xl hover:cursor-pointer">
-            <Calendar className="text-[#001f60]" />
-            <DatePicker
-              selected={selectedDate}
-              onChange={(date) => {
-                setSelectedDate(date);
-                setFilter("custom");
-              }}
-              placeholderText="Selecciona una fecha"
-              className="bg-transparent outline-none text-sm"
-              dateFormat="dd/MM/yyyy"
-            />
-          </div>
-          <div
-            onClick={() => {
-              setFilter("all");
-              setSelectedDate(null);
-            }}
-            className={`flex gap-2 px-5 py-3 border ${
-              filter === "all" ? "bg-blue-100" : "border-[#001f60]"
-            } items-center justify-center rounded-xl hover:cursor-pointer`}
-          >
-            Todos
-          </div>
-          <div
-            onClick={() => {
-              setFilter("today");
-              setSelectedDate(null);
-            }}
-            className={`flex gap-2 px-5 py-3 border ${
-              filter === "today" ? "bg-blue-100" : "border-[#001f60]"
-            } items-center justify-center rounded-xl hover:cursor-pointer`}
-          >
-            Hoy
-          </div>
-          <div
-            onClick={() => {
-              setFilter("week");
-              setSelectedDate(null);
-            }}
-            className={`flex gap-2 px-5 py-3 border ${
-              filter === "week" ? "bg-blue-100" : "border-[#001f60]"
-            } items-center justify-center rounded-xl hover:cursor-pointer`}
-          >
-            Esta semana
-          </div>
-        </div>
+        <EventFilters
+          filter={filter}
+          setFilter={setFilter}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+        />
 
         <div className="grid grid-cols-4 gap-7 my-5">
-          {getFilteredCategoryEvents().map((event) => (
-            <Link
-              key={event._id}
-              className="shadow-lg rounded-lg overflow-hidden "
-              to={`/events/${event._id}`}
-            >
-              <img
-                src={event.imageUrl}
-                alt="evento"
-                className="w-full h-48 object-cover hover:scale-110 transition-transform duration-300 ease-in-out"
-              />
-              <div className="font-bold text-lg ml-2 mt-2">{event.title}</div>
-              <div className="text-gray-600 mx-2 mb-1">
-                {event.description.length > 60
-                  ? `${event.description.slice(0, 55)}...`
-                  : event.description}{" "}
-                {event.description.length > 60 && (
-                  <span className="text-blue-600 hover:underline mt-2">
-                    Ver más
-                  </span>
-                )}
-              </div>
-            </Link>
+          {filteredEvents.map((event) => (
+            <EventCard key={event._id} event={event} />
           ))}
         </div>
       </div>
