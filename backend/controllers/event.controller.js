@@ -219,6 +219,20 @@ export async function updateEvent(req, res) {
       }
     }
 
+    // Si el campo "organizer" se proporciona, buscamos el _id del organizador (en vez del username)
+    if (updatedEventData.organizer) {
+      const organizer = await User.findOne({
+        username: updatedEventData.organizer,
+      });
+
+      if (organizer) {
+        updatedEventData.organizer = organizer._id; // Asignamos el _id del organizador
+      } else {
+        // Si no encontramos el organizador, asignamos al usuario que está editando el evento
+        updatedEventData.organizer = userId;
+      }
+    }
+
     // Actualizamos el campo 'updatedAt' con la fecha actual
     updatedEventData.updatedAt = new Date();
 
