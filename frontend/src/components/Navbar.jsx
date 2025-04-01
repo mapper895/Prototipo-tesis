@@ -69,6 +69,10 @@ const Navbar = () => {
           <Link to={"/"}>Inicio</Link>
         </div>
         {" | "}
+        <div>
+          <Link to={"/all-events"}>Todos los eventos</Link>
+        </div>
+        {" | "}
         <div className="relative inline-block text-left">
           <button
             ref={navButtonRef}
