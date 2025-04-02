@@ -67,6 +67,7 @@ const eventSchema = new mongoose.Schema({
     lat: { type: Number, required: true },
     lng: { type: Number, required: true },
   },
+  views: { type: Number, default: 0 },
   createdAt: {
     type: Date,
     default: Date.now,
