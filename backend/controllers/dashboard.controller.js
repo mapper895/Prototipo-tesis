@@ -1,5 +1,6 @@
 import { Event } from "../models/event.model.js";
 import { parse } from "json2csv";
+import PDFDocument from "pdfkit";
 import fs from "fs";
 import moment from "moment";
 
@@ -122,5 +123,46 @@ export const exportDashboardToCSV = async (req, res) => {
   } catch (error) {
     console.log("Error al generar el reporte CSV", error);
     res.status(500).json({ message: "Error al generar el reporte CSV" });
+  }
+};
+
+// Función para exportar el dashboard a PDF
+export const exportDashboardToPDF = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const events = await Event.find({ organizer: userId });
+
+    // Crear el documento PDF
+    const doc = new PDFDocument();
+
+    // Establecer la respuesta como un PDF (esto envía directamente el archivo al cliente sin guardarlo)
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=reporte_eventos_${userId}.pdf`
+    );
+
+    doc.pipe(res); // Enviar el archivo PDF directamente a la respuesta
+
+    doc.fontSize(20).text("Reporte de Eventos", { align: "center" });
+
+    // Agregar los eventos al PDF
+    events.forEach((event, index) => {
+      doc
+        .fontSize(12)
+        .text(
+          `${index + 1}. ${event.title} - ${event.category} - Likes: ${
+            event.likesCount
+          } - Views: ${event.views} - Fecha: ${new Date(
+            event.date
+          ).toLocaleDateString()}`
+        );
+    });
+
+    doc.end(); // Terminar el documento PDF
+  } catch (error) {
+    console.error("Error al generar el reporte PDF", error);
+    res.status(500).json({ message: "Error al generar el reporte PDF" });
   }
 };

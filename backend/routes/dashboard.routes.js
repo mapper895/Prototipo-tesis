@@ -1,6 +1,7 @@
 import express from "express";
 import {
   exportDashboardToCSV,
+  exportDashboardToPDF,
   getUserDashboardStats,
 } from "../controllers/dashboard.controller.js";
 
@@ -12,5 +13,7 @@ const router = express.Router();
 router.get("/:userId", protectRoute, getUserDashboardStats);
 // Ruta para exportar el reporte en CSV
 router.get("/:userId/export/csv", protectRoute, exportDashboardToCSV);
+// Ruta para exportar el reporte en PDF
+router.get("/:userId/export/pdf", protectRoute, exportDashboardToPDF);
 
 export default router;
