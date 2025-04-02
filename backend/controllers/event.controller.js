@@ -138,6 +138,11 @@ export async function getEventById(req, res) {
         .status(400)
         .json({ success: false, message: "Evento no encontrado" });
     }
+
+    // Incrementamos el contador de vistas
+    event.views += 1;
+    await event.save();
+
     res.status(200).json({ success: true, event });
   } catch (error) {
     res
