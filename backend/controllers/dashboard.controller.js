@@ -1,5 +1,9 @@
 import { Event } from "../models/event.model.js";
+import { parse } from "json2csv";
+import fs from "fs";
+import moment from "moment";
 
+// Funcion para obtener stats del dashboard
 export const getUserDashboardStats = async (req, res) => {
   const { userId } = req.params;
 
@@ -83,5 +87,40 @@ export const getUserDashboardStats = async (req, res) => {
   } catch (error) {
     console.error("Error al obtener dashboard:", error);
     res.status(500).json({ message: "Error al obtener el dashboard" });
+  }
+};
+
+// Funcion para exportar el reporte en CSV
+export const exportDashboardToCSV = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const events = await Event.find({ organizer: userId });
+
+    // Preparamos los datos a exportar
+    const data = events.map((event) => ({
+      title: event.title,
+      category: event.category,
+      likes: event.likesCount,
+      views: event.views,
+      date: moment(event.date).format("DD/MM/YYYY"), // Formateamos fecha del evento
+      createdAt: moment(event.createdAt).format("DD/MM/YYYY"), // Formatear fecha de creación,
+    }));
+
+    // Convertimos los datos a CSV
+    const csv = parse(data);
+
+    //  Guardamos el archivo CSV en el servidor
+    const filePath = `reporte_eventos_${userId}.csv`;
+    fs.writeFileSync(filePath, csv);
+
+    // Enviamos el archivo CSV al cliente
+    res.download(filePath, () => {
+      // Eliminar archivo temporal despues de la descarga
+      fs.unlinkSync(filePath);
+    });
+  } catch (error) {
+    console.log("Error al generar el reporte CSV", error);
+    res.status(500).json({ message: "Error al generar el reporte CSV" });
   }
 };
