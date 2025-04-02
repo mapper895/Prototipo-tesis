@@ -101,6 +101,10 @@ export async function login(req, res) {
         .json({ success: false, message: "Credenciales incorrectas" });
     }
 
+    // Actualizamos lastActive
+    user.lastActive = new Date();
+    await user.save();
+
     generateTokenAndSetCookie(user._id, res);
 
     res

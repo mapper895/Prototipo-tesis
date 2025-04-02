@@ -28,6 +28,10 @@ export const protectRoute = async (req, res, next) => {
         .json({ success: false, message: "Usuario no encontrado" });
     }
 
+    // Actualizamos la fecha de ultima actividad
+    user.lastActive = new Date();
+    await user.save();
+
     req.user = user;
 
     next();
