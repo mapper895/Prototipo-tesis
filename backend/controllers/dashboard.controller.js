@@ -6,7 +6,7 @@ import moment from "moment";
 
 // Funcion para obtener stats del dashboard
 export const getUserDashboardStats = async (req, res) => {
-  const { userId } = req.params;
+  const userId = req.user._id;
 
   try {
     // Obtener todos los eventos del creador
@@ -93,7 +93,7 @@ export const getUserDashboardStats = async (req, res) => {
 
 // Funcion para exportar el reporte en CSV
 export const exportDashboardToCSV = async (req, res) => {
-  const { userId } = req.params;
+  const userId = req.user._id;
 
   try {
     const events = await Event.find({ organizer: userId });
@@ -128,7 +128,7 @@ export const exportDashboardToCSV = async (req, res) => {
 
 // Función para exportar el dashboard a PDF
 export const exportDashboardToPDF = async (req, res) => {
-  const { userId } = req.params;
+  const userId = req.user._id;
 
   try {
     const events = await Event.find({ organizer: userId });

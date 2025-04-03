@@ -10,10 +10,10 @@ import { protectRoute } from "../middleware/protectRoute.js";
 const router = express.Router();
 
 // Ruta para obtener las estadísticas del dashboard
-router.get("/:userId", protectRoute, getUserDashboardStats);
+router.get("/stats", protectRoute, getUserDashboardStats);
 // Ruta para exportar el reporte en CSV
-router.get("/:userId/export/csv", protectRoute, exportDashboardToCSV);
+router.get("/export/csv", protectRoute, exportDashboardToCSV);
 // Ruta para exportar el reporte en PDF
-router.get("/:userId/export/pdf", protectRoute, exportDashboardToPDF);
+router.get("/export/pdf", protectRoute, exportDashboardToPDF);
 
 export default router;
