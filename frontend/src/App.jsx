@@ -14,6 +14,7 @@ import PopularPage from "./pages/PopularPage";
 import EventForm from "./pages/EventForm";
 import MyEventsPage from "./pages/MyEventsPage";
 import MyLikedEvents from "./pages/MyLikedEvents";
+import Dashboard from "./pages/DashboardPage";
 
 function App() {
   const { user, isCheckingAuth, authCheck } = useAuthStore();
@@ -62,8 +63,13 @@ function App() {
           path="/my-liked-events"
           element={user ? <MyLikedEvents /> : <Navigate to={"/"} />}
         />
+        <Route
+          path="/dashboard"
+          element={user ? <Dashboard /> : <Navigate to={"/"} />}
+        />
         <Route path="/events/category/:category" element={<CategoryPage />} />
         <Route path="/top-10-cdmx" element={<PopularPage />} />
+
         <Route path="/*" element={<NotFoundPage />} />
       </Routes>
       <Toaster />
