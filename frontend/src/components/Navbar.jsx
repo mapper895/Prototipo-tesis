@@ -128,14 +128,17 @@ const Navbar = () => {
                 ref={menuRef}
                 className="origin-top-right absolute right-0 mt-2 top-12 w-56 rounded-md shadow-lg bg-white ring-1 ring-white text-black ring-opacity-5"
               >
-                <div className="py-2 px-3" onClick={logout}>
-                  Cerrar sesión
-                </div>
                 <div className="py-2 px-3">
                   <Link to={"/my-events"}>Mis eventos</Link>
                 </div>
                 <div className="py-2 px-3">
                   <Link to={"/my-liked-events"}> Mis likes</Link>
+                </div>
+                <div className="py-2 px-3">
+                  <Link to={"/dashboard"}> Dashboard</Link>
+                </div>
+                <div className="py-2 px-3" onClick={logout}>
+                  Cerrar sesión
                 </div>
               </div>
             )}
