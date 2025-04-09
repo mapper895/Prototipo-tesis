@@ -21,17 +21,30 @@ export const getUserDashboardStats = async (req, res) => {
       0
     );
 
-    // 3. Eventos próximos
+    // 3. Total de vistas
+    const totalViews = events.reduce(
+      (sum, ev) => sum + (ev.views || 0), // Sumamos las vistas de todos los eventos
+      0
+    );
+
+    // 4. Eventos próximos
     const upcomingEvents = events.filter(
       (ev) => new Date(ev.date) > new Date()
     );
 
-    // 4. Eventos más populares (top 3 por likes)
-    const popularEvents = [...events]
-      .sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0))
-      .slice(0, 3); // Top 3 más populares
+    // 5. Evento mas likeado
+    const mostLikedEvent = events.reduce(
+      (max, ev) => (ev.likesCount > max.likesCount ? ev : max),
+      events[0]
+    );
 
-    // 5. Likes a lo largo del tiempo (últimos 30 días)
+    // 6. Evento con más vistas
+    const mostViewedEvent = events.reduce(
+      (max, ev) => (ev.views > max.views ? ev : max),
+      events[0]
+    );
+
+    // 7. Likes a lo largo del tiempo (últimos 30 días)
     const today = new Date();
     const last30Days = [...Array(30)]
       .map((_, i) => {
@@ -50,7 +63,7 @@ export const getUserDashboardStats = async (req, res) => {
       }
     });
 
-    // 6. Eventos creados por mes
+    // 8. Eventos creados por mes
     const monthMap = {
       0: "Enero",
       1: "Febrero",
@@ -79,8 +92,10 @@ export const getUserDashboardStats = async (req, res) => {
     res.json({
       totalEvents,
       totalLikes,
+      totalViews,
       upcomingEvents: upcomingEvents.slice(0, 5),
-      popularEvents,
+      mostLikedEvent,
+      mostViewedEvent,
       events,
       likesOverTime: last30Days,
       eventsPerMonth,
