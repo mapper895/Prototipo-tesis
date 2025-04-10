@@ -10,12 +10,12 @@ import { filterEvents } from "../utils/filterEvents";
 
 const MyLikedEvents = () => {
   const { user } = useAuthStore();
-  const { getUserLikedEvents, events } = useEventStore();
+  const { getUserLikedEvents, eventUserLikes } = useEventStore();
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [selectedDate, setSelectedDate] = useState(null);
 
-  const filteredEvents = filterEvents(events, filter, selectedDate);
+  const filteredEvents = filterEvents(eventUserLikes, filter, selectedDate);
 
   useEffect(() => {
     if (user) {
@@ -24,10 +24,10 @@ const MyLikedEvents = () => {
   }, [user, getUserLikedEvents]);
 
   useEffect(() => {
-    if (events) {
+    if (eventUserLikes) {
       setLoading(false);
     }
-  }, [events]);
+  }, [eventUserLikes]);
 
   if (loading)
     return <div className="text-center py-10">Cargando tus eventos...</div>;

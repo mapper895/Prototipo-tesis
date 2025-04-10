@@ -6,6 +6,7 @@ import { useAuthStore } from "./authUser";
 export const useEventStore = create((set, get) => ({
   events: [],
   userEvents: [],
+  eventUserLikes: [],
   eventsByCategory: {},
   categories: [],
   event: null,
@@ -200,7 +201,7 @@ export const useEventStore = create((set, get) => ({
     try {
       const response = await axios.get("/api/v1/event/liked-events");
 
-      set({ events: response.data, isLoading: false });
+      set({ eventUserLikes: response.data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
       toast.error(
