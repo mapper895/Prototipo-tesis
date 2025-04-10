@@ -1,5 +1,5 @@
 // DashboardChart.js
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Chart } from "chart.js";
 
 // Importar todos los componentes necesarios de Chart.js

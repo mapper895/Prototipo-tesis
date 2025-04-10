@@ -13,10 +13,10 @@ const EventCard = ({ event, editable = false, onDelete }) => {
         <div className="font-bold text-lg ml-2 mt-2">{event.title}</div>
         <div className="text-gray-600 mx-2 mb-1">
           {event.description.length > 60
-            ? `${event.description.slice(0, 55)}...`
+            ? `${event.description.slice(0, 50)}...`
             : event.description}
           {event.description.length > 60 && (
-            <span className="text-blue-600 hover:underline mt-2">Ver más</span>
+            <span className="text-blue-600 hover:underline ml-2">Ver más</span>
           )}
         </div>
       </Link>

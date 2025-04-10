@@ -1,11 +1,11 @@
 // DashboardPage.js
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import DashboardStats from "../components/DashboardStats";
 import DashboardChart from "../components/DashboardChart";
 import ExportButtons from "../components/ExportButtons";
-import PopularEvents from "../components/DashboardPopularEvents"; // Importar el nuevo componente
 import { getDashboardStats } from "../store/dashboardStore"; // Función de Store
 import Navbar from "../components/Navbar";
+import EventCard from "../components/EventCard";
 
 const DashboardPage = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -19,6 +19,8 @@ const DashboardPage = () => {
     eventsPerMonth: [],
   });
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -26,18 +28,23 @@ const DashboardPage = () => {
         setDashboardData(data);
       } catch (error) {
         console.error("Error al obtener los datos del dashboard", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
+  // Verificamos si hay eventos
+  const noEvents = dashboardData.totalEvents === 0;
+
   // Configuración para la gráfica de Likes a lo largo del tiempo
   const likesChartData = {
     labels: dashboardData.likesOverTime.map((day) => day.date),
     datasets: [
       {
-        label: "Likes en los Últimos 30 Días",
+        label: "Número de likes",
         data: dashboardData.likesOverTime.map((day) => day.likes),
         fill: false,
         borderColor: "rgba(75,192,192,1)",
@@ -61,30 +68,101 @@ const DashboardPage = () => {
       },
     ],
   };
+  if (loading) {
+    return <div className="text-center py-8">Cargando...</div>;
+  }
 
   return (
     <>
       <Navbar />
-      <div className="p-6 bg-white rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold mb-4">Dashboard de Eventos</h1>
+      <div className="max-w-[1300px] mx-auto">
+        <div className="flex flex-col gap-5 my-10">
+          <h2 className="text-6xl font-light">Dashboard de tus Eventos</h2>
+          <p className="text-lg">
+            Aquí podras ver las estadisticas de tus eventos.
+          </p>
+        </div>
 
-        {/* Resumen de Estadísticas */}
-        <DashboardStats stats={dashboardData} />
+        {/* Si no hay eventos mostramos el mensaje */}
+        {noEvents ? (
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-gray-700">
+              No has creado ningun evento
+            </h2>
+            <p className="mt-4 text-gray-500">
+              No tienes eventos creados. Empieza por crear uno para ver las
+              estadisticas y los graficos de tus eventos.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Resumen de Estadísticas */}
+            <DashboardStats stats={dashboardData} />
 
-        {/* Gráfica de Likes */}
-        <DashboardChart chartData={likesChartData} chartType="line" />
+            {/* Mostrar los eventos más likeados y con más vistas */}
+            <div className="mt-20">
+              <h3 className="text-3xl font-semibold mb-4">
+                Eventos más populares
+              </h3>
+              <div className="grid grid-cols-2 gap-7 my-5">
+                {/* Evento mas likeado */}
+                <div className="space-y-4">
+                  <div className="flex justify-between mx-4">
+                    <h4 className="text-xl">Evento Con Más Likes</h4>
+                    <div className="mt-2 text-gray-500">
+                      <span>
+                        Likes: {dashboardData.mostViewedEvent.likesCount}
+                      </span>
+                    </div>
+                  </div>
+                  <EventCard event={dashboardData.mostLikedEvent} />
+                </div>
+                {/* Evento con mas vistas */}
+                <div className="space-y-4">
+                  <div className="flex justify-between mx-4">
+                    <h4 className="text-xl">Evento Con Más Vistas</h4>
+                    <div className="mt-2 text-gray-500">
+                      <span>Vistas: {dashboardData.mostViewedEvent.views}</span>
+                    </div>
+                  </div>
+                  <EventCard event={dashboardData.mostViewedEvent} />
+                </div>
+              </div>
+            </div>
 
-        {/* Gráfica de Eventos por Mes */}
-        <DashboardChart chartData={eventsChartData} chartType="bar" />
+            {/* Mostrar proximos eventos */}
+            <div className="mt-20">
+              <h3 className="text-3xl font-semibold mb-4">
+                Tus próximos eventos
+              </h3>
+              <div className="grid grid-cols-4 gap-7 my-5">
+                {dashboardData.upcomingEvents.map((event) => (
+                  <EventCard key={event._id} event={event} />
+                ))}
+              </div>
+            </div>
 
-        {/* Botones de Exportación */}
-        <ExportButtons events={dashboardData.upcomingEvents} />
+            {/* Resumen en Graficas */}
+            <div className="my-20">
+              <h3 className="text-3xl font-semibold">Resumen en gráficas</h3>
+              <div className="flex space-x-4 mt-6">
+                {/* Gráfica de Likes */}
+                <div className="flex-1 mx-4">
+                  <h3 className="text-xl mb-4">Likes en los últimos días</h3>
+                  <DashboardChart chartData={likesChartData} chartType="line" />
+                </div>
+                {/* Gráfica de Eventos por Mes */}
+                <div className="flex-1 mx-4">
+                  <h3 className="text-xl mb-4">Eventos creados en cada mes</h3>
+                  <DashboardChart chartData={eventsChartData} chartType="bar" />
+                </div>
+              </div>
+            </div>
 
-        {/* Mostrar los eventos más likeados y con más vistas */}
-        <PopularEvents
-          mostLikedEvent={dashboardData.mostLikedEvent}
-          mostViewedEvent={dashboardData.mostViewedEvent}
-        />
+            {/* Botones de Exportación */}
+            <ExportButtons events={dashboardData.upcomingEvents} />
+          </>
+        )}
       </div>
     </>
   );

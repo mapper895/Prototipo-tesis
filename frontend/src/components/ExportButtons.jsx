@@ -1,5 +1,3 @@
-import React from "react";
-
 import {
   exportDashboardToCSV,
   exportDashboardToPDF,
@@ -7,7 +5,7 @@ import {
 
 const ExportButtons = () => {
   return (
-    <div className="space-x-4">
+    <div className="my-10 flex justify-center space-x-6">
       <button
         onClick={exportDashboardToPDF} // Aquí debes implementar la exportación a PDF
         className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
