@@ -14,7 +14,9 @@ const AllEventsPage = () => {
   const filteredEvents = filterEvents(events, filter, selectedDate);
 
   useEffect(() => {
-    if (events.length === 0) getAllEvents();
+    if (events.length === 0) {
+      getAllEvents();
+    }
   }, [getAllEvents, events]);
 
   return (

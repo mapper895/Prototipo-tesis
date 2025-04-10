@@ -12,7 +12,7 @@ const MyEventsPage = () => {
   const { user } = useAuthStore();
   const {
     getUserEvents,
-    events,
+    userEvents,
     eventToDelete,
     setEventToDelete,
     clearEventToDelete,
@@ -24,7 +24,7 @@ const MyEventsPage = () => {
   const [filter, setFilter] = useState("all");
   const [selectedDate, setSelectedDate] = useState(null);
 
-  const filteredEvents = filterEvents(events, filter, selectedDate);
+  const filteredEvents = filterEvents(userEvents, filter, selectedDate);
 
   useEffect(() => {
     if (user) {
@@ -33,10 +33,10 @@ const MyEventsPage = () => {
   }, [user, getUserEvents]);
 
   useEffect(() => {
-    if (events) {
+    if (userEvents) {
       setLoading(false);
     }
-  }, [events]);
+  }, [userEvents]);
 
   const handleDeleteClick = (id) => {
     setEventToDelete(id);
