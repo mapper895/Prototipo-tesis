@@ -136,9 +136,13 @@ const DashboardPage = () => {
                 Tus próximos eventos
               </h3>
               <div className="grid grid-cols-4 gap-7 my-5">
-                {dashboardData.upcomingEvents.map((event) => (
-                  <EventCard key={event._id} event={event} />
-                ))}
+                {dashboardData.upcomingEvents.length !== 0 ? (
+                  dashboardData.upcomingEvents.map((event) => (
+                    <EventCard key={event._id} event={event} />
+                  ))
+                ) : (
+                  <p>No tienes eventos próximos</p>
+                )}
               </div>
             </div>
 
