@@ -1,56 +1,52 @@
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
-import { useMapsStore } from "../store/mapsStore.js";
 import { useEffect, useState } from "react";
+import {
+  APIProvider,
+  Map,
+  AdvancedMarker,
+  Pin,
+  InfoWindow,
+} from "@vis.gl/react-google-maps";
+import { useMapsStore } from "../store/mapsStore";
 
-const mapContainerStyle = {
-  width: "100%",
-  height: "100%",
-};
-
-const MapComponent = ({ lat, lng }) => {
-  const center = { lat: lat, lng: lng };
-  const { getApiKey, apiKey } = useMapsStore();
-  const [markerPosition, setMarkerPosition] = useState(null);
-  const [renderKey, setRenderKey] = useState(0);
+const MapsComponent = ({ lat, lng, location }) => {
+  const { apiKey, getApiKey, mapId, getMapId } = useMapsStore();
+  const position = { lat, lng };
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!apiKey) {
+    if (!apiKey || !mapId) {
       getApiKey();
+      getMapId();
     }
-  }, [apiKey, getApiKey]);
+  }, [getApiKey, getMapId, apiKey, mapId]);
 
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: apiKey,
-  });
+  if (!apiKey) return <div>Cargando mapa...</div>;
 
-  useEffect(() => {
-    if (isLoaded) {
-      setTimeout(() => {
-        setMarkerPosition(center);
-        setRenderKey((prev) => prev + 1);
-      }, 100);
-    }
-  }, [isLoaded]);
-
-  //   if (!apiKey || loading) return <p>Cargando mapa...</p>;
-
-  if (!isLoaded) return <p>No se pudo cargar el mapa.</p>;
+  const mapOptions = {
+    zoomControl: true,
+    streetViewControl: true,
+    mapTypeControl: true, // Habilitar tipo de mapa
+    fullscreenControl: true,
+    gestureHandling: "auto", // Habilitar zoom y desplazamiento con gestos
+  };
 
   return (
-    <GoogleMap
-      mapContainerStyle={mapContainerStyle}
-      center={center}
-      zoom={15}
-      options={{
-        zoomControl: true,
-        streetViewControl: false,
-        mapTypeControl: false,
-        fullscreenControl: false,
-      }}
-    >
-      {markerPosition && <Marker key={renderKey} position={markerPosition} />}
-    </GoogleMap>
+    <APIProvider apiKey={apiKey}>
+      <div className="h-full w-full">
+        <Map zoom={15} center={position} mapId={mapId} options={mapOptions}>
+          <AdvancedMarker position={position} onClick={() => setOpen(true)}>
+            <Pin />
+          </AdvancedMarker>
+
+          {open && (
+            <InfoWindow position={position} onCloseClick={() => setOpen(false)}>
+              <p>{location}</p>
+            </InfoWindow>
+          )}
+        </Map>
+      </div>
+    </APIProvider>
   );
 };
 
-export default MapComponent;
+export default MapsComponent;

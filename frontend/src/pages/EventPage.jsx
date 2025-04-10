@@ -84,6 +84,7 @@ const EventPage = () => {
                   <Maps
                     lat={event.coordinates.lat}
                     lng={event.coordinates.lng}
+                    location={event.location}
                   />
                 )}
               </div>
