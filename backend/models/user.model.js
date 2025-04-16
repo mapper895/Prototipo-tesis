@@ -50,6 +50,12 @@ const userSchema = mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    createdEvents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Event",
+      },
+    ],
   },
   { timestamps: true }
 );
