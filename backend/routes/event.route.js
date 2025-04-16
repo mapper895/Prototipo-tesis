@@ -17,7 +17,7 @@ import { protectRoute } from "../middleware/protectRoute.js";
 const router = express.Router();
 
 // Rutas para los eventos
-router.post("/create-event", protectRoute, createEvent);
+router.post("/create-event", createEvent);
 router.get("/events", getAllEvents);
 router.get("/events/:id", getEventById);
 router.get("/events/category/:category", getEventsByCategory);

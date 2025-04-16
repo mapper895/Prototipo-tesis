@@ -7,71 +7,87 @@ import { ENV_VARS } from "../config/envVars.js";
 export async function createEvent(req, res) {
   try {
     const {
+      eventId,
       title,
       description,
       category,
+      duration,
       location,
-      date,
-      time,
+      latitude,
+      longitude,
       imageUrl,
+      target,
+      accessibility,
       organizer,
+      eventUrl,
+      dates,
+      schedules,
+      costs,
     } = req.body;
 
-    let organizerId;
+    // Convertimos latitud y longitud a numeros
+    let lat = parseFloat(latitude);
+    let lng = parseFloat(longitude);
 
-    if (organizer) {
-      const existingUser = await User.findOne({ username: organizer });
-      if (!existingUser) {
-        return res.status(400).json({ message: "El organizador no existe" });
+    console.log("Latitud: ", lat, "longitud: ", lng);
+
+    if (isNaN(lat) || isNaN(lng)) {
+      return res.status(400).json({ message: "Las coordenadas son inválidas" });
+    }
+
+    // Si no tenemos las coordenadas las obtenemos con la API de Google Maps
+    if (!lat || !lng) {
+      console.log(
+        "No se proporcionaron coordenadas. Usando la API de Google Maps"
+      );
+
+      // Si no se proporciona la ubicacion, retornamos error
+      if (!location) {
+        return res.status(400).json({ message: "La direccion es obligatoria" });
       }
-      organizerId = existingUser._id;
-    } else {
-      const adminUser = await User.findOne({ username: "admin" });
-      if (!adminUser) {
-        return res.status(500).json({
-          message: "No se encontro un administrador en la base de datos",
-        });
+
+      // Obtener las coordenadas con la api de Google Maps
+      const googleMapsUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+        location
+      )}&key=${ENV_VARS.GOOGLE_MAPS_API_KEY}`;
+
+      const response = await axios.get(googleMapsUrl);
+      const data = response.data;
+
+      if (!data || data.status !== "OK" || data.results.length === 0) {
+        return res.status(400).json({ message: "Dirección no válida" });
       }
-      organizerId = adminUser._id;
+
+      const locationData = data.results[0].geometry.location;
+
+      lat = locationData.lat;
+      lng = locationData.lng;
+
+      console.log("Coordenadas obtenidas de la API: ", lat, lng);
     }
 
-    if (!location) {
-      return res.status(400).json({ message: "La direccion es obligatoria" });
-    }
+    // const getDays = (dateISO) => {
+    //   const weekDays = [
+    //     "Domingo",
+    //     "Lunes",
+    //     "Martes",
+    //     "Miércoles",
+    //     "Jueves",
+    //     "Viernes",
+    //     "Sábado",
+    //   ];
+    //   const newDate = new Date(dateISO);
+    //   return weekDays[newDate.getUTCDay()];
+    // };
 
-    const googleMapsUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-      location
-    )}&key=${ENV_VARS.GOOGLE_MAPS_API_KEY}`;
-
-    const response = await axios.get(googleMapsUrl);
-    const data = response.data;
-
-    if (!data || data.status !== "OK" || data.results.length === 0) {
-      return res.status(400).json({ message: "Dirección no válida" });
-    }
-
-    const formattedAddress = data.results[0].formatted_address;
-    const { lat, lng } = data.results[0].geometry.location;
-
-    const getDays = (dateISO) => {
-      const weekDays = [
-        "Domingo",
-        "Lunes",
-        "Martes",
-        "Miércoles",
-        "Jueves",
-        "Viernes",
-        "Sábado",
-      ];
-      const newDate = new Date(dateISO);
-      return weekDays[newDate.getUTCDay()];
-    };
-
-    const weekDay = getDays(date);
-    const days = [weekDay];
+    // const weekDay = getDays(date);
+    // const days = [weekDay];
 
     // Verificar si ya existe un evento con el mismo título y fecha
-    const existingEvent = await Event.findOne({ title, date });
+    const existingEvent = await Event.findOne({
+      title: title,
+      dates: { $size: dates.length, $all: dates },
+    });
 
     if (existingEvent) {
       return res.status(400).json({
@@ -80,40 +96,58 @@ export async function createEvent(req, res) {
       });
     }
 
+    // Verificamos que el organizador existe (si es proporcionado en el JSON)
+    let userId = req.user ? req.user._id : null;
+
+    if (!userId) {
+      const adminUser = await User.findOne({ username: "admin" });
+      if (!adminUser) {
+        return res.status(500).json({
+          message: "No se encontro un administrador en la base de datos",
+        });
+      }
+      userId = adminUser._id;
+    }
+
     const newEvent = new Event({
+      eventId,
       title,
       description,
       category,
+      duration,
       location,
-      address: formattedAddress,
-      date,
-      time,
-      days,
+      latitude: lat,
+      longitude: lng,
       imageUrl,
-      organizer: organizerId,
-      coordinates: { lat, lng },
+      target,
+      accessibility,
+      organizer,
+      eventUrl,
+      dates,
+      schedules,
+      costs,
+      createdBy: userId,
     });
 
     const savedEvent = await newEvent.save();
 
+    // Despues de crear el evento, actualizamos el campo "createdEvents" en el usuario
+    await User.findByIdAndUpdate(userId, {
+      $push: { createdEvents: savedEvent._id }, // Agregamos el Id del evento a createdEvents
+    });
+
+    console.log("Evento creado exitosamente: ", savedEvent);
+
     res.status(201).json({
       success: true,
-      event: {
-        savedEvent,
-      },
+      event: savedEvent,
     });
   } catch (error) {
-    console.log("Error en event controller", error.message);
-
-    if (error.message === "No results found for the address") {
-      return res.status(400).json({
-        success: false,
-        message: "La direccion no es valida o no se pudo gecodificar",
-      });
-    }
-    res
-      .status(500)
-      .json({ success: false, message: "Error al crear el evento" });
+    console.log("Error al crear el evento:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error al crear el evento",
+    });
   }
 }
 
@@ -275,7 +309,7 @@ export async function deleteEvent(req, res) {
     }
 
     // Verificamos si el usuario actual es el creador del evento
-    if (event.organizer.toString() !== req.user._id.toString()) {
+    if (event.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
         message: "No autorizado para eliminar este evento",
@@ -379,7 +413,7 @@ export async function searchEvents(req, res) {
 //Eventos de un usuario
 export async function getUserEvents(req, res) {
   try {
-    const events = await Event.find({ organizer: req.params.userId });
+    const events = await Event.find({ createdBy: req.params.userId });
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener los eventos" });
