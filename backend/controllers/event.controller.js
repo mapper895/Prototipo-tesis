@@ -228,6 +228,7 @@ export async function updateEvent(req, res) {
 
     // Buscamos el evento por ID
     const event = await Event.findById(eventId);
+
     if (!event) {
       return res
         .status(404)
@@ -235,52 +236,80 @@ export async function updateEvent(req, res) {
     }
 
     // Verificamos que el usuario que esta intentando actualizar el evento sea el organizador
-    if (event.organizer.toString() !== userId.toString()) {
+    if (event.createdBy.toString() !== userId.toString()) {
       return res.status(403).json({
         success: false,
         message: "No autorizado a actualizar este evento",
       });
     }
 
+    let { latitude, longitude, location } = updatedEventData;
     // Si se proporciona una nueva ubicacion, obtenemos las coordenadas usando la API de Google Maps
-    if (updatedEventData.location) {
-      const location = updatedEventData.location;
-
+    if (location) {
       const googleMapsUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
         location
       )}&key=${ENV_VARS.GOOGLE_MAPS_API_KEY}`;
       const response = await axios.get(googleMapsUrl);
-      const locationData = response.data.results[0]; // Tomamos el primer resultado de la API
 
-      if (locationData) {
-        updatedEventData.address = locationData.formatted_address; // Guardamos la direccion formateada
-        updatedEventData.coordinates = locationData.geometry.location; // Coordenadas (lat, lng)
+      const data = response.data;
+
+      if (!data || data.status !== "OK" || data.results.length === 0) {
+        return res.status(400).json({ message: "Dirección no válida" });
       }
+
+      const locationData = data.results[0].geometry.location;
+      latitude = locationData.lat;
+      longitude = locationData.lng;
     }
 
-    // Si el campo "organizer" se proporciona, buscamos el _id del organizador (en vez del username)
-    if (updatedEventData.organizer) {
-      const organizer = await User.findOne({
-        username: updatedEventData.organizer,
-      });
-
-      if (organizer) {
-        updatedEventData.organizer = organizer._id; // Asignamos el _id del organizador
-      } else {
-        // Si no encontramos el organizador, asignamos al usuario que está editando el evento
-        updatedEventData.organizer = userId;
-      }
+    // Si la categoría es diferente o si hay otros cambios en la información, los asignamos
+    if (updatedEventData.category) {
+      event.category = updatedEventData.category;
+    }
+    if (updatedEventData.title) {
+      event.title = updatedEventData.title;
+    }
+    if (updatedEventData.description) {
+      event.description = updatedEventData.description;
+    }
+    if (updatedEventData.imageUrl) {
+      event.imageUrl = updatedEventData.imageUrl;
     }
 
-    // Actualizamos el campo 'updatedAt' con la fecha actual
-    updatedEventData.updatedAt = new Date();
+    // Actualizamos la dirección y las coordenadas
+    if (latitude && longitude) {
+      event.latitude = latitude;
+      event.longitude = longitude;
+    }
+    if (updatedEventData.location) {
+      event.location = updatedEventData.location;
+    }
 
-    // Actualizamos el evento con los nuevos datos
-    const updatedEvent = await Event.findByIdAndUpdate(
-      eventId,
-      updatedEventData,
-      { new: true }
-    );
+    // Actualizar otros campos según lo que venga en los datos
+    if (updatedEventData.target) {
+      event.target = updatedEventData.target;
+    }
+    if (updatedEventData.accessibility) {
+      event.accessibility = updatedEventData.accessibility;
+    }
+    if (updatedEventData.eventUrl) {
+      event.eventUrl = updatedEventData.eventUrl;
+    }
+    if (updatedEventData.dates) {
+      event.dates = updatedEventData.dates;
+    }
+    if (updatedEventData.schedules) {
+      event.schedules = updatedEventData.schedules;
+    }
+    if (updatedEventData.costs) {
+      event.costs = updatedEventData.costs;
+    }
+
+    // Actualizar la fecha de la última modificación
+    event.updatedAt = new Date();
+
+    // Guardar el evento actualizado
+    const updatedEvent = await event.save();
 
     if (!updatedEvent) {
       return res
