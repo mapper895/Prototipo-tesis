@@ -3,32 +3,43 @@ export const filterEvents = (events, filter, selectedDate) => {
 
   if (selectedDate) {
     return events.filter((event) => {
-      const d = new Date(event.date);
-      return (
-        d.getDate() === selectedDate.getDate() &&
-        d.getMonth() === selectedDate.getMonth() &&
-        d.getFullYear() === selectedDate.getFullYear()
-      );
+      // Verificamos si alguna de las fechas del evento coincide con la fecha seleccionada
+      return event.dates.some((dateString) => {
+        const eventDate = new Date(dateString.split("/").reverse().join("-")); // Convertimos dd/MM/yyyy a yyyy-MM-dd
+        return (
+          eventDate.getDate() === selectedDate.getDate() &&
+          eventDate.getMonth() === selectedDate.getMonth() &&
+          eventDate.getFullYear() === selectedDate.getFullYear()
+        );
+      });
     });
   }
 
   if (filter === "today") {
     return events.filter((event) => {
-      const d = new Date(event.date);
-      return (
-        d.getDate() === now.getDate() &&
-        d.getMonth() === now.getMonth() &&
-        d.getFullYear() === now.getFullYear()
-      );
+      // Verificar si alguna de las fechas del evento corresponde al día actual
+      return event.dates.some((dateString) => {
+        const eventDate = new Date(dateString.split("/").reverse().join("-"));
+        return (
+          eventDate.getDate() === now.getDate() &&
+          eventDate.getMonth() === now.getMonth() &&
+          eventDate.getFullYear() === now.getFullYear()
+        );
+      });
     });
   }
 
   if (filter === "week") {
-    const next = new Date(now);
-    next.setDate(now.getDate() + 7);
+    const startOfWeek = now;
+    const endOfWeek = new Date(now);
+    endOfWeek.setDate(now.getDate() + 7);
+
     return events.filter((event) => {
-      const d = new Date(event.date);
-      return d >= now && d <= next;
+      // Verificar si alguna de las fechas del evento está dentro de esta semana
+      return event.dates.some((dateString) => {
+        const eventDate = new Date(dateString.split("/").reverse().join("-"));
+        return eventDate >= startOfWeek && eventDate <= endOfWeek;
+      });
     });
   }
 
