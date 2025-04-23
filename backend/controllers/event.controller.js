@@ -163,6 +163,23 @@ export async function getAllEvents(req, res) {
   }
 }
 
+// Obtener los 10 eventos mas populares
+export async function getPopularEvents(req, res) {
+  try {
+    const events = await Event.find()
+      .sort({
+        likesCount: -1,
+      })
+      .limit(10);
+
+    return res.status(200).json(events);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error al obtener eventos populares" });
+  }
+}
+
 // Obtener un evento por ID
 export async function getEventById(req, res) {
   try {
