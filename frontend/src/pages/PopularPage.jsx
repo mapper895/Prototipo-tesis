@@ -1,59 +1,47 @@
-import { Link } from "react-router-dom";
-import { popular_events } from "../data/data";
+import { useEffect, useState } from "react";
+import { useEventStore } from "../store/eventStore";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import EventFilters from "../components/EventFilters";
+import EventCard from "../components/EventCard";
+import { filterEvents } from "../utils/filterEvents";
 
 const PopularPage = () => {
-  const img_base_url = "https://picsum.photos/id/";
+  const { popularEvents, getPopularEvents, isLoadingEvents } = useEventStore();
+  const [filter, setFilter] = useState("all");
+  const [selectedDate, setSelectedDate] = useState(null);
 
-  if (!popular_events) {
-    return <h2>No se encontraron eventos</h2>;
-  }
+  const filteredEvents = filterEvents(popularEvents, filter, selectedDate);
+
+  useEffect(() => {
+    if (popularEvents.length === 0) {
+      getPopularEvents();
+    }
+  }, [getPopularEvents, popularEvents]);
+
+  if (isLoadingEvents) return <div>Cargando eventos...</div>;
 
   return (
     <>
       <Navbar />
       <div className="max-w-[1300px] mx-auto">
         <div className="flex flex-col gap-5 my-5">
-          <div className="flex gap-2">
-            <Link to={"/"}>Inicio</Link>
-            {">"}
-            <Link> Top 10 CDMX</Link>
-          </div>
-          <div className="text-6xl font-light">Top 10 CDMX</div>
-          <div className="text-lg">
+          <h2 className="text-6xl font-light">Top 10 CDMX</h2>
+          <p className="text-lg">
             Descubre los 10 mejores eventos en la Ciudad de México.
-          </div>
+          </p>
         </div>
+
+        <EventFilters
+          filter={filter}
+          setFilter={setFilter}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+        />
+
         <div className="grid grid-cols-4 gap-7 my-5">
-          {popular_events.map((popular_event) => (
-            <Link
-              key={popular_event.id}
-              className="shadow-lg rounded-lg overflow-hidden "
-              to={`/event/${popular_event.id}`}
-            >
-              <img
-                src={`${img_base_url + popular_event.id}/200/300`}
-                alt="evento"
-                className="w-full h-48 object-cover hover:scale-110 transition-transform duration-300 ease-in-out"
-              />
-              <div className="font-bold text-lg ml-2 mt-2">
-                {popular_event.nombre}
-              </div>
-              <div className="text-gray-600 mx-2 mb-1">
-                {popular_event.descripcion.length > 60
-                  ? `${popular_event.descripcion.slice(0, 55)}...`
-                  : popular_event.descripcion}{" "}
-                {popular_event.descripcion.length > 60 && (
-                  <Link
-                    to={`/event/${popular_event.id}`}
-                    className="text-blue-600 hover:underline mt-2"
-                  >
-                    Ver más
-                  </Link>
-                )}
-              </div>
-            </Link>
+          {filteredEvents.map((event) => (
+            <EventCard key={event._id} event={event} />
           ))}
         </div>
       </div>

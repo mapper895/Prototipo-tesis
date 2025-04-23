@@ -5,6 +5,7 @@ import { useAuthStore } from "./authUser";
 
 export const useEventStore = create((set, get) => ({
   events: [],
+  popularEvents: [],
   userEvents: [],
   eventUserLikes: [],
   eventsByCategory: {},
@@ -52,6 +53,19 @@ export const useEventStore = create((set, get) => ({
       set({ isLoadingEvents: false });
       toast.error(
         error.response?.data?.message || "Error al cargar los eventos"
+      );
+    }
+  },
+
+  getPopularEvents: async () => {
+    set({ isLoadingEvents: true });
+    try {
+      const response = await axios.get("/api/v1/event/popular-events");
+      set({ popularEvents: response.data, isLoadingEvents: false });
+    } catch (error) {
+      set({ isLoadingEvents: false });
+      toast.error(
+        error.response?.data?.message || "Error al cargar los eventos populares"
       );
     }
   },

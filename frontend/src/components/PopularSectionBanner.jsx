@@ -1,13 +1,20 @@
 import { Link } from "react-router-dom";
-import { popular_events } from "../data/data";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEventStore } from "../store/eventStore";
 
 const PopularSectionBanner = () => {
-  const img_base_url = "https://picsum.photos/id/";
-
   const [showArrows, setshowArrows] = useState(false);
   const sliderRef = useRef(null);
+
+  const { popularEvents, getPopularEvents, isLoadingEvents } = useEventStore();
+
+  useEffect(() => {
+    if (!popularEvents || popularEvents.length === 0) {
+      // Llama solo si no existen eventos
+      getPopularEvents();
+    }
+  }, [popularEvents, getPopularEvents]);
 
   const scrollLeft = () => {
     if (sliderRef.current) {
@@ -23,6 +30,8 @@ const PopularSectionBanner = () => {
       behaviour: "smooth",
     });
   };
+
+  if (isLoadingEvents) return <div>Cargando eventos...</div>;
 
   return (
     <div className="bg-[#001f60] w-full h-[480px]">
@@ -44,16 +53,16 @@ const PopularSectionBanner = () => {
           className="flex space-x-4 overflow-x-scroll scrollbar-hide"
           ref={sliderRef}
         >
-          {popular_events.map((event, index) => (
+          {popularEvents.map((event, index) => (
             <Link
-              to={`/event/${event.id}`}
+              to={`/events/${event._id}`}
               className="relative min-w-[250px] group"
-              key={event.id}
+              key={event._id}
             >
               <div className="relative">
                 <img
-                  src={`${img_base_url + event.id}/200/300`}
-                  alt={event.nombre}
+                  src={event.imageUrl}
+                  alt={event.title}
                   className="w-full h-[300px] object-cover rounded-md transition-transform duration-300 ease-in-out hover:scale-110"
                 />
                 <div
@@ -67,7 +76,7 @@ const PopularSectionBanner = () => {
                 </div>
               </div>
               <div className="mt-4 text-base font-semibold text-white">
-                {event.nombre}
+                {event.title}
               </div>
             </Link>
           ))}
