@@ -41,7 +41,6 @@ const eventSchema = new mongoose.Schema(
     },
     imageUrl: {
       type: String,
-      required: false,
     },
     target: {
       type: String,
@@ -59,17 +58,15 @@ const eventSchema = new mongoose.Schema(
     },
     dates: {
       type: [String],
-      required: true,
     },
     schedules: {
       type: [String],
-      required: true,
     },
     costs: [
       {
         type: new mongoose.Schema({
-          type: { type: String, required: true },
-          price: { type: String, required: true },
+          type: { type: String },
+          price: { type: String },
         }),
       },
     ],
