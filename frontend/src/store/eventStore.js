@@ -156,6 +156,7 @@ export const useEventStore = create((set, get) => ({
       set({ isDeletingEvent: false });
     }
   },
+
   toggleLike: async (eventId) => {
     const { event } = get(); // Obtener el evento actual del estado
     const user = useAuthStore.getState().user; // Obtener el usuario autenticado

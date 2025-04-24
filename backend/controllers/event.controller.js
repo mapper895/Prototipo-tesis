@@ -31,9 +31,9 @@ export async function createEvent(req, res) {
 
     console.log("Latitud: ", lat, "longitud: ", lng);
 
-    if (isNaN(lat) || isNaN(lng)) {
-      return res.status(400).json({ message: "Las coordenadas son inválidas" });
-    }
+    // if (isNaN(lat) || isNaN(lng)) {
+    //   return res.status(400).json({ message: "Las coordenadas son inválidas" });
+    // }
 
     // Si no tenemos las coordenadas las obtenemos con la API de Google Maps
     if (!lat || !lng) {
