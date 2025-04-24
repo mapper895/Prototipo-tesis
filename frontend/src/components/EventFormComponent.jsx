@@ -1,8 +1,6 @@
-import { useState } from "react";
-import PlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng,
-} from "react-google-places-autocomplete";
+import { useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const EventFormComponent = ({
   eventData,
@@ -13,22 +11,52 @@ const EventFormComponent = ({
   isCreatingEvent,
   isUpdatingEvent,
   eventId,
-  apiKey,
 }) => {
-  const [location, setLocation] = useState(eventData.location || "");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [selectedRange, setSelectedRange] = useState(""); // Para mostrar el rango de fechas
 
-  // Función para agregar una nueva fecha
-  const handleAddDate = () => {
-    setEventData({
-      ...eventData,
-      dates: [...eventData.dates, ""], // Agregar un campo vacío para la nueva fecha
-    });
+  // Generar el array de fechas entre la fecha de inicio y la fecha de fin
+  const generateDatesInRange = (start, end) => {
+    let dates = [];
+    let currentDate = new Date(start);
+    while (currentDate <= end) {
+      dates.push(currentDate.toLocaleDateString()); // Puedes formatear las fechas como quieras
+      currentDate.setDate(currentDate.getDate() + 1); // Avanza al siguiente día
+    }
+    return dates;
   };
 
-  // Función para eliminar una fecha
-  const handleRemoveDate = (index) => {
-    const newDates = eventData.dates.filter((_, i) => i !== index);
-    setEventData({ ...eventData, dates: newDates });
+  // Actualizar las fechas en el estado
+  const handleDateChange = (start, end) => {
+    if (start && end) {
+      const dates = generateDatesInRange(start, end);
+      setEventData({
+        ...eventData,
+        dates: dates, // Setea el array de fechas en el estado
+      });
+
+      // Establecer el rango seleccionado para mostrarlo
+      setSelectedRange(
+        `Desde el ${start.toLocaleDateString()} hasta el ${end.toLocaleDateString()}`
+      );
+    }
+  };
+
+  /// Limpiar el rango si alguna fecha cambia
+  useEffect(() => {
+    if (startDate && endDate) {
+      handleDateChange(startDate, endDate); // Establecer el rango inmediatamente cuando se seleccionan las fechas
+    }
+  }, [startDate, endDate]); // Este useEffect se activará cada vez que cambien las fechas
+
+  // Actualizamos el estado de las fechas cuando el usuario las selecciona
+  const handleStartDateChange = (date) => {
+    setStartDate(date); // Se actualiza la fecha de inicio
+  };
+
+  const handleEndDateChange = (date) => {
+    setEndDate(date); // Se actualiza la fecha de fin
   };
 
   // Función para agregar un nuevo horario
@@ -62,23 +90,6 @@ const EventFormComponent = ({
     const newCosts = [...eventData.costs];
     newCosts[index][field] = value;
     setEventData({ ...eventData, costs: newCosts });
-  };
-
-  // Handler para actualizar el estado cuando se selecciona una dirección
-  const handleLocationSelect = async (address) => {
-    setLocation(address); // Actualizamos el estado de la ubicación
-
-    // Obtener latitud y longitud usando geocoding de la API de Google
-    const results = await geocodeByAddress(address);
-    const { lat, lng } = await getLatLng(results[0]);
-
-    // Actualizamos la latitud y longitud en el estado
-    setEventData({
-      ...eventData,
-      location: address,
-      latitude: lat,
-      longitude: lng,
-    });
   };
 
   return (
@@ -151,79 +162,62 @@ const EventFormComponent = ({
         >
           Lugar
         </label>
-        {apiKey && (
-          <PlacesAutocomplete
-            apiKey={apiKey}
-            value={location}
-            onChange={setLocation}
-            onSelect={handleLocationSelect}
-          >
-            {({ getInputProps, suggestions, getSuggestionItemProps }) => (
-              <div>
-                <input
-                  {...getInputProps({
-                    placeholder: "Busca un lugar",
-                    className:
-                      "w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring",
-                  })}
-                />
-                <div className="autocomplete-dropdown-container">
-                  {suggestions.map((suggestion, index) => (
-                    <div
-                      {...getSuggestionItemProps(suggestion, {
-                        className: "suggestion-item",
-                        style: {
-                          backgroundColor: suggestion.active
-                            ? "#fafafa"
-                            : "#ffffff",
-                          cursor: "pointer",
-                        },
-                      })}
-                      key={index}
-                    >
-                      {suggestion.description}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </PlacesAutocomplete>
-        )}
+        <input
+          type="text"
+          className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
+          placeholder="Lugar del evento"
+          id="location"
+          value={eventData.location}
+          onChange={(e) =>
+            setEventData({ ...eventData, location: e.target.value })
+          }
+        />
       </div>
 
       {/* Sección para las fechas */}
+      {/* Selector de fecha de inicio */}
       <div>
         <label
-          htmlFor="date"
+          htmlFor="startDate"
           className="text-sm font-medium text-gray-700 block"
         >
-          Fechas del evento
+          Fecha de inicio
         </label>
-        {eventData.dates.map((date, index) => (
-          <div key={index} className="flex items-center space-x-2">
-            <input
-              type="date"
-              className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
-              value={date}
-              onChange={(e) => {
-                const newDates = [...eventData.dates];
-                newDates[index] = e.target.value;
-                setEventData({ ...eventData, dates: newDates });
-              }}
-            />
-            <button
-              type="button"
-              className="text-red-500"
-              onClick={() => handleRemoveDate(index)}
-            >
-              Eliminar
-            </button>
-          </div>
-        ))}
-        <button type="button" className="text-blue-500" onClick={handleAddDate}>
-          Agregar fecha
-        </button>
+        <DatePicker
+          selected={startDate}
+          onChange={handleStartDateChange}
+          selectsStart
+          startDate={startDate}
+          endDate={endDate}
+          className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
+        />
       </div>
+
+      {/* Selector de fecha de fin */}
+      <div>
+        <label
+          htmlFor="endDate"
+          className="text-sm font-medium text-gray-700 block"
+        >
+          Fecha de fin
+        </label>
+        <DatePicker
+          selected={endDate}
+          onChange={handleEndDateChange}
+          selectsEnd
+          startDate={startDate}
+          endDate={endDate}
+          minDate={startDate} // La fecha de fin no puede ser anterior a la de inicio
+          className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
+        />
+      </div>
+
+      {/* Mostrar el rango de fechas seleccionado */}
+      {selectedRange && (
+        <div className="mt-4 text-sm text-gray-600">
+          <strong>Rango de fechas seleccionado:</strong> {selectedRange}
+        </div>
+      )}
 
       {/* Sección para los horarios */}
       <div>
