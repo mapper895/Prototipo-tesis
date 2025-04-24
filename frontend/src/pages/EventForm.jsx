@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 import { useEventStore } from "../store/eventStore";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
+import { useMapsStore } from "../store/mapsStore";
 import toast from "react-hot-toast";
 import EventFormComponent from "../components/EventFormComponent";
 
 const EventPage = () => {
   const { user } = useAuthStore();
   const { eventId } = useParams();
+  const { getApiKey, apiKey } = useMapsStore();
 
   const [eventData, setEventData] = useState({
     title: "",
@@ -44,12 +46,15 @@ const EventPage = () => {
 
   // Cuando el componente se monte, obtenemos las categorías y los datos del evento (si estamos editando)
   useEffect(() => {
+    if (!apiKey) {
+      getApiKey();
+    }
     getCategories();
     if (eventId) {
       getEventById(eventId); // Llamamos para obtener el evento si estamos en edición
     }
     setIsLoading(false);
-  }, [getCategories, getEventById, eventId]);
+  }, [apiKey, getApiKey, getCategories, getEventById, eventId]);
 
   // Si estamos editando, cargamos los datos del evento en el estado
   useEffect(() => {
@@ -98,7 +103,7 @@ const EventPage = () => {
   };
 
   // Si está cargando, mostramos un mensaje
-  if (isLoading) {
+  if (isLoading || !apiKey) {
     return (
       <div className="flex justify-center items-center h-screen">
         <p className="text-gray-500 text-xl">Cargando...</p>
@@ -125,6 +130,7 @@ const EventPage = () => {
             isCreatingEvent={isCreatingEvent}
             isUpdatingEvent={isUpdatingEvent}
             eventId={eventId}
+            apiKey={apiKey}
           />
         </div>
       </div>

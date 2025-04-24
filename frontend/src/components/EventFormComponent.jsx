@@ -1,3 +1,9 @@
+import { useState } from "react";
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from "react-google-places-autocomplete";
+
 const EventFormComponent = ({
   eventData,
   setEventData,
@@ -7,7 +13,10 @@ const EventFormComponent = ({
   isCreatingEvent,
   isUpdatingEvent,
   eventId,
+  apiKey,
 }) => {
+  const [location, setLocation] = useState(eventData.location || "");
+
   // Función para agregar una nueva fecha
   const handleAddDate = () => {
     setEventData({
@@ -53,6 +62,23 @@ const EventFormComponent = ({
     const newCosts = [...eventData.costs];
     newCosts[index][field] = value;
     setEventData({ ...eventData, costs: newCosts });
+  };
+
+  // Handler para actualizar el estado cuando se selecciona una dirección
+  const handleLocationSelect = async (address) => {
+    setLocation(address); // Actualizamos el estado de la ubicación
+
+    // Obtener latitud y longitud usando geocoding de la API de Google
+    const results = await geocodeByAddress(address);
+    const { lat, lng } = await getLatLng(results[0]);
+
+    // Actualizamos la latitud y longitud en el estado
+    setEventData({
+      ...eventData,
+      location: address,
+      latitude: lat,
+      longitude: lng,
+    });
   };
 
   return (
@@ -117,6 +143,7 @@ const EventFormComponent = ({
               ))}
         </select>
       </div>
+      {/* Sección de ubicación con autocompletado de Google Places */}
       <div>
         <label
           htmlFor="location"
@@ -124,16 +151,44 @@ const EventFormComponent = ({
         >
           Lugar
         </label>
-        <input
-          type="text"
-          className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
-          placeholder="Lugar del evento"
-          id="location"
-          value={eventData.location}
-          onChange={(e) =>
-            setEventData({ ...eventData, location: e.target.value })
-          }
-        />
+        {apiKey && (
+          <PlacesAutocomplete
+            apiKey={apiKey}
+            value={location}
+            onChange={setLocation}
+            onSelect={handleLocationSelect}
+          >
+            {({ getInputProps, suggestions, getSuggestionItemProps }) => (
+              <div>
+                <input
+                  {...getInputProps({
+                    placeholder: "Busca un lugar",
+                    className:
+                      "w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring",
+                  })}
+                />
+                <div className="autocomplete-dropdown-container">
+                  {suggestions.map((suggestion, index) => (
+                    <div
+                      {...getSuggestionItemProps(suggestion, {
+                        className: "suggestion-item",
+                        style: {
+                          backgroundColor: suggestion.active
+                            ? "#fafafa"
+                            : "#ffffff",
+                          cursor: "pointer",
+                        },
+                      })}
+                      key={index}
+                    >
+                      {suggestion.description}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </PlacesAutocomplete>
+        )}
       </div>
 
       {/* Sección para las fechas */}

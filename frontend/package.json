@@ -21,6 +21,7 @@
     "react-chartjs-2": "^5.3.0",
     "react-datepicker": "^8.2.1",
     "react-dom": "^18.3.1",
+    "react-google-places-autocomplete": "^4.1.0",
     "react-hot-toast": "^2.4.1",
     "react-router-dom": "^6.26.2",
     "swiper": "^11.1.14",
