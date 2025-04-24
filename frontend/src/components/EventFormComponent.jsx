@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { parse } from "date-fns";
+import { useLocation } from "react-router-dom";
 
 const EventFormComponent = ({
   eventData,
@@ -15,6 +17,29 @@ const EventFormComponent = ({
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [selectedRange, setSelectedRange] = useState(""); // Para mostrar el rango de fechas
+  const location = useLocation(); // Utilizamos useLocation para escuchar cambios en la ruta
+
+  // Restablecer el estado cuando la ruta cambia a la de creación
+  useEffect(() => {
+    if (location.pathname === "/create-event") {
+      setEventData({
+        title: "",
+        description: "",
+        category: "",
+        dates: [],
+        location: "",
+        imageUrl: "",
+        target: "",
+        accessibility: "",
+        organizer: "",
+        schedules: [],
+        costs: [],
+      }); // Restablecer el formulario
+      setStartDate(null); // Limpiar fecha de inicio
+      setEndDate(null); // Limpiar fecha de fin
+      setSelectedRange(""); // Limpiar el rango de fechas seleccionado
+    }
+  }, [location.pathname, setEventData]); // Este useEffect escucha los cambios de ruta
 
   // Generar el array de fechas entre la fecha de inicio y la fecha de fin
   const generateDatesInRange = (start, end) => {
@@ -49,6 +74,31 @@ const EventFormComponent = ({
       handleDateChange(startDate, endDate); // Establecer el rango inmediatamente cuando se seleccionan las fechas
     }
   }, [startDate, endDate]); // Este useEffect se activará cada vez que cambien las fechas
+
+  // Si estamos en modo edición, cargamos las fechas del evento
+  useEffect(() => {
+    if (
+      eventData &&
+      eventData.dates &&
+      eventData.dates.length > 0 &&
+      !startDate &&
+      !endDate
+    ) {
+      // Convertimos las fechas a objetos Date usando date-fns
+      const firstDate = parse(eventData.dates[0], "d/MM/yyyy", new Date()); // Usamos parse de date-fns
+      const lastDate = parse(
+        eventData.dates[eventData.dates.length - 1],
+        "d/MM/yyyy",
+        new Date()
+      );
+
+      // Asegurarnos de que las fechas sean válidas antes de asignarlas
+      if (!isNaN(firstDate.getTime()) && !isNaN(lastDate.getTime())) {
+        setStartDate(firstDate); // Asignamos la fecha de inicio
+        setEndDate(lastDate); // Asignamos la fecha de fin
+      }
+    }
+  }, [eventData, startDate, endDate]); // Se ejecuta cada vez que los datos del evento cambian
 
   // Actualizamos el estado de las fechas cuando el usuario las selecciona
   const handleStartDateChange = (date) => {
@@ -154,7 +204,6 @@ const EventFormComponent = ({
               ))}
         </select>
       </div>
-      {/* Sección de ubicación con autocompletado de Google Places */}
       <div>
         <label
           htmlFor="location"
