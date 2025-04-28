@@ -144,7 +144,9 @@ export const useEventStore = create((set, get) => ({
     try {
       await axios.delete(`/api/v1/event/events/${eventToDelete}`);
       set({
-        events: state.events.filter((event) => event._id !== eventToDelete),
+        userEvents: state.userEvents.filter(
+          (event) => event._id !== eventToDelete
+        ),
         eventToDelete: null, // Limpia el evento seleccionado
       });
       toast.success("Evento eliminado con éxito");
