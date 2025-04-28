@@ -459,10 +459,35 @@ export async function searchEvents(req, res) {
 //Eventos de un usuario
 export async function getUserEvents(req, res) {
   try {
-    const events = await Event.find({ createdBy: req.params.userId });
-    res.status(200).json(events);
+    const userId = req.user._id;
+
+    const user = await User.findById(userId).populate("createdEvents");
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario no encontrado" });
+    }
+
+    const userEvents = user.createdEvents;
+
+    if (userEvents.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No se han encontrado eventos creados por el usuario",
+      });
+    }
+
+    return res.status(200).json({ success: true, events: userEvents });
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener los eventos" });
+    console.error(
+      "Error al obtener los eventos creados por el usuario:",
+      error
+    );
+    return res.status(500).json({
+      success: false,
+      message: "Error al obtener los eventos creados por el usuario",
+    });
   }
 }
 
