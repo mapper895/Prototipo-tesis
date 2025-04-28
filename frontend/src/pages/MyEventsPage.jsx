@@ -66,14 +66,18 @@ const MyEventsPage = () => {
         />
 
         <div className="grid grid-cols-4 gap-7 my-5">
-          {filteredEvents.map((event) => (
-            <EventCard
-              key={event._id}
-              event={event}
-              editable
-              onDelete={handleDeleteClick}
-            />
-          ))}
+          {userEvents ? (
+            filteredEvents.map((event) => (
+              <EventCard
+                key={event._id}
+                event={event}
+                editable
+                onDelete={handleDeleteClick}
+              />
+            ))
+          ) : (
+            <div>Cargando eventos ...</div>
+          )}
         </div>
       </div>
 

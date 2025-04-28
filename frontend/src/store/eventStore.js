@@ -200,11 +200,11 @@ export const useEventStore = create((set, get) => ({
     }
   },
 
-  getUserEvents: async (userId) => {
+  getUserEvents: async () => {
     set({ isLoading: true });
     try {
-      const response = await axios.get(`/api/v1/event/user/${userId}`);
-      set({ userEvents: response.data, isLoading: false });
+      const response = await axios.get(`/api/v1/event/user-events`);
+      set({ userEvents: response.data.events, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
       toast.error(error.response?.data?.message || "Error al obtener eventos");
