@@ -1,47 +1,51 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useEventStore } from "../store/eventStore"; // Asegúrate de importar correctamente el store
 import { useAuthStore } from "../store/authUser";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { Heart } from "lucide-react";
-import Calendar from "react-calendar";
+import { Heart, Loader, Pencil, Trash2 } from "lucide-react";
+import CalendarComponent from "../components/CalendarComponent";
 import "react-calendar/dist/Calendar.css"; // Importa los estilos de react-calendar
 import Maps from "../components/Maps";
 
 const EventPage = () => {
   const { id } = useParams();
-  const { event, getEventById, isFetchingEvent, toggleLike } = useEventStore();
+  const {
+    event,
+    getEventById,
+    isFetchingEvent,
+    toggleLike,
+    setEventToDelete,
+    eventToDelete,
+    clearEventToDelete,
+    deleteEvent,
+    isDeletingEvent,
+  } = useEventStore();
   const { user } = useAuthStore();
-
-  const [selectedDate, setSelectedDate] = useState(new Date()); // Estado para controlar la fecha seleccionada
-  const [markedDate, setMarkedDate] = useState(null); // Estado para marcar la fecha del evento
 
   useEffect(() => {
     getEventById(id); // Llama a la función con el ID completo
   }, [id, getEventById]);
 
-  useEffect(() => {
-    if (event) {
-      // Convierte la fecha del evento a un objeto Date
-      const eventDate = new Date(event.date);
-      setMarkedDate(eventDate); // Marca la fecha del evento
-    }
-  }, [event]);
+  const handleDeleteClick = (id) => {
+    setEventToDelete(id);
+  };
 
-  if (isFetchingEvent) {
-    return <div>Cargando evento...</div>;
-  }
-
-  if (!event) {
-    return <h2>Evento no encontrado</h2>;
+  if (isFetchingEvent || !event) {
+    return (
+      <div>
+        <Loader className="animate-spin text-[#001f60] size-10" />
+      </div>
+    );
   }
 
   return (
     <>
       <Navbar />
-      <div className="main max-w-[1300px] mx-auto">
-        <div className="evento flex flex-row">
+      <div className="max-w-[1300px] mx-auto">
+        <div className="flex flex-row">
+          {/* Lado derecho */}
           <div className="flex flex-col gap-10 flex-1">
             <div className="flex gap-5 items-end">
               <img
@@ -63,70 +67,140 @@ const EventPage = () => {
               </button>
               <span className="text-gray-700">{event.likesCount}</span>
             </div>
+
+            {/* Botones de edicion o eliminacion de eventos */}
             {user && event.createdBy === user._id && (
-              <div className="mt-4">
+              <div className="flex justify-evenly w-full">
                 <Link
-                  to={`/edit-event/${id}`}
-                  className="bg-yellow-500 text-white py-2 px-4 rounded mr-2"
+                  className="px-10 py-4 rounded-xl p-2 bg-blue-200 flex items-center justify-center gap-2 text-sm"
+                  to={`/edit-event/${event._id}`}
                 >
-                  Editar
+                  Editar evento <Pencil size={16} />
                 </Link>
+                <div
+                  className="px-10 py-4 rounded-xl p-2 bg-red-500 flex items-center justify-center gap-2 text-sm cursor-pointer"
+                  onClick={() => handleDeleteClick(event._id)}
+                >
+                  Eliminar evento <Trash2 size={16} />
+                </div>
               </div>
             )}
+
+            {/* Descripcion */}
             <div className="flex flex-col gap-5">
               <div className="text-4xl">Descripción</div>
               <div>{event.description}</div>
             </div>
+
+            {/* Ubicacion */}
             <div className="flex flex-col gap-5">
               <div className="text-4xl">Ubicación</div>
+              <p>{event.location}</p>
               <div className="w-full h-[250px] z-50">
-                {event.coordinates.lat && event.coordinates.lng && (
+                {event.latitude && event.longitude && (
                   <Maps
-                    lat={event.coordinates.lat}
-                    lng={event.coordinates.lng}
+                    lat={event.latitude}
+                    lng={event.longitude}
                     location={event.location}
                   />
                 )}
               </div>
             </div>
           </div>
-          <div className="fecha-hora flex flex-col flex-1 items-center justify-center gap-10">
+          {/* Lado izquierdo */}
+          <div className="flex flex-col flex-1 items-center mt-20 gap-10">
             <div className="text-6xl font-light">Fecha y Hora</div>
 
-            {/* Aquí el calendario */}
-            <div className="w-4/5 flex justify-center">
-              <Calendar
-                onChange={setSelectedDate} // Actualiza la fecha seleccionada
-                value={selectedDate} // Muestra la fecha seleccionada
-                tileClassName={({ date }) => {
-                  // Marca la fecha del evento si coincide con la fecha seleccionada
-                  return date.toDateString() === markedDate?.toDateString()
-                    ? "highlight-date"
-                    : "";
-                }}
-              />
+            {/* Calendario, muestra fechas disponibles */}
+            <div className="w-4/5 flex justify-center items-center flex-col gap-5">
+              <h2 className="text-2xl">Fechas disponibles</h2>
+              <CalendarComponent dates={event.dates} />
             </div>
 
-            {/* Muestra los días de la semana y el horario */}
-            <div className="flex flex-row gap-5">
-              {event.days && event.days.length > 0 ? (
-                event.days.map((day, index) => (
-                  <div key={index} className="flex gap-5">
-                    <div className="w-[100px] h-[50px] rounded-full bg-red-500 flex items-center justify-center hover:bg-red-700">
-                      <span className="text-center">
-                        {day} - {event.time}
-                      </span>
-                    </div>
+            {/* Muestra los horarios disponibles */}
+            <div className="w-4/5 flex justify-center items-center flex-col gap-5">
+              <h2 className="text-2xl">Horarios disponibles</h2>
+              <div className="flex flex-row gap-5">
+                {event.schedules ? (
+                  <div className="flex flex-col items-center gap-4">
+                    {event.schedules.map((schedule, index) => (
+                      <div
+                        key={index}
+                        className="w-[100px] h-[50px] rounded-full flex items-center justify-center border border-gray-500 hover:text-blue-500 cursor-pointer hover:border-blue-300"
+                      >
+                        {schedule}
+                      </div>
+                    ))}
+                    <p className="text-xs">
+                      Duracion del evento: {event.duration} hrs.
+                    </p>
                   </div>
-                ))
-              ) : (
-                <div>No hay días programados</div>
-              )}
+                ) : (
+                  <p>No hay horarios disponibles</p>
+                )}
+              </div>
+            </div>
+
+            {/* Muestra los tipos de boletos o costos */}
+            <div className="w-4/5 flex  flex-col">
+              <h2 className="text-2xl mx-auto">Precios disponibles</h2>
+              <div className="space-y-4">
+                {event.costs ? (
+                  event.costs.map((cost) => (
+                    <div
+                      key={cost._id}
+                      className="flex justify-between items-center p-4 border-b"
+                    >
+                      <span>{cost.type}</span>
+                      <span>{cost.price}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p>No hay horarios disponibles</p>
+                )}
+              </div>
+            </div>
+
+            {/* Muestra los datos extra del evento */}
+            <div className="w-4/5 flex flex-col items-center gap-4">
+              <h2 className="text-2xl mx-auto">Información adicional</h2>
+              <p>Organziador del evento: {event.organizer}</p>
+              <p>Edad: {event.target}</p>
+              <Link
+                className="border rounded-full px-10 py-4 border-gray-500 hover:text-blue-500 hover:border-blue-300"
+                to={event.eventUrl}
+              >
+                Más información del evento
+              </Link>
             </div>
           </div>
         </div>
         <div className="eventos-similares">Eventos Similares</div>
       </div>
+
+      {eventToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 rounded-3xl">
+          <div className="bg-white p-6 rounded shadow-md text-center">
+            <h2 className="text-xl font-semibold">¿Estás seguro?</h2>
+            <p>¿Deseas eliminar este evento?</p>
+            <div className="mt-4 flex justify-end space-x-2">
+              <button
+                onClick={clearEventToDelete}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={deleteEvent}
+                className="px-4 py-2 bg-red-500 text-white rounded"
+                disabled={isDeletingEvent}
+              >
+                {isDeletingEvent ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <Footer />
     </>
   );
