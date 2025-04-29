@@ -34,8 +34,10 @@ const EventPage = () => {
 
   if (isFetchingEvent || !event) {
     return (
-      <div>
-        <Loader className="animate-spin text-[#001f60] size-10" />
+      <div className="h-screen">
+        <div className="flex justify-center items-center bg-white h-full">
+          <Loader className="animate-spin text-[#001f60] size-10" />
+        </div>
       </div>
     );
   }
@@ -45,46 +47,47 @@ const EventPage = () => {
       <Navbar />
       <div className="max-w-[1300px] mx-auto">
         <div className="flex flex-row">
-          {/* Lado derecho */}
+          {/* Lado izquierdo */}
           <div className="flex flex-col gap-10 flex-1">
-            <div className="flex gap-5 items-end">
+            <div className="w-full flex flex-col gap-5 border-b pb-5">
               <img
                 src={event.imageUrl}
                 alt="imagen_evento"
-                className="w-[200px] h-[300px] object-cover"
+                className="w-full h-[250px] object-cover"
               />
-              <div className="text-6xl font-light">{event.title}</div>
-              {/* Boton de likes*/}
-              <button onClick={() => toggleLike(event._id)}>
-                <Heart
-                  size={30}
-                  className={`cursor-pointer transition-colors duration-300 ${
-                    event.likedBy.includes(user?._id)
-                      ? "text-red-500 fill-red-500"
-                      : "text-gray-500 fill-none"
-                  }`}
-                />
-              </button>
-              <span className="text-gray-700">{event.likesCount}</span>
-            </div>
-
-            {/* Botones de edicion o eliminacion de eventos */}
-            {user && event.createdBy === user._id && (
-              <div className="flex justify-evenly w-full">
-                <Link
-                  className="px-10 py-4 rounded-xl p-2 bg-blue-200 flex items-center justify-center gap-2 text-sm"
-                  to={`/edit-event/${event._id}`}
-                >
-                  Editar evento <Pencil size={16} />
-                </Link>
-                <div
-                  className="px-10 py-4 rounded-xl p-2 bg-red-500 flex items-center justify-center gap-2 text-sm cursor-pointer"
-                  onClick={() => handleDeleteClick(event._id)}
-                >
-                  Eliminar evento <Trash2 size={16} />
-                </div>
+              <div className="flex justify-between">
+                <div className="text-4xl font-light">{event.title}</div>
+                {/* Boton de likes*/}
+                <button onClick={() => toggleLike(event._id)}>
+                  <Heart
+                    size={30}
+                    className={`cursor-pointer transition-colors duration-300 ${
+                      event.likedBy.includes(user?._id)
+                        ? "text-red-500 fill-red-500"
+                        : "text-gray-500 fill-none"
+                    }`}
+                  />
+                </button>
+                {/* Boton para compartir */}
               </div>
-            )}
+              {/* Botones de edicion o eliminacion de eventos */}
+              {user && event.createdBy === user._id && (
+                <div className="flex justify-evenly w-full">
+                  <Link
+                    className="px-10 py-4 rounded-xl p-2 bg-blue-200 flex items-center justify-center gap-2 text-sm"
+                    to={`/edit-event/${event._id}`}
+                  >
+                    Editar evento <Pencil size={16} />
+                  </Link>
+                  <div
+                    className="px-10 py-4 rounded-xl p-2 bg-red-500 flex items-center justify-center gap-2 text-sm cursor-pointer"
+                    onClick={() => handleDeleteClick(event._id)}
+                  >
+                    Eliminar evento <Trash2 size={16} />
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Descripcion */}
             <div className="flex flex-col gap-5">
@@ -94,20 +97,24 @@ const EventPage = () => {
 
             {/* Ubicacion */}
             <div className="flex flex-col gap-5">
-              <div className="text-4xl">Ubicación</div>
-              <p>{event.location}</p>
-              <div className="w-full h-[250px] z-50">
-                {event.latitude && event.longitude && (
-                  <Maps
-                    lat={event.latitude}
-                    lng={event.longitude}
-                    location={event.location}
-                  />
-                )}
+              <div className="flex gap-4">
+                <div className="w-2/5 flex flex-col gap-4">
+                  <div className="text-4xl">Ubicación</div>
+                  <p className="my-auto">{event.location}</p>
+                </div>
+                <div className="w-3/5 h-[250px] z-50">
+                  {event.latitude && event.longitude && (
+                    <Maps
+                      lat={event.latitude}
+                      lng={event.longitude}
+                      location={event.location}
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>
-          {/* Lado izquierdo */}
+          {/* Lado derecho */}
           <div className="flex flex-col flex-1 items-center mt-20 gap-10">
             <div className="text-6xl font-light">Fecha y Hora</div>
 
@@ -142,7 +149,7 @@ const EventPage = () => {
             </div>
 
             {/* Muestra los tipos de boletos o costos */}
-            <div className="w-4/5 flex  flex-col">
+            <div className="w-4/5 flex flex-col">
               <h2 className="text-2xl mx-auto">Precios disponibles</h2>
               <div className="space-y-4">
                 {event.costs ? (
