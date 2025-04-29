@@ -10,7 +10,7 @@ const Footer = () => {
         </li>
       </ul>
       <p className="mr-5 text-lg text-white">
-        Desarrollada por alumnos del IPN - &copy;2024
+        Desarrollada por alumnos del IPN - &copy;{new Date().getFullYear()}
       </p>
     </footer>
   );
