@@ -10,7 +10,7 @@ export const getUserDashboardStats = async (req, res) => {
 
   try {
     // Obtener todos los eventos del creador
-    const events = await Event.find({ organizer: userId });
+    const events = await Event.find({ createdBy: userId });
 
     // 1. Total de eventos creados
     const totalEvents = events.length;
@@ -28,8 +28,8 @@ export const getUserDashboardStats = async (req, res) => {
     );
 
     // 4. Eventos próximos
-    const upcomingEvents = events.filter(
-      (ev) => new Date(ev.date) > new Date()
+    const upcomingEvents = events.filter((ev) =>
+      ev.dates.some((date) => new Date(date) > new Date())
     );
 
     // 5. Evento mas likeado
