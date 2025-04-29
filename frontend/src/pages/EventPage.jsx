@@ -4,7 +4,7 @@ import { useEventStore } from "../store/eventStore"; // Asegúrate de importar c
 import { useAuthStore } from "../store/authUser";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { Heart, Loader, Pencil, Trash2 } from "lucide-react";
+import { Heart, Loader, Map, Pencil, Trash2 } from "lucide-react";
 import CalendarComponent from "../components/CalendarComponent";
 import "react-calendar/dist/Calendar.css"; // Importa los estilos de react-calendar
 import Maps from "../components/Maps";
@@ -98,11 +98,20 @@ const EventPage = () => {
             {/* Ubicacion */}
             <div className="flex flex-col gap-5">
               <div className="flex gap-4">
-                <div className="w-2/5 flex flex-col gap-4">
+                <div className="w-2/5 flex flex-col justify-between">
                   <div className="text-4xl">Ubicación</div>
                   <p className="my-auto">{event.location}</p>
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`https://www.google.com/maps?q=${event.latitude},${event.longitude}`}
+                    className="flex gap-4 border w-fit px-4 py-2 rounded-full border-gray-500 hover:text-blue-500 cursor-pointer hover:border-blue-300"
+                  >
+                    <Map />
+                    ¿Como llegar?
+                  </a>
                 </div>
-                <div className="w-3/5 h-[250px] z-50">
+                <div className="w-3/5 h-[250px]">
                   {event.latitude && event.longitude && (
                     <Maps
                       lat={event.latitude}

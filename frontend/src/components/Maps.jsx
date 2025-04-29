@@ -24,10 +24,11 @@ const MapsComponent = ({ lat, lng, location }) => {
 
   const mapOptions = {
     zoomControl: true,
-    streetViewControl: true,
-    mapTypeControl: true, // Habilitar tipo de mapa
+    streetViewControl: false,
+    mapTypeControl: false,
     fullscreenControl: true,
-    gestureHandling: "auto", // Habilitar zoom y desplazamiento con gestos
+    gestureHandling: "greedy",
+    draggable: true,
   };
 
   return (
