@@ -7,6 +7,7 @@ import Footer from "../components/Footer";
 import EventCard from "../components/EventCard";
 import EventFilters from "../components/EventFilters";
 import { filterEvents } from "../utils/filterEvents";
+import { Loader } from "lucide-react";
 
 const MyEventsPage = () => {
   const { user } = useAuthStore();
@@ -18,6 +19,7 @@ const MyEventsPage = () => {
     clearEventToDelete,
     deleteEvent,
     isDeletingEvent,
+    isLoading,
   } = useEventStore();
 
   const [loading, setLoading] = useState(true);
@@ -42,8 +44,14 @@ const MyEventsPage = () => {
     setEventToDelete(id);
   };
 
-  if (loading)
-    return <div className="text-center py-10">Cargando tus eventos...</div>;
+  if (loading || isLoading)
+    return (
+      <div className="h-screen">
+        <div className="flex justify-center items-center bg-white h-full">
+          <Loader className="animate-spin text-[#001f60] size-10" />
+        </div>
+      </div>
+    );
 
   return (
     <>

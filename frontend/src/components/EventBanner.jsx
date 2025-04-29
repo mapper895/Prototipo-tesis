@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useEventStore } from "../store/eventStore";
@@ -33,7 +33,13 @@ const EventBanner = ({ category }) => {
   };
 
   if (isLoadingEvents && categoryEvents.length === 0) {
-    return <div>Cargando eventos...</div>;
+    return (
+      <div className="h-screen">
+        <div className="flex justify-center items-center bg-white h-full">
+          <Loader className="animate-spin text-[#001f60] size-10" />
+        </div>
+      </div>
+    );
   }
 
   if (categoryEvents.length === 0) {

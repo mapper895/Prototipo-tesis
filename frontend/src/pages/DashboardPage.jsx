@@ -6,6 +6,7 @@ import ExportButtons from "../components/ExportButtons";
 import { getDashboardStats } from "../store/dashboardStore"; // Función de Store
 import Navbar from "../components/Navbar";
 import EventCard from "../components/EventCard";
+import { Loader } from "lucide-react";
 
 const DashboardPage = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -68,8 +69,15 @@ const DashboardPage = () => {
       },
     ],
   };
+
   if (loading) {
-    return <div className="text-center py-8">Cargando...</div>;
+    return (
+      <div className="h-screen">
+        <div className="flex justify-center items-center bg-white h-full">
+          <Loader className="animate-spin text-[#001f60] size-10" />
+        </div>
+      </div>
+    );
   }
 
   return (

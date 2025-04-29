@@ -5,6 +5,7 @@ import Footer from "../components/Footer";
 import EventFilters from "../components/EventFilters";
 import EventCard from "../components/EventCard";
 import { filterEvents } from "../utils/filterEvents";
+import { Loader } from "lucide-react";
 
 const PopularPage = () => {
   const { popularEvents, getPopularEvents, isLoadingEvents } = useEventStore();
@@ -19,7 +20,14 @@ const PopularPage = () => {
     }
   }, [getPopularEvents, popularEvents]);
 
-  if (isLoadingEvents) return <div>Cargando eventos...</div>;
+  if (isLoadingEvents)
+    return (
+      <div className="h-screen">
+        <div className="flex justify-center items-center bg-white h-full">
+          <Loader className="animate-spin text-[#001f60] size-10" />
+        </div>
+      </div>
+    );
 
   return (
     <>

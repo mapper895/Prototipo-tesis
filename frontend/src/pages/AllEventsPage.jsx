@@ -5,9 +5,10 @@ import Footer from "../components/Footer";
 import EventFilters from "../components/EventFilters";
 import EventCard from "../components/EventCard";
 import { filterEvents } from "../utils/filterEvents";
+import { Loader } from "lucide-react";
 
 const AllEventsPage = () => {
-  const { events, getAllEvents } = useEventStore();
+  const { events, getAllEvents, isLoading } = useEventStore();
   const [filter, setFilter] = useState("all");
   const [selectedDate, setSelectedDate] = useState(null);
 
@@ -18,6 +19,16 @@ const AllEventsPage = () => {
       getAllEvents();
     }
   }, [getAllEvents, events]);
+
+  if (isLoading) {
+    return (
+      <div className="h-screen">
+        <div className="flex justify-center items-center bg-white h-full">
+          <Loader className="animate-spin text-[#001f60] size-10" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

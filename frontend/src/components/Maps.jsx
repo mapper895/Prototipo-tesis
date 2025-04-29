@@ -7,6 +7,7 @@ import {
   InfoWindow,
 } from "@vis.gl/react-google-maps";
 import { useMapsStore } from "../store/mapsStore";
+import { Loader } from "lucide-react";
 
 const MapsComponent = ({ lat, lng, location }) => {
   const { apiKey, getApiKey, mapId, getMapId } = useMapsStore();
@@ -20,7 +21,14 @@ const MapsComponent = ({ lat, lng, location }) => {
     }
   }, [getApiKey, getMapId, apiKey, mapId]);
 
-  if (!apiKey) return <div>Cargando mapa...</div>;
+  if (!apiKey)
+    return (
+      <div className="h-screen">
+        <div className="flex justify-center items-center bg-white h-full">
+          <Loader className="animate-spin text-[#001f60] size-10" />
+        </div>
+      </div>
+    );
 
   const mapOptions = {
     zoomControl: true,

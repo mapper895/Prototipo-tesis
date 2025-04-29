@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
 import { useEventStore } from "../store/eventStore";
 
 const PopularSectionBanner = () => {
@@ -31,7 +31,14 @@ const PopularSectionBanner = () => {
     });
   };
 
-  if (isLoadingEvents) return <div>Cargando eventos...</div>;
+  if (isLoadingEvents)
+    return (
+      <div className="h-screen">
+        <div className="flex justify-center items-center bg-white h-full">
+          <Loader className="animate-spin text-[#001f60] size-10" />
+        </div>
+      </div>
+    );
 
   return (
     <div className="bg-[#001f60] w-full h-[480px]">

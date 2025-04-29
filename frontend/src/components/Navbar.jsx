@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, CircleUserRound } from "lucide-react";
+import { ChevronDown, ChevronUp, CircleUserRound, Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
 import useCategories from "../hooks/useCategories";
@@ -60,7 +60,14 @@ const Navbar = () => {
     };
   });
 
-  if (isLoadingCategories) return <div>Cargando categorias...</div>;
+  if (isLoadingCategories)
+    return (
+      <div className="h-screen">
+        <div className="flex justify-center items-center bg-white h-full">
+          <Loader className="animate-spin text-[#001f60] size-10" />
+        </div>
+      </div>
+    );
 
   return (
     <nav className="w-full h-20 flex items-center justify-between flex-row px-5 bg-[#001f60] text-white">

@@ -6,6 +6,7 @@ import { useAuthStore } from "../store/authUser";
 import { useMapsStore } from "../store/mapsStore";
 import toast from "react-hot-toast";
 import EventFormComponent from "../components/EventFormComponent";
+import { Loader } from "lucide-react";
 
 const EventPage = () => {
   const { user } = useAuthStore();
@@ -102,11 +103,12 @@ const EventPage = () => {
     }
   };
 
-  // Si está cargando, mostramos un mensaje
   if (isLoading || !apiKey) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-gray-500 text-xl">Cargando...</p>
+      <div className="h-screen">
+        <div className="flex justify-center items-center bg-white h-full">
+          <Loader className="animate-spin text-[#001f60] size-10" />
+        </div>
       </div>
     );
   }
