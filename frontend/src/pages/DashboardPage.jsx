@@ -141,7 +141,7 @@ const DashboardPage = () => {
             {/* Mostrar proximos eventos */}
             <div className="mt-20">
               <h3 className="text-3xl font-semibold mb-4">
-                Tus próximos eventos
+                Tus próximos eventos de esta semana
               </h3>
               <div className="grid grid-cols-4 gap-7 my-5">
                 {dashboardData.upcomingEvents.length !== 0 ? (

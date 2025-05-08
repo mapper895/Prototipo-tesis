@@ -29,7 +29,15 @@ export const getUserDashboardStats = async (req, res) => {
 
     // 4. Eventos próximos
     const upcomingEvents = events.filter((ev) =>
-      ev.dates.some((date) => new Date(date) > new Date())
+      ev.dates.some((date) => {
+        const eventDate = new Date(date);
+        const today = new Date();
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7); // Establece la fecha de la próxima semana
+
+        // Filtra eventos dentro de los próximos 7 días
+        return eventDate > today && eventDate <= nextWeek;
+      })
     );
 
     // 5. Evento mas likeado
