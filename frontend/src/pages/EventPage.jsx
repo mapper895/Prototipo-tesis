@@ -5,6 +5,8 @@ import { useAuthStore } from "../store/authUser";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Heart, Loader, Map, Pencil, Trash2 } from "lucide-react";
+import { format, parse } from "date-fns";
+import { es } from "date-fns/locale";
 import CalendarComponent from "../components/CalendarComponent";
 import "react-calendar/dist/Calendar.css"; // Importa los estilos de react-calendar
 import Maps from "../components/Maps";
@@ -41,6 +43,18 @@ const EventPage = () => {
     } catch (error) {
       console.log("Error al eliminar el evento: ", error);
     }
+  };
+
+  const formatDate = (dateString) => {
+    const date = parse(dateString, "dd/MM/yyyy", new Date());
+
+    if (isNaN(date)) {
+      console.log("Fecha invalida: ", dateString);
+      return null;
+    }
+    const formattedDate = format(date, "EEE dd MMM", { locale: es });
+    const [dayOfWeek, day, month] = formattedDate.split(" ");
+    return { dayOfWeek, day, month };
   };
 
   if (isFetchingEvent || !event) {
@@ -141,7 +155,26 @@ const EventPage = () => {
             {/* Calendario, muestra fechas disponibles */}
             <div className="w-4/5 flex justify-center items-center flex-col gap-5">
               <h2 className="text-2xl">Fechas disponibles</h2>
-              <CalendarComponent dates={event.dates} />
+              {event.dates.length > 4 ? (
+                <CalendarComponent dates={event.dates} />
+              ) : (
+                <div className="flex gap-3 flex-wrap">
+                  {event.dates.map((date, index) => {
+                    const { dayOfWeek, day, month } = formatDate(date);
+                    return (
+                      <div
+                        key={index}
+                        className="w-[120px] h-[50px] rounded-full flex items-center justify-center border border-gray-500 hover:text-blue-500 cursor-pointer hover:border-blue-300"
+                      >
+                        <span className="text-center">
+                          {dayOfWeek} <br />
+                          {day} {month}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Muestra los horarios disponibles */}
