@@ -1,22 +1,32 @@
 import { Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useEventStore } from "../store/eventStore";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { debounce } from "lodash";
 
 const SearchComponent = () => {
   const [query, setQuery] = useState("");
-  const { getEventsBySearch, events } = useEventStore();
+  const { getEventsBySearch, searchEvents } = useEventStore();
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef(null);
+  const navigate = useNavigate();
+
+  const debouncedSearch = useRef(
+    debounce((query) => {
+      getEventsBySearch(query);
+      setShowResults(true);
+    }, 500)
+  ).current;
 
   useEffect(() => {
     if (query.trim()) {
-      getEventsBySearch(query);
-      setShowResults(true);
+      debouncedSearch(query);
     } else {
       setShowResults(false);
     }
-  }, [query, getEventsBySearch]);
+
+    return () => debouncedSearch.cancel();
+  }, [query, debouncedSearch]);
 
   // Cierra el dropdown si se hace click fuera
   useEffect(() => {
@@ -31,20 +41,21 @@ const SearchComponent = () => {
     };
   }, []);
 
-  // const handleInputChange = (e) => {
-  //   setQuery(e.target.value);
-  // };
-
-  // const handleKeyDown = (e) => {
-  //   if (e.key === "Enter") {
-  //     e.preventDefault();
-  //     getEventsBySearch(query);
-  //   }
-  // };
+  // Redirige al usuario al presionar ENTER
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      // Redirigimos a la pagina de busqueda con el query
+      navigate(`/search-results?query=${query}`);
+    }
+  };
 
   return (
     <div className="relative w-[300px] max-w-md" ref={searchRef}>
-      <form className="relative flex items-center w-[300px] max-w-md p-2 bg-[#001f60] border rounded-full shadow-sm">
+      <form
+        className="relative flex items-center w-[300px] max-w-md p-2 bg-[#001f60] border rounded-full shadow-sm"
+        onSubmit={(e) => e.preventDefault()}
+      >
         <span className="absolute left-3 text-white">
           <Search />
         </span>
@@ -52,14 +63,15 @@ const SearchComponent = () => {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="¿Qué estas buscando?"
           className="flex-grow p-2 pl-14 text-white placeholder-gray-200 bg-transparent border-none outline-none"
         />
       </form>
 
-      {showResults && events.length > 0 && (
+      {showResults && searchEvents.length > 0 && (
         <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-          {events.map((event) => (
+          {searchEvents.map((event) => (
             <Link
               key={event._id}
               to={`/events/${event._id}`}

@@ -7,6 +7,7 @@ export const useEventStore = create((set, get) => ({
   events: [],
   popularEvents: [],
   userEvents: [],
+  searchEvents: [],
   eventUserLikes: [],
   eventsByCategory: {},
   categories: [],
@@ -195,7 +196,7 @@ export const useEventStore = create((set, get) => ({
     set({ isLoadingEvents: true });
     try {
       const response = await axios.get(`/api/v1/event/search?query=${query}`);
-      set({ events: response.data.events || [], isLoadingEvents: false });
+      set({ searchEvents: response.data.events || [], isLoadingEvents: false });
     } catch (error) {
       set({ isLoadingEvents: false });
       toast.error(error.response?.data?.message || "Error al buscar eventos");
