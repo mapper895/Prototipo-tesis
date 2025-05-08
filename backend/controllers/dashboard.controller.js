@@ -121,15 +121,27 @@ export const exportDashboardToCSV = async (req, res) => {
   try {
     const events = await Event.find({ createdBy: userId });
 
+    const convertToDate = (dateStr) => {
+      const [day, month, year] = dateStr.split("/").map(Number);
+      return new Date(year, month - 1, day); // Month is 0-indexed in JavaScript
+    };
+
     // Preparamos los datos a exportar
-    const data = events.map((event) => ({
-      title: event.title,
-      category: event.category,
-      likes: event.likesCount,
-      views: event.views,
-      date: moment(event.date).format("DD/MM/YYYY"), // Formateamos fecha del evento
-      createdAt: moment(event.createdAt).format("DD/MM/YYYY"), // Formatear fecha de creación,
-    }));
+    const data = events.map((event) => {
+      const sortedDates = event.dates.map(convertToDate).sort((a, b) => a - b);
+      const startDate = sortedDates[0]; // Fecha de inicio
+      const endDate = sortedDates[sortedDates.length - 1]; // Fecha de fin
+
+      return {
+        title: event.title,
+        category: event.category,
+        likes: event.likesCount,
+        views: event.views,
+        startDate: moment(startDate).format("DD/MM/YYYY"), // Fecha de inicio
+        endDate: moment(endDate).format("DD/MM/YYYY"), // Fecha de fin
+        createdAt: moment(event.createdAt).format("DD/MM/YYYY"), // Fecha de creación
+      };
+    });
 
     // Convertimos los datos a CSV
     const csv = parse(data);
@@ -170,16 +182,31 @@ export const exportDashboardToPDF = async (req, res) => {
 
     doc.fontSize(20).text("Reporte de Eventos", { align: "center" });
 
+    const convertToDate = (dateStr) => {
+      const [day, month, year] = dateStr.split("/").map(Number);
+      return new Date(year, month - 1, day);
+    };
+
     // Agregar los eventos al PDF
     events.forEach((event, index) => {
+      const sortedDates = event.dates
+        .map((date) => convertToDate(date))
+        .sort((a, b) => a - b);
+      const startDate = sortedDates[0]; // Fecha de inicio (primer fecha)
+      const endDate = sortedDates[sortedDates.length - 1]; // Fecha de fin (última fecha)
+
+      // Mostrar las fechas de inicio y fin en formato adecuado
+      const formattedStartDate = startDate.toLocaleDateString();
+      const formattedEndDate = endDate.toLocaleDateString();
+
       doc
         .fontSize(12)
         .text(
           `${index + 1}. ${event.title} - ${event.category} - Likes: ${
             event.likesCount
-          } - Views: ${event.views} - Fecha: ${new Date(
-            event.date
-          ).toLocaleDateString()}`
+          } - Views: ${
+            event.views
+          } - Fechas: ${formattedStartDate} a ${formattedEndDate}`
         );
     });
 
