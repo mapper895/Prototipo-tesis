@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEventStore } from "../store/eventStore"; // Asegúrate de importar correctamente el store
 import { useAuthStore } from "../store/authUser";
 import Navbar from "../components/Navbar";
@@ -23,6 +23,7 @@ const EventPage = () => {
     isDeletingEvent,
   } = useEventStore();
   const { user } = useAuthStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     getEventById(id); // Llama a la función con el ID completo
@@ -30,6 +31,16 @@ const EventPage = () => {
 
   const handleDeleteClick = (id) => {
     setEventToDelete(id);
+  };
+
+  const handleDeleteAndRedirect = async () => {
+    try {
+      await deleteEvent();
+
+      navigate("/");
+    } catch (error) {
+      console.log("Error al eliminar el evento: ", error);
+    }
   };
 
   if (isFetchingEvent || !event) {
@@ -207,7 +218,7 @@ const EventPage = () => {
                 Cancelar
               </button>
               <button
-                onClick={deleteEvent}
+                onClick={handleDeleteAndRedirect}
                 className="px-4 py-2 bg-red-500 text-white rounded"
                 disabled={isDeletingEvent}
               >
