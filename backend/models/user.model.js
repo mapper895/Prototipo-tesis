@@ -42,10 +42,6 @@ const userSchema = mongoose.Schema(
       type: Array,
       default: [],
     },
-    role: {
-      type: String,
-      enum: ["user", "creator", "admin"],
-    },
     lastActive: {
       type: Date,
       default: Date.now,
