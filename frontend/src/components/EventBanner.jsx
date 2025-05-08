@@ -50,7 +50,7 @@ const EventBanner = ({ category }) => {
 
   return (
     <div
-      className="max-w-[1300px] flex flex-col gap-5 relative justify-evenly"
+      className="w-[1300px] flex flex-col gap-5 relative justify-evenly"
       onMouseEnter={() => setshowArrows(true)}
       onMouseLeave={() => setshowArrows(false)}
     >
@@ -65,7 +65,7 @@ const EventBanner = ({ category }) => {
       </div>
 
       <div
-        className="flex space-x-4 overflow-x-scroll scrollbar-hide"
+        className="flex mx-auto space-x-4 overflow-x-scroll scrollbar-hide"
         ref={sliderRef}
       >
         {limitedEvents.map((event) => (
@@ -81,16 +81,11 @@ const EventBanner = ({ category }) => {
                 className="w-full h-[150px] transition-transform duration-300 ease-in-out group-hover:scale-110 object-cover"
               />
             </div>
-            <div className="font-bold text-lg ml-2">{event.title}</div>
-            <div className="text-sm mx-2 mb-2">
-              {event.description.length > 50
-                ? `${event.description.slice(0, 50)}...`
-                : event.description}
-              {event.description.length > 50 && (
-                <span className="text-blue-600 hover:underline mt-2">
-                  Ver más
-                </span>
-              )}
+            <div className="font-bold text-lg ml-2 line-clamp-2">
+              {event.title}
+            </div>
+            <div className="text-sm mx-2 mb-2 line-clamp-2">
+              {event.description}
             </div>
           </Link>
         ))}

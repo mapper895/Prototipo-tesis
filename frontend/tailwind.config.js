@@ -5,5 +5,5 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [tailwindScrollbarHide],
+  plugins: [tailwindScrollbarHide, require("@tailwindcss/line-clamp")],
 };
