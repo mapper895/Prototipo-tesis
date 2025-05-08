@@ -155,7 +155,21 @@ export async function createEvent(req, res) {
 export async function getAllEvents(req, res) {
   try {
     const events = await Event.find();
-    res.status(200).json({ success: true, events });
+    // Función para convertir fechas "dd/mm/yyyy" a objetos Date
+    const convertToDate = (dateStr) => {
+      const [day, month, year] = dateStr.split("/").map(Number);
+      return new Date(year, month - 1, day); // Month is 0-indexed in JavaScript
+    };
+
+    // Obtener la fecha actual
+    const today = new Date();
+
+    // Filtrar los eventos que tienen al menos una fecha futura
+    const upcomingEvents = events.filter((event) => {
+      return event.dates.some((date) => convertToDate(date) > today);
+    });
+
+    res.status(200).json({ success: true, events: upcomingEvents });
   } catch (error) {
     res
       .status(500)
@@ -166,13 +180,38 @@ export async function getAllEvents(req, res) {
 // Obtener los 10 eventos mas populares
 export async function getPopularEvents(req, res) {
   try {
-    const events = await Event.find()
-      .sort({
-        likesCount: -1,
-      })
-      .limit(10);
+    const events = await Event.find().sort({
+      likesCount: -1,
+    });
 
-    return res.status(200).json(events);
+    const today = new Date();
+
+    const futureEvents = events.filter((event) =>
+      event.dates.some((date) => new Date(date) >= today)
+    );
+
+    // Si hay menos de 10 eventos con fechas futuras, completar con más eventos populares con fechas futuras
+    const requiredEvents = 10; // Queremos exactamente 10 eventos
+    const remainingNeeded = requiredEvents - futureEvents.length;
+
+    // Si no hay suficientes eventos futuros, obtener más eventos populares que también tengan fechas futuras
+    if (remainingNeeded > 0) {
+      const additionalEvents = events
+        .filter((event) => new Date(event.dates[0]) >= today) // Solo eventos con fechas futuras
+        .slice(0, remainingNeeded); // Limitar la cantidad de eventos adicionales
+
+      // Combinar los eventos futuros con los eventos adicionales
+      futureEvents.push(...additionalEvents);
+    }
+
+    if (futureEvents.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No hay eventos populares futuros",
+      });
+    }
+
+    return res.status(200).json(futureEvents.slice(0, requiredEvents));
   } catch (error) {
     return res
       .status(500)
@@ -206,18 +245,27 @@ export async function getEventById(req, res) {
 export async function getEventsByCategory(req, res) {
   try {
     const { category } = req.params; // Obtener la categoría desde los parámetros de la URL
+
+    const today = new Date();
+
     const events = await Event.find({
       category: { $regex: new RegExp(`^${category}$`, "i") },
     });
 
-    if (events.length === 0) {
+    // Filtrar eventos en el servidor después de obtenerlos, solo aquellos con fechas futuras
+    const filteredEvents = events.filter((event) => {
+      // Convertir las fechas de string a Date y verificar si alguna es mayor o igual a today
+      return event.dates.some((date) => new Date(date) >= today);
+    });
+
+    if (filteredEvents.length === 0) {
       return res.status(400).json({
         success: false,
         message: "No se encontraron eventos para la categoría.",
       });
     }
 
-    res.status(200).json({ success: true, events });
+    res.status(200).json({ success: true, events: filteredEvents });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -229,7 +277,20 @@ export async function getEventsByCategory(req, res) {
 // Obtener las categorias
 export async function getCategories(req, res) {
   try {
-    const categories = await Event.distinct("category");
+    const today = new Date();
+
+    const events = await Event.find();
+
+    // Filtramos los eventos que tienen al menos una fecha futura
+    const eventsWithFutureDates = events.filter((event) => {
+      return event.dates.some((date) => new Date(date) > today);
+    });
+
+    // Extraemos las categorías de los eventos futuros
+    const categories = eventsWithFutureDates
+      .map((event) => event.category) // Extraemos las categorías
+      .filter((category, index, self) => self.indexOf(category) === index); // Filtramos duplicados
+
     res.status(200).json({ success: true, categories });
   } catch {
     res.status(500).json("Error al obtener categorias");
@@ -441,13 +502,21 @@ export async function searchEvents(req, res) {
       ],
     });
 
-    if (events.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No se encontraron eventos" });
+    // Filtrar los eventos que tienen fechas futuras
+    const today = new Date(); // Fecha actual
+    const futureEvents = events.filter((event) =>
+      event.dates.some((date) => new Date(date) > today)
+    );
+
+    if (futureEvents.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No se encontraron eventos",
+        events: [],
+      });
     }
 
-    res.status(200).json({ success: true, events });
+    res.status(200).json({ success: true, events: futureEvents });
   } catch (error) {
     console.log("Error en searchEvents controller:", error.message);
     res
