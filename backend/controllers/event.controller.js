@@ -530,7 +530,7 @@ export async function getUserEvents(req, res) {
   try {
     const userId = req.user._id;
 
-    const user = await User.findById(userId).populate("createdEvents");
+    const user = await User.findById(userId).populate("createdEvents").exec();
 
     if (!user) {
       return res
@@ -538,7 +538,7 @@ export async function getUserEvents(req, res) {
         .json({ success: false, message: "Usuario no encontrado" });
     }
 
-    const userEvents = user.createdEvents;
+    let userEvents = user.createdEvents;
 
     if (userEvents.length === 0) {
       return res.status(404).json({
@@ -546,6 +546,12 @@ export async function getUserEvents(req, res) {
         message: "No se han encontrado eventos creados por el usuario",
       });
     }
+
+    // Ordenamos los eventos por la fecha
+    userEvents = userEvents.sort((a, b) => {
+      // Aseguramos que las fechas estén definidas y las comparamos
+      return new Date(b.createdAt) - new Date(a.createdAt); // Más nuevo a más viejo
+    });
 
     return res.status(200).json({ success: true, events: userEvents });
   } catch (error) {
