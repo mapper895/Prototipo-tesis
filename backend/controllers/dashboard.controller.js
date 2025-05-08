@@ -111,7 +111,7 @@ export const exportDashboardToCSV = async (req, res) => {
   const userId = req.user._id;
 
   try {
-    const events = await Event.find({ organizer: userId });
+    const events = await Event.find({ createdBy: userId });
 
     // Preparamos los datos a exportar
     const data = events.map((event) => ({
@@ -146,7 +146,7 @@ export const exportDashboardToPDF = async (req, res) => {
   const userId = req.user._id;
 
   try {
-    const events = await Event.find({ organizer: userId });
+    const events = await Event.find({ createdBy: userId });
 
     // Crear el documento PDF
     const doc = new PDFDocument();
