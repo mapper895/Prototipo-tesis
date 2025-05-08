@@ -154,7 +154,8 @@ export async function createEvent(req, res) {
 // Obtener todos los eventos
 export async function getAllEvents(req, res) {
   try {
-    const events = await Event.find();
+    const events = await Event.find().sort({ createdAt: -1 }).exec();
+
     // Función para convertir fechas "dd/mm/yyyy" a objetos Date
     const convertToDate = (dateStr) => {
       const [day, month, year] = dateStr.split("/").map(Number);
@@ -250,7 +251,9 @@ export async function getEventsByCategory(req, res) {
 
     const events = await Event.find({
       category: { $regex: new RegExp(`^${category}$`, "i") },
-    });
+    })
+      .sort({ createdAt: -1 })
+      .exec();
 
     // Filtrar eventos en el servidor después de obtenerlos, solo aquellos con fechas futuras
     const filteredEvents = events.filter((event) => {
@@ -572,7 +575,9 @@ export async function getUserLikedEvents(req, res) {
     const userId = req.user._id; // EL Id del usuario autenticado
 
     // Encontramos los eventos donde el usuario esté en el array "likedBy"
-    const events = await Event.find({ likedBy: userId });
+    const events = await Event.find({ likedBy: userId })
+      .sort({ createdAt: -1 })
+      .exec();
 
     if (!events || events.length === 0) {
       return res.status(400).json({
