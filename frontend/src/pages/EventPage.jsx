@@ -226,12 +226,14 @@ const EventPage = () => {
               <h2 className="text-2xl mx-auto">Información adicional</h2>
               <p>Organziador del evento: {event.organizer}</p>
               <p>Edad: {event.target}</p>
-              <Link
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
                 className="border rounded-full px-10 py-4 border-gray-500 hover:text-blue-500 hover:border-blue-300"
-                to={event.eventUrl}
+                href={event.eventUrl}
               >
                 Más información del evento
-              </Link>
+              </a>
             </div>
           </div>
         </div>
