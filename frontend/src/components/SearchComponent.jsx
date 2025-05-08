@@ -45,8 +45,11 @@ const SearchComponent = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
+      getEventsBySearch(query);
+      setShowResults(true);
       // Redirigimos a la pagina de busqueda con el query
       navigate(`/search-results?query=${query}`);
+      setQuery("");
     }
   };
 
