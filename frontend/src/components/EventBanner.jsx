@@ -71,7 +71,7 @@ const EventBanner = ({ category }) => {
         {limitedEvents.map((event) => (
           <Link
             to={`/events/${event._id}`}
-            className="min-w-[250px] relative group shadow-lg mb-5"
+            className="w-[250px] relative group shadow-lg mb-5"
             key={event._id}
           >
             <div className="rounded-lg mb-2">
