@@ -21,7 +21,7 @@ const HomePage = () => {
   return (
     <>
       <Navbar />
-      <div className="flex flex-col items-center justify-center w-full gap-10 overflow-hidden">
+      <div className="flex flex-col items-center justify-center w-full gap-10 overflow-hidden mt-20">
         {/* Main Text */}
         <div className="text-center text-5xl font-light mt-10">
           Eventos Culturales <br /> CDMX

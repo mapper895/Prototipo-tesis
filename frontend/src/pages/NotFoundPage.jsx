@@ -5,7 +5,7 @@ const NotFoundPage = () => {
   return (
     <>
       <Navbar />
-      <div className="w-full mt-10 flex flex-col justify-center items-center gap-10">
+      <div className="w-full mt-32 flex flex-col justify-center items-center gap-10">
         <div className="w-[600px] h-[250px] justify-around flex items-center flex-col">
           <div className="text-4xl text-center font-bold">
             No encontramos esta pagina

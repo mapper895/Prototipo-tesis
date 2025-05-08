@@ -116,7 +116,7 @@ const EventPage = () => {
   return (
     <>
       <Navbar />
-      <div className="flex justify-center items-center mt-20 mx-3">
+      <div className="flex justify-center items-center mt-32 mx-3">
         <div className="w-full max-w-md p-8 space-y-6 bg-grey/60 rounded-lg shadow-md">
           <h1 className="text-center text-5xl mb-4">
             {eventId ? "Editar evento" : "Crear evento"}

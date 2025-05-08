@@ -38,7 +38,7 @@ const CategoryPage = () => {
   return (
     <>
       <Navbar />
-      <div className="max-w-[1300px] mx-auto">
+      <div className="max-w-[1300px] mx-auto mt-20">
         <div className="flex flex-col gap-5 my-5">
           <div className="flex gap-2">
             <Link to="/">Inicio</Link>

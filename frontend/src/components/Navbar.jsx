@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
 import useCategories from "../hooks/useCategories";
 import { useEffect, useRef, useState } from "react";
+import SearchComponent from "./SearchComponent";
 
 const Navbar = () => {
   const { user, logout } = useAuthStore();
@@ -70,7 +71,7 @@ const Navbar = () => {
     );
 
   return (
-    <nav className="w-full h-20 flex items-center justify-between flex-row px-5 bg-[#001f60] text-white">
+    <nav className="fixed top-0 z-50 w-full h-20 flex items-center justify-between flex-row px-5 bg-[#001f60] text-white">
       <div className="flex flex-row gap-5 text-[22px]">
         <div>
           <Link to={"/"}>Inicio</Link>
@@ -109,6 +110,9 @@ const Navbar = () => {
             </div>
           )}
         </div>
+      </div>
+      <div>
+        <SearchComponent />
       </div>
       {!user ? (
         <Link to={"/signup"}>

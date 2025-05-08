@@ -45,7 +45,7 @@ const EventPage = () => {
   return (
     <>
       <Navbar />
-      <div className="max-w-[1300px] mx-auto">
+      <div className="max-w-[1300px] mx-auto mt-20">
         <div className="flex flex-row">
           {/* Lado izquierdo */}
           <div className="flex flex-col gap-10 flex-1">

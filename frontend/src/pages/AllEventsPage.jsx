@@ -33,7 +33,7 @@ const AllEventsPage = () => {
   return (
     <>
       <Navbar />
-      <div className="max-w-[1300px] mx-auto">
+      <div className="max-w-[1300px] mx-auto mt-20">
         <div className="flex flex-col gap-5 my-5">
           <h2 className="text-6xl font-light">Todos los Eventos</h2>
           <p className="text-lg">
