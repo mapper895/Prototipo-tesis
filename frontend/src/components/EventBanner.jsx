@@ -46,6 +46,8 @@ const EventBanner = ({ category }) => {
     return <h2>No se encontraron eventos para la categoría {category}</h2>;
   }
 
+  const limitedEvents = categoryEvents.slice(0, 15);
+
   return (
     <div
       className="max-w-[1300px] flex flex-col gap-5 relative justify-evenly"
@@ -66,7 +68,7 @@ const EventBanner = ({ category }) => {
         className="flex space-x-4 overflow-x-scroll scrollbar-hide"
         ref={sliderRef}
       >
-        {categoryEvents.map((event) => (
+        {limitedEvents.map((event) => (
           <Link
             to={`/events/${event._id}`}
             className="min-w-[250px] relative group shadow-lg mb-5"
