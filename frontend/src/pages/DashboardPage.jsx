@@ -8,7 +8,7 @@ import Navbar from "../components/Navbar";
 import EventCard from "../components/EventCard";
 import { Loader } from "lucide-react";
 
-const DashboardPage = () => {
+const DashboardPage = ({ user }) => {
   const [dashboardData, setDashboardData] = useState({
     totalEvents: 0,
     totalLikes: 0,
@@ -172,7 +172,10 @@ const DashboardPage = () => {
             </div>
 
             {/* Botones de Exportación */}
-            <ExportButtons events={dashboardData.upcomingEvents} />
+            <ExportButtons
+              username={user.username}
+              events={dashboardData.upcomingEvents}
+            />
           </>
         )}
       </div>

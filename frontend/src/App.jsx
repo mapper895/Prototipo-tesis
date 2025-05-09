@@ -66,7 +66,7 @@ function App() {
         />
         <Route
           path="/dashboard"
-          element={user ? <Dashboard /> : <Navigate to={"/"} />}
+          element={user ? <Dashboard user={user} /> : <Navigate to={"/"} />}
         />
         <Route path="/events/category/:category" element={<CategoryPage />} />
         <Route path="/top-10-cdmx" element={<PopularPage />} />

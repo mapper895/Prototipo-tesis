@@ -1,5 +1,5 @@
-// dashboardStore.js
 import axios from "axios";
+import toast from "react-hot-toast";
 
 // Función para obtener las estadísticas del dashboard
 export const getDashboardStats = async () => {
@@ -7,7 +7,9 @@ export const getDashboardStats = async () => {
     const response = await axios.get("/api/v1/dashboard/stats"); // Ruta para obtener estadísticas
     return response.data;
   } catch (error) {
-    console.error("Error al obtener las estadísticas", error);
+    toast.error(
+      error.response?.data?.message || "Error al obtener las estadisticas"
+    );
     throw new Error("Error al obtener las estadísticas");
   }
 };
@@ -31,8 +33,7 @@ export const exportDashboardToCSV = async () => {
     link.click();
     document.body.removeChild(link); // Eliminar el enlace después de hacer clic
   } catch (error) {
-    console.error("Error al generar el CSV", error);
-    alert("Hubo un error al generar el CSV.");
+    toast.error(error.response?.data?.message || "Error al generar el CSV");
   }
 };
 
@@ -62,7 +63,29 @@ export const exportDashboardToPDF = async () => {
       alert("No se ha recibido un archivo PDF");
     }
   } catch (error) {
-    console.error("Error al generar el PDF", error);
-    alert("Hubo un error al generar el PDF.");
+    toast.error(error.response?.data?.message || "Error al generar el PDF");
+  }
+};
+
+// Función para exportar todos los eventos a JSON con fecha en el nombre del archivo
+export const exportAllEventsToJSON = async () => {
+  try {
+    const response = await axios.get("/api/v1/dashboard/export/all-events", {
+      responseType: "blob",
+    });
+
+    // Obtener la fecha actual y formatearla como YYYY-MM-DD
+    const currentDate = new Date().toISOString().split("T")[0]; // Ej: 2025-04-10
+    const fileName = `allEvents_${currentDate}.json`; // Nombre del archivo con fecha
+
+    const url = window.URL.createObjectURL(new Blob([response.data])); // Crear URL del archivo JSON
+    const link = document.createElement("a"); // Crear un enlace de descarga
+    link.href = url;
+    link.setAttribute("download", fileName); // Usar el nombre con fecha
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link); // Eliminar el enlace después de hacer clic
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Error al generar el JSON");
   }
 };

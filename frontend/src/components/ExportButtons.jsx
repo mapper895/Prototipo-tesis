@@ -1,9 +1,10 @@
 import {
   exportDashboardToCSV,
   exportDashboardToPDF,
+  exportAllEventsToJSON,
 } from "../store/dashboardStore";
 
-const ExportButtons = () => {
+const ExportButtons = ({ username }) => {
   return (
     <div className="my-10 flex justify-center space-x-6">
       <button
@@ -19,6 +20,15 @@ const ExportButtons = () => {
       >
         Exportar a CSV
       </button>
+
+      {username === "admin" && (
+        <button
+          onClick={exportAllEventsToJSON}
+          className="px-6 py-2 bg-violet-500 text-white rounded-lg hover:bg-violet-600"
+        >
+          Exportar JSON
+        </button>
+      )}
     </div>
   );
 };

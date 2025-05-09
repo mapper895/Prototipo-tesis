@@ -230,20 +230,20 @@ export const exportAllEvents = async (req, res) => {
     // Obtenemos los eventos de la base de datos
     const events = await Event.find();
 
-    // Convertimos los eventos en formato JSON
-    const eventJson = JSON.stringify(events, null, 2);
-
-    const currentDate = new Date().toISOString().split("T")[0]; // Formato 'YYYY-MM-DD
+    // Convertir los eventos a formato JSON
+    const eventsJson = JSON.stringify(events, null, 2);
 
     // Establecemos los encabezados de la respuesta para indicar que es un JSON descargable
     res.setHeader("Content-Type", "application/json");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filemane=allEvents_${currentDate}.json`
+      `attachment; filemane=allEvents_${
+        new Date().toISOString().split("T")[0]
+      }.json`
     );
 
     // Enviamos el archivo JSON directamente en la respuesta
-    res.send(eventJson);
+    res.send(eventsJson);
   } catch (error) {
     console.error("Error al obtener eventos:", error);
     res
