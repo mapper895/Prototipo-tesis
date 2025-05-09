@@ -6,7 +6,7 @@ import moment from "moment";
 
 // Funcion para obtener stats del dashboard
 export const getUserDashboardStats = async (req, res) => {
-  const userId = req.user._id;
+  const userId = req.user;
 
   try {
     // Obtener todos los eventos del creador
@@ -214,5 +214,40 @@ export const exportDashboardToPDF = async (req, res) => {
   } catch (error) {
     console.error("Error al generar el reporte PDF", error);
     res.status(500).json({ message: "Error al generar el reporte PDF" });
+  }
+};
+
+export const exportAllEvents = async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (user.username !== "admin") {
+      return res
+        .status(403)
+        .json({ success: false, message: "Acceso denegado" });
+    }
+
+    // Obtenemos los eventos de la base de datos
+    const events = await Event.find();
+
+    // Convertimos los eventos en formato JSON
+    const eventJson = JSON.stringify(events, null, 2);
+
+    const currentDate = new Date().toISOString().split("T")[0]; // Formato 'YYYY-MM-DD
+
+    // Establecemos los encabezados de la respuesta para indicar que es un JSON descargable
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filemane=allEvents_${currentDate}.json`
+    );
+
+    // Enviamos el archivo JSON directamente en la respuesta
+    res.send(eventJson);
+  } catch (error) {
+    console.error("Error al obtener eventos:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error al obtener eventos" });
   }
 };

@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  exportAllEvents,
   exportDashboardToCSV,
   exportDashboardToPDF,
   getUserDashboardStats,
@@ -15,5 +16,7 @@ router.get("/stats", protectRoute, getUserDashboardStats);
 router.get("/export/csv", protectRoute, exportDashboardToCSV);
 // Ruta para exportar el reporte en PDF
 router.get("/export/pdf", protectRoute, exportDashboardToPDF);
+// Ruta para descargar el JSON de todos los eventos
+router.get("/export/all-events", protectRoute, exportAllEvents);
 
 export default router;
