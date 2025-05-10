@@ -14,18 +14,24 @@ export const createReservation = async (req, res) => {
         .json({ success: false, message: "Evento no encontrado" });
     }
 
-    // Convertir las fechas de event.dates a formato YYYY-MM-DD para compararlas con la fecha seleccionada
-    const eventDates = event.dates.map((date) => {
-      const [day, month, year] = date.split("/").map(Number);
-      return new Date(year, month - 1, day).toISOString().split("T")[0]; // Convertir a 'YYYY-MM-DD'
-    });
     // Verificar si la fecha seleccionada es válida
-    const isDateValid = eventDates.includes(eventDate); // Comparar las fechas en formato 'YYYY-MM-DD'
+    // Convertir las fechas de event.dates a formato 'DD/MM/YYYY' para compararlas con la fecha seleccionada
+    const isDateValid = event.dates.includes(eventDate); // Comparar las fechas en formato 'DD/MM/YYYY'
 
     if (!isDateValid) {
       return res.status(400).json({
         success: false,
         message: "La fecha seleccionada no es válida",
+      });
+    }
+
+    // Verificar si la fecha seleccionada es pasada
+    const selectedDateObj = new Date(eventDate.split("/").reverse().join("/"));
+    const today = new Date();
+    if (selectedDateObj < today) {
+      return res.status(400).json({
+        success: false,
+        message: "La fecha seleccionada ya ha pasado",
       });
     }
 
