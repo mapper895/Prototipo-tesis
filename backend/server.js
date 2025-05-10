@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.route.js";
 import eventRouter from "./routes/event.route.js";
 import mapsRoute from "./routes/maps.route.js";
 import dashboardRoute from "./routes/dashboard.routes.js";
+import reservationRoute from "./routes/reservation.route.js";
 import { ENV_VARS } from "./config/envVars.js";
 import { connectDB } from "./config/db.js";
 import cookieParser from "cookie-parser";
@@ -19,6 +20,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/event", eventRouter);
 app.use("/api/v1/maps", mapsRoute);
 app.use("/api/v1/dashboard", dashboardRoute);
+app.use("/api/v1/reservation", reservationRoute);
 
 app.listen(PORT, () => {
   console.log("El servidor esta listo en http://localhost:" + PORT);
