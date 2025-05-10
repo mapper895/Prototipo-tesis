@@ -5,11 +5,9 @@ import { useAuthStore } from "../store/authUser";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Heart, Loader, Map, Pencil, Trash2 } from "lucide-react";
-import { format, parse } from "date-fns";
-import { es } from "date-fns/locale";
-import CalendarComponent from "../components/CalendarComponent";
 import "react-calendar/dist/Calendar.css"; // Importa los estilos de react-calendar
 import Maps from "../components/Maps";
+import EventBooking from "../components/EventBooking";
 
 const EventPage = () => {
   const { id } = useParams();
@@ -43,18 +41,6 @@ const EventPage = () => {
     } catch (error) {
       console.log("Error al eliminar el evento: ", error);
     }
-  };
-
-  const formatDate = (dateString) => {
-    const date = parse(dateString, "dd/MM/yyyy", new Date());
-
-    if (isNaN(date)) {
-      console.log("Fecha invalida: ", dateString);
-      return null;
-    }
-    const formattedDate = format(date, "EEE dd MMM", { locale: es });
-    const [dayOfWeek, day, month] = formattedDate.split(" ");
-    return { dayOfWeek, day, month };
   };
 
   if (isFetchingEvent || !event) {
@@ -152,54 +138,8 @@ const EventPage = () => {
           <div className="flex flex-col flex-1 items-center mt-20 gap-10">
             <div className="text-6xl font-light">Fecha y Hora</div>
 
-            {/* Calendario, muestra fechas disponibles */}
-            <div className="w-4/5 flex justify-center items-center flex-col gap-5">
-              <h2 className="text-2xl">Fechas disponibles</h2>
-              {event.dates.length > 4 ? (
-                <CalendarComponent dates={event.dates} />
-              ) : (
-                <div className="flex gap-3 flex-wrap">
-                  {event.dates.map((date, index) => {
-                    const { dayOfWeek, day, month } = formatDate(date);
-                    return (
-                      <div
-                        key={index}
-                        className="w-[120px] h-[50px] rounded-full flex items-center justify-center border border-gray-500 hover:text-blue-500 cursor-pointer hover:border-blue-300"
-                      >
-                        <span className="text-center">
-                          {dayOfWeek} <br />
-                          {day} {month}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Muestra los horarios disponibles */}
-            <div className="w-4/5 flex justify-center items-center flex-col gap-5">
-              <h2 className="text-2xl">Horarios disponibles</h2>
-              <div className="flex flex-row gap-5">
-                {event.schedules ? (
-                  <div className="flex flex-col items-center gap-4">
-                    {event.schedules.map((schedule, index) => (
-                      <div
-                        key={index}
-                        className="w-[100px] h-[50px] rounded-full flex items-center justify-center border border-gray-500 hover:text-blue-500 cursor-pointer hover:border-blue-300"
-                      >
-                        {schedule}
-                      </div>
-                    ))}
-                    <p className="text-xs">
-                      Duracion del evento: {event.duration} hrs.
-                    </p>
-                  </div>
-                ) : (
-                  <p>No hay horarios disponibles</p>
-                )}
-              </div>
-            </div>
+            {/* Calendario y horarios | Boton de reserva/notificacion */}
+            <EventBooking event={event} />
 
             {/* Muestra los tipos de boletos o costos */}
             <div className="w-4/5 flex flex-col">
@@ -216,7 +156,7 @@ const EventPage = () => {
                     </div>
                   ))
                 ) : (
-                  <p>No hay horarios disponibles</p>
+                  <p>No hay precios disponibles</p>
                 )}
               </div>
             </div>
