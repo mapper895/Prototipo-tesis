@@ -83,3 +83,27 @@ export const createReservation = async (req, res) => {
       .json({ success: false, message: "Error al realizar la reserva" });
   }
 };
+
+export const getUserReservations = async (req, res) => {
+  try {
+    // Obtenemos al usuario autenticado
+    const userId = req.user._id;
+
+    // Obtenemos las reservas del usuario
+    const reservations = await Reservation.find({ userId }).populate("eventId");
+
+    if (!reservations || reservations.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No tienes reservas" });
+    }
+
+    // Devolvemos las reservas encontradas
+    return res.status(200).json({ success: true, reservations });
+  } catch (error) {
+    console.log("Error al obtener las reservas del usuario");
+    return res
+      .status(500)
+      .json({ success: false, message: "Error al obtener las reservas" });
+  }
+};
