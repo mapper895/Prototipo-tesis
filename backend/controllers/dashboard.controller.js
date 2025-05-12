@@ -30,10 +30,14 @@ export const getUserDashboardStats = async (req, res) => {
     // 4. Eventos próximos
     const upcomingEvents = events.filter((ev) =>
       ev.dates.some((date) => {
-        const eventDate = new Date(date);
+        // Convertir la fecha "dd/MM/yyyy" a "yyyy-MM-dd"
+        const [day, month, year] = date.split("/").map(Number);
+        const eventDate = new Date(year, month - 1, day); // Crear el objeto Date
+
+        // Obtener la fecha actual y la fecha de la próxima semana
         const today = new Date();
         const nextWeek = new Date(today);
-        nextWeek.setDate(today.getDate() + 7); // Establece la fecha de la próxima semana
+        nextWeek.setDate(today.getDate() + 7); // Establecer la fecha de la próxima semana
 
         // Filtra eventos dentro de los próximos 7 días
         return eventDate > today && eventDate <= nextWeek;
@@ -101,7 +105,7 @@ export const getUserDashboardStats = async (req, res) => {
       totalEvents,
       totalLikes,
       totalViews,
-      upcomingEvents: upcomingEvents.slice(0, 5),
+      upcomingEvents: upcomingEvents,
       mostLikedEvent,
       mostViewedEvent,
       events,
