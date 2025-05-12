@@ -8,13 +8,29 @@ import Footer from "../components/Footer";
 import { Loader } from "lucide-react";
 
 const MyReservationsPage = () => {
-  const { reservations, getUserReservations, isLoading } =
-    useReservationStore();
+  const {
+    reservations,
+    eventToDelete,
+    setEventToDelete,
+    clearEventToDelete,
+    deleteEvent,
+    isDeletingEvent,
+    getUserReservations,
+    isLoading,
+  } = useReservationStore();
 
   const [filter, setFilter] = useState("all");
   const [selectedDate, setSelectedDate] = useState(null);
 
   const filteredEvents = filterReservations(reservations, filter, selectedDate);
+
+  const handleDeleteClick = (id) => {
+    setEventToDelete(id);
+  };
+
+  const handleCancel = () => {
+    clearEventToDelete();
+  };
 
   useEffect(() => {
     getUserReservations();
@@ -55,10 +71,35 @@ const MyReservationsPage = () => {
               key={event._id}
               event={event.eventId}
               reservation={event}
+              onDelete={handleDeleteClick}
             />
           ))}
         </div>
       </div>
+
+      {eventToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 rounded-3xl">
+          <div className="bg-white p-6 rounded shadow-md text-center">
+            <h2 className="text-xl font-semibold">¿Estás seguro?</h2>
+            <p>¿Deseas eliminar esta reservación?</p>
+            <div className="mt-4 flex justify-end space-x-2">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={deleteEvent}
+                className="px-4 py-2 bg-red-500 text-white rounded"
+                disabled={isDeletingEvent}
+              >
+                {isDeletingEvent ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </>

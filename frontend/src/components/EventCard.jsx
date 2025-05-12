@@ -50,7 +50,7 @@ const EventCard = ({
           </div>
           <div
             className="w-2/5 p-2 bg-red-500 flex items-center justify-center gap-2 text-sm cursor-pointer"
-            onClick={() => onDelete(event._id)}
+            onClick={() => onDelete(reservation._id)}
           >
             Eliminar reservacion <Trash2 size={30} />
           </div>
