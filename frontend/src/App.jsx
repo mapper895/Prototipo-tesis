@@ -16,6 +16,7 @@ import MyEventsPage from "./pages/MyEventsPage";
 import MyLikedEvents from "./pages/MyLikedEvents";
 import Dashboard from "./pages/DashboardPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
+import MyReservationsPage from "./pages/MyReservationsPage";
 
 function App() {
   const { user, isCheckingAuth, authCheck } = useAuthStore();
@@ -59,6 +60,10 @@ function App() {
         <Route
           path="/my-events"
           element={user ? <MyEventsPage /> : <Navigate to={"/"} />}
+        />
+        <Route
+          path="/my-reservations"
+          element={user ? <MyReservationsPage /> : <Navigate to={"/"} />}
         />
         <Route
           path="/my-liked-events"

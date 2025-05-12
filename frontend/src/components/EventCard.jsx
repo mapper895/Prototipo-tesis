@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import { Pencil, Trash2 } from "lucide-react";
 
-const EventCard = ({ event, editable = false, onDelete }) => {
+const EventCard = ({
+  event,
+  editable = false,
+  reservation = false,
+  onDelete,
+}) => {
   return (
     <div className="flex flex-col shadow-lg rounded-lg overflow-hidden">
       <Link to={`/events/${event._id}`}>
@@ -29,6 +34,25 @@ const EventCard = ({ event, editable = false, onDelete }) => {
             onClick={() => onDelete(event._id)}
           >
             Eliminar evento <Trash2 size={16} />
+          </div>
+        </div>
+      )}
+
+      {reservation && (
+        <div className="flex h-full">
+          <div className="w-3/5 p-2 bg-blue-200 flex-col items-center justify-center gap-2 text-sm">
+            Reservación para el{" "}
+            <span className="font-bold text-md">{reservation.eventDate}</span> a
+            las{" "}
+            <span className="font-bold text-md">
+              {reservation.eventSchedule}
+            </span>
+          </div>
+          <div
+            className="w-2/5 p-2 bg-red-500 flex items-center justify-center gap-2 text-sm cursor-pointer"
+            onClick={() => onDelete(event._id)}
+          >
+            Eliminar reservacion <Trash2 size={30} />
           </div>
         </div>
       )}

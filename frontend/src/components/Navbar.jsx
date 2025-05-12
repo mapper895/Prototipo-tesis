@@ -140,7 +140,10 @@ const Navbar = () => {
                 className="origin-top-right absolute right-0 mt-2 top-12 w-56 rounded-md shadow-lg bg-white ring-1 ring-white text-black ring-opacity-5"
               >
                 <div className="py-2 px-3">
-                  <Link to={"/my-events"}>Mis eventos</Link>
+                  <Link to={"/my-events"}>Mis eventos creados</Link>
+                </div>
+                <div className="py-2 px-3">
+                  <Link to={"/my-reservations"}>Mis reservaciones</Link>
                 </div>
                 <div className="py-2 px-3">
                   <Link to={"/my-liked-events"}> Mis likes</Link>

@@ -4,6 +4,7 @@ import { create } from "zustand";
 
 export const useReservationStore = create((set) => ({
   isBooking: false,
+  isLoading: false,
   reservations: [],
 
   // Funcion para crear la reserva
@@ -29,6 +30,25 @@ export const useReservationStore = create((set) => ({
       toast.error(
         error.response?.data?.message || "Error al realizar la reserva"
       );
+    }
+  },
+
+  getUserReservations: async () => {
+    set({ isLoading: true });
+    try {
+      // Hacemos la solicitud al backend
+      const response = await axios.get("/api/v1/reservation/user-reservations");
+
+      // Actualizamos el estado con las reservas del usuario
+      set({
+        reservations: response.data.reservations,
+        isLoading: false,
+      });
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Error al obtener las reservas"
+      );
+      set({ isLoading: false });
     }
   },
 }));
