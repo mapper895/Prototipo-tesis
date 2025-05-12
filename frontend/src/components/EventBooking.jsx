@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CalendarComponent from "./CalendarComponent";
 import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
-import { createReservation } from "../store/reservationStore";
+import { useReservationStore } from "../store/reservationStore";
 import toast from "react-hot-toast";
 
 const EventBooking = ({ event }) => {
   const [selectedDate, setSelectedDate] = useState(null); // Fecha seleccionada
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState(null);
   const [selectedSchedule, setSelectedSchedule] = useState(null); // Horario seleccionado
-  const [isBooked, setIsBooked] = useState(false); // Estado de reserva
+  const { isBooking, createReservation } = useReservationStore();
+  const [isBooked, setIsBooked] = useState(false);
 
+  // Funcion para formatear fecha a //Dia/fecha/mes
   const formatDate = (dateString) => {
     const date = parse(dateString, "dd/MM/yyyy", new Date());
 
@@ -23,30 +26,49 @@ const EventBooking = ({ event }) => {
     return { dayOfWeek, day, month };
   };
 
+  // Funcion para seleccionar fecha cuando el array de fechas es menor a 4
   const handleDateSelect = (date) => {
-    setSelectedDate(selectedDate === date ? null : date); // Setear la fecha seleccionada
+    setSelectedDate(date === selectedDate ? null : date);
     setIsBooked(false);
   };
 
+  // Funcion para seleccionar fecha cuando el array de fechas es mayor a 4
+  const handleCalendarDateSelect = (date) => {
+    const selectedCalendarDate = new Date(date);
+    if (selectedCalendarDate.getTime() === selectedCalendarDate.getTime()) {
+      setSelectedCalendarDate(selectedCalendarDate);
+      setSelectedDate(null); // Limpiar la selección de fecha desde la lista si se selecciona desde el calendario
+    }
+    setIsBooked(false);
+  };
+
+  // Funcion para seleccionar horario
   const handleScheduleSelect = (schedule) => {
+    setSelectedSchedule(schedule === selectedSchedule ? null : schedule);
     setIsBooked(false);
-    setSelectedSchedule(selectedSchedule === schedule ? null : schedule); // Setear el horario seleccionado
   };
 
-  const handleBooking = async () => {
-    if (selectedDate && selectedSchedule) {
-      // Llamamos a la función para crear la reserva con los datos correctos
-      try {
-        await createReservation(event._id, selectedDate, selectedSchedule);
-        setIsBooked(true);
-      } catch (error) {
-        toast.error(error.message || "Error al realizar la reserva");
-        setIsBooked(false);
+  // Funcion para realizar la reserva
+  const handleBooking = () => {
+    if (selectedSchedule && (selectedCalendarDate || selectedDate)) {
+      if (selectedCalendarDate) {
+        const formattedDate = format(selectedCalendarDate, "dd/MM/yyyy");
+        createReservation(event._id, formattedDate, selectedSchedule);
+      } else {
+        createReservation(event._id, selectedDate, selectedSchedule);
       }
+      setIsBooked(true);
     } else {
       toast.error("Por favor, selecciona una fecha y un horario.");
     }
   };
+
+  useEffect(() => {
+    setSelectedDate(null);
+    setSelectedCalendarDate(null);
+    setSelectedSchedule(null);
+    setIsBooked(false);
+  }, [event]);
 
   return (
     <div className="w-full flex-col items-center flex gap-10">
@@ -56,8 +78,8 @@ const EventBooking = ({ event }) => {
         {event.dates.length > 4 ? (
           <CalendarComponent
             dates={event.dates}
-            onDateSelect={handleDateSelect}
-            selectedDate={selectedDate}
+            onDateSelect={handleCalendarDateSelect}
+            selectedDate={selectedCalendarDate}
           />
         ) : (
           <div className="flex gap-3 flex-wrap">
@@ -128,8 +150,13 @@ const EventBooking = ({ event }) => {
               ? "bg-blue-500 text-white"
               : "border border-gray-500 hover:text-blue-500"
           } hover:border-blue-300 cursor-pointer`}
+          disabled={isBooking}
         >
-          {isBooked ? "¡Reservado!" : "Reservar evento"}
+          {isBooking
+            ? "Reservando..."
+            : isBooked
+            ? "¡Reservado!"
+            : "Reservar evento"}
         </button>
       </div>
     </div>
