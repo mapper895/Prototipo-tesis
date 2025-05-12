@@ -51,11 +51,13 @@ export const useReservationStore = create((set, get) => ({
       });
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Error al obtener las reservas"
+        error.response?.data?.message || "Error al obtener las reservaciones"
       );
       set({ isLoading: false });
     }
   },
+
+  clearReservations: () => set({ reservations: [] }),
 
   // Funcion para eliminar una reservacion
   deleteEvent: async () => {

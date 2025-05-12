@@ -6,8 +6,10 @@ import { filterReservations } from "../utils/filterEvents";
 import EventCard from "../components/EventCard";
 import Footer from "../components/Footer";
 import { Loader } from "lucide-react";
+import { useAuthStore } from "../store/authUser";
 
 const MyReservationsPage = () => {
+  const { user } = useAuthStore();
   const {
     reservations,
     eventToDelete,
@@ -17,6 +19,7 @@ const MyReservationsPage = () => {
     isDeletingEvent,
     getUserReservations,
     isLoading,
+    clearReservations,
   } = useReservationStore();
 
   const [filter, setFilter] = useState("all");
@@ -33,8 +36,13 @@ const MyReservationsPage = () => {
   };
 
   useEffect(() => {
-    getUserReservations();
-  }, [getUserReservations]);
+    if (user) {
+      getUserReservations();
+    }
+    return () => {
+      clearReservations();
+    };
+  }, [user, getUserReservations, clearReservations]);
 
   if (isLoading) {
     return (
@@ -65,15 +73,21 @@ const MyReservationsPage = () => {
         />
 
         <div className="grid grid-cols-4 gap-7 my-5">
-          {console.log(filteredEvents)}
-          {filteredEvents.map((event) => (
-            <EventCard
-              key={event._id}
-              event={event.eventId}
-              reservation={event}
-              onDelete={handleDeleteClick}
-            />
-          ))}
+          {console.log(reservations)}
+          {reservations.length === 0 ? (
+            <div className="p-4 text-center text-lg">
+              No tienes reservaciones hechas.
+            </div>
+          ) : (
+            filteredEvents.map((event) => (
+              <EventCard
+                key={event._id}
+                event={event.eventId}
+                reservation={event}
+                onDelete={handleDeleteClick}
+              />
+            ))
+          )}
         </div>
       </div>
 
