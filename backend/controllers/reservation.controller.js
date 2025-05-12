@@ -107,3 +107,37 @@ export const getUserReservations = async (req, res) => {
       .json({ success: false, message: "Error al obtener las reservas" });
   }
 };
+
+export const deleteReservation = async (req, res) => {
+  try {
+    const reservationId = req.params.id;
+
+    const reservation = await Reservation.findById(reservationId);
+
+    if (!reservation) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Reservacion no encontrada" });
+    }
+
+    // Veridicamos que el usuario que hace la solicitus es el mismo que hizo la reserva
+    if (reservation.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "No tienes permiso para eliminar esta reservación",
+      });
+    }
+
+    // Eliminamos la reservacion
+    await Reservation.findByIdAndDelete(reservationId);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Reservación eliminada con éxito" });
+  } catch (error) {
+    console.log("Error al eliminar la reservación", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error al eliminar la reservación" });
+  }
+};
