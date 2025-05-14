@@ -1,16 +1,30 @@
-import { ChevronDown, ChevronUp, CircleUserRound, Loader } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  CircleUserRound,
+  Loader,
+  Bell,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
 import useCategories from "../hooks/useCategories";
 import { useEffect, useRef, useState } from "react";
 import SearchComponent from "./SearchComponent";
+import { useNotificationStore } from "../store/notificationStore";
 
 const Navbar = () => {
   const { user, logout } = useAuthStore();
+  const { isLoading, notifications, getUserNotifications, markAsRead } =
+    useNotificationStore();
   const { categories, isLoadingCategories } = useCategories();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isUserOpen, setIsUserOpen] = useState(false);
+  const [notificationsMenuOpen, setNotificationsMenuOpen] = useState(false);
+
+  const handleNotificationClick = async (notificationId) => {
+    await markAsRead(notificationId);
+  };
 
   const toggleDropDown = () => {
     setIsOpen(!isOpen);
@@ -20,11 +34,18 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
+  const toggleNotificationsMenu = (event) => {
+    event.stopPropagation(); // Evitar que el clic se propague a document
+    setNotificationsMenuOpen((prev) => !prev); // Toggle entre abrir y cerrar el menú
+  };
+
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
   const navRef = useRef(null);
   const navButtonRef = useRef(null);
+  const notificationsMenuRef = useRef(null);
 
+  // Detectar clic fuera del menú de usuario
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -43,6 +64,7 @@ const Navbar = () => {
     };
   });
 
+  // Detectar clic fuera del menú de categorías
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -61,7 +83,29 @@ const Navbar = () => {
     };
   });
 
-  if (isLoadingCategories)
+  // Detectar clic fuera del menú de notificaciones
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationsMenuRef.current &&
+        !notificationsMenuRef.current.contains(event.target)
+      ) {
+        setNotificationsMenuOpen(false); // Cerrar el menú si se hace clic fuera
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    getUserNotifications();
+  }, [getUserNotifications]);
+
+  if (isLoadingCategories || isLoading)
     return (
       <div className="h-screen">
         <div className="flex justify-center items-center bg-white h-full">
@@ -123,6 +167,54 @@ const Navbar = () => {
           <Link className="text-[22px]" to={"/create-event"}>
             Crear evento
           </Link>
+          <div
+            className="h-full relative cursor-pointer"
+            onClick={toggleNotificationsMenu} // Toggle menú de notificaciones
+          >
+            {notifications.length > 0 && (
+              <div className="absolute bottom-3 left-2 rounded-full bg-red-500 flex items-center justify-center text-white text-xs w-5 h-5">
+                {
+                  notifications.filter((notification) => !notification.read)
+                    .length
+                }
+              </div>
+            )}
+
+            <Bell />
+
+            {/* Menú de notificaciones */}
+            {notificationsMenuOpen && (
+              <div
+                ref={notificationsMenuRef} // Referencia para detectar clic fuera del menú
+                className="absolute top-10 right-2 bg-white border border-gray-300 shadow-lg w-96 text-black max-h-[400px] overflow-y-auto rounded-lg"
+              >
+                <h3 className="font-bold p-4">Notificaciones</h3>
+                {/* Lista de notificaciones */}
+                {notifications.length > 0 ? (
+                  notifications.map((notification) => (
+                    <Link
+                      to={`/events/${notification.eventId}`}
+                      key={notification._id}
+                      className={`block pb-4 px-4 border-b ${
+                        notification.read ? "bg-white" : "bg-gray-100"
+                      }`}
+                      onClick={() => handleNotificationClick(notification._id)}
+                    >
+                      <p
+                        className={`${
+                          notification.read ? "text-gray-600" : "text-black"
+                        }`}
+                      >
+                        {notification.message}
+                      </p>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="p-4">No tienes notificaciones</p>
+                )}
+              </div>
+            )}
+          </div>
           <div
             className="flex flex-row items-center cursor-pointer relative"
             ref={buttonRef}
