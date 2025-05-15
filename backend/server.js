@@ -9,12 +9,9 @@ import notificationRoute from "./routes/notification.routes.js";
 import { ENV_VARS } from "./config/envVars.js";
 import { connectDB } from "./config/db.js";
 import cookieParser from "cookie-parser";
-import { scheduleNotification } from "./utils/cronJobs.js";
+import "./utils/cronJobs.js";
 
 const app = express();
-
-// Funcion para la programacion de obtencion de notificaciones
-scheduleNotification();
 
 const PORT = ENV_VARS.PORT;
 
