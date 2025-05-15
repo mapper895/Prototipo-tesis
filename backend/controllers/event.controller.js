@@ -2,6 +2,8 @@ import { Event } from "../models/event.model.js";
 import { User } from "../models/user.model.js";
 import axios from "axios";
 import { ENV_VARS } from "../config/envVars.js";
+import moment from "moment";
+import { sendEventNotificationEmail } from "../utils/notificationService.js";
 
 // Crear un nuevo evento
 export async function createEvent(req, res) {
@@ -131,12 +133,13 @@ export async function createEvent(req, res) {
 
     const savedEvent = await newEvent.save();
 
+    const userEmail = req.user.email;
+    await sendEventNotificationEmail(userEmail, savedEvent, "creado");
+
     // Despues de crear el evento, actualizamos el campo "createdEvents" en el usuario
     await User.findByIdAndUpdate(userId, {
       $push: { createdEvents: savedEvent._id }, // Agregamos el Id del evento a createdEvents
     });
-
-    console.log("Evento creado exitosamente: ", savedEvent);
 
     res.status(201).json({
       success: true,
@@ -156,19 +159,22 @@ export async function getAllEvents(req, res) {
   try {
     const events = await Event.find().sort({ createdAt: -1 }).exec();
 
-    // Función para convertir fechas "dd/mm/yyyy" a objetos Date
-    const convertToDate = (dateStr) => {
-      const [day, month, year] = dateStr.split("/").map(Number);
-      return new Date(year, month - 1, day); // Month is 0-indexed in JavaScript
-    };
+    // Filtrar los eventos que tienen fechas futuras
+    const today = moment(); // Fecha actual
+    const upcomingEvents = events.filter((event) =>
+      event.dates.some((dateStr) => {
+        const date = moment(dateStr, "DD/MM/YYYY");
+        return date.isSameOrAfter(today, "day");
+      })
+    );
 
-    // Obtener la fecha actual
-    const today = new Date();
-
-    // Filtrar los eventos que tienen al menos una fecha futura
-    const upcomingEvents = events.filter((event) => {
-      return event.dates.some((date) => convertToDate(date) > today);
-    });
+    if (upcomingEvents.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No se encontraron eventos",
+        events: [],
+      });
+    }
 
     res.status(200).json({ success: true, events: upcomingEvents });
   } catch (error) {
@@ -185,11 +191,22 @@ export async function getPopularEvents(req, res) {
       likesCount: -1,
     });
 
-    const today = new Date();
-
+    // Filtrar los eventos que tienen fechas futuras
+    const today = moment(); // Fecha actual
     const futureEvents = events.filter((event) =>
-      event.dates.some((date) => new Date(date) >= today)
+      event.dates.some((dateStr) => {
+        const date = moment(dateStr, "DD/MM/YYYY");
+        return date.isSameOrAfter(today, "day");
+      })
     );
+
+    if (futureEvents.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No se encontraron eventos",
+        futureEvents: [],
+      });
+    }
 
     // Si hay menos de 10 eventos con fechas futuras, completar con más eventos populares con fechas futuras
     const requiredEvents = 10; // Queremos exactamente 10 eventos
@@ -247,24 +264,26 @@ export async function getEventsByCategory(req, res) {
   try {
     const { category } = req.params; // Obtener la categoría desde los parámetros de la URL
 
-    const today = new Date();
-
     const events = await Event.find({
       category: { $regex: new RegExp(`^${category}$`, "i") },
     })
       .sort({ createdAt: -1 })
       .exec();
 
-    // Filtrar eventos en el servidor después de obtenerlos, solo aquellos con fechas futuras
-    const filteredEvents = events.filter((event) => {
-      // Convertir las fechas de string a Date y verificar si alguna es mayor o igual a today
-      return event.dates.some((date) => new Date(date) >= today);
-    });
+    // Filtrar los eventos que tienen fechas futuras
+    const today = moment(); // Fecha actual
+    const filteredEvents = events.filter((event) =>
+      event.dates.some((dateStr) => {
+        const date = moment(dateStr, "DD/MM/YYYY");
+        return date.isSameOrAfter(today, "day");
+      })
+    );
 
     if (filteredEvents.length === 0) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
-        message: "No se encontraron eventos para la categoría.",
+        message: "No se encontraron eventos",
+        events: [],
       });
     }
 
@@ -398,6 +417,9 @@ export async function updateEvent(req, res) {
         .json({ success: false, message: "No se pudo actualizar el evento" });
     }
 
+    const userEmail = req.user.email;
+    await sendEventNotificationEmail(userEmail, updatedEvent, "actualizado");
+
     // Respondemos con el evento actualizado
     res.status(200).json({ success: true, event: updatedEvent });
   } catch (error) {
@@ -506,9 +528,12 @@ export async function searchEvents(req, res) {
     });
 
     // Filtrar los eventos que tienen fechas futuras
-    const today = new Date(); // Fecha actual
+    const today = moment(); // Fecha actual
     const futureEvents = events.filter((event) =>
-      event.dates.some((date) => new Date(date) > today)
+      event.dates.some((dateStr) => {
+        const date = moment(dateStr, "DD/MM/YYYY");
+        return date.isSameOrAfter(today, "day");
+      })
     );
 
     if (futureEvents.length === 0) {
