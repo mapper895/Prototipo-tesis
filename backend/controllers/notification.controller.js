@@ -24,6 +24,7 @@ export const getUserNotifications = async (req, res) => {
   }
 };
 
+// Crear y enviar notificaciones para la reserva de eventos que son el dia de mañana
 export const runNotifyReservationsManually = async (req, res) => {
   try {
     const notification = await notifyReservationsForTomorrow();
@@ -120,11 +121,9 @@ export const sendWeeklyEventSummary = async (req, res) => {
 export const runNotifyEventEndedManually = async (req, res) => {
   try {
     await notifyEventEnded();
-    res
-      .status(200)
-      .json({
-        message: "Notificaciones de eventos terminado enviadas correctamente",
-      });
+    res.status(200).json({
+      message: "Notificaciones de eventos terminado enviadas correctamente",
+    });
   } catch (error) {
     console.log("Error ejecutando notifyEventEnded manualmente: ", error);
     res
