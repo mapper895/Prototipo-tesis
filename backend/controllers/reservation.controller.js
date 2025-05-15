@@ -1,5 +1,6 @@
 import Reservation from "../models/reservation.model.js";
 import { Event } from "../models/event.model.js";
+import { sendReservationConfirmationEmail } from "../utils/notificationService.js";
 
 export const createReservation = async (req, res) => {
   try {
@@ -70,6 +71,9 @@ export const createReservation = async (req, res) => {
     });
 
     await reservation.save();
+
+    // Enviar correo de confirmación
+    await sendReservationConfirmationEmail(req.user.email, reservation, event);
 
     res.status(200).json({
       success: true,
