@@ -78,6 +78,10 @@ const eventSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    endedNotificationSent: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

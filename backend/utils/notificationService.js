@@ -222,7 +222,7 @@ export const notifyEventEnded = async () => {
   const today = moment().startOf("day");
 
   // Buscamos todos los eventos que ya terminaron (ultima fecha < hoy)
-  const endedEvents = await Event.find().lean();
+  const endedEvents = await Event.find({ endedNotificationSent: false }).lean();
 
   for (const event of endedEvents) {
     if (!event.dates || event.dates.length === 0) continue;
@@ -259,6 +259,9 @@ export const notifyEventEnded = async () => {
 
       // Enviar correo
       await sendEmail(creator.email, subject, null, html);
+
+      // Marcamos que ya se envio la notificacion
+      await Event.findByIdAndUpdate(event._id, { endedNotificationSent: true });
     }
   }
 };
