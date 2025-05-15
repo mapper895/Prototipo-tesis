@@ -9,4 +9,6 @@ export const ENV_VARS = {
   NODE_ENV: process.env.NODE_ENV,
   GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
   GOOGLE_MAPS_MAP_ID: process.env.GOOGLE_MAPS_MAP_ID,
+  GMAIL_EMAIL_USER: process.env.GMAIL_EMAIL_USER,
+  GMAIL_EMAIL_PASS: process.env.GMAIL_EMAIL_PASS,
 };
