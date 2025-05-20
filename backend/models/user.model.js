@@ -38,7 +38,7 @@ const userSchema = mongoose.Schema(
       type: Array,
       default: [],
     },
-    reccomendation: {
+    recomendation: {
       type: Array,
       default: [],
     },
