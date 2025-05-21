@@ -11,6 +11,7 @@ export const useEventStore = create((set, get) => ({
   eventUserLikes: [],
   eventsByCategory: {},
   categories: [],
+  similarEvents: [],
   event: null,
   eventToDelete: null,
   isCreatingEvent: false,
@@ -19,6 +20,7 @@ export const useEventStore = create((set, get) => ({
   isLoadingCategories: false,
   isFetchingEvent: false,
   isDeletingEvent: false,
+  isLoadingSimilarEvents: false,
 
   setEvents: (newEvents) => set({ events: newEvents }),
   setEventToDelete: (id) => set({ eventToDelete: id }),
@@ -227,4 +229,21 @@ export const useEventStore = create((set, get) => ({
       );
     }
   },
+
+  getSimilarEvents: async (eventId) => {
+    set({ isLoadingSimilarEvents: true });
+    try {
+      const { data } = await axios.get(
+        `/api/v1/event/${eventId}/similarEvents`
+      );
+      set({ similarEvents: data.similarEvents || [] });
+    } catch (error) {
+      console.log("Error al obtener eventos similares", error);
+      set({ similarEvents: [] });
+    } finally {
+      set({ isLoadingSimilarEvents: false });
+    }
+  },
+
+  clearSimilarEvents: () => set({ similarEvents: [] }),
 }));

@@ -113,8 +113,8 @@ const EventBooking = ({ event }) => {
         <div className="flex flex-col items-center w-full gap-5">
           {event.schedules ? (
             <>
-              <div className="w-full flex justify-center gap-4">
-                {event.schedules.map((schedule, index) => {
+              <div className="w-full flex flex-wrap justify-center gap-4 max-w-[340px]">
+                {[...new Set(event.schedules)].map((schedule, index) => {
                   const isSelected = selectedSchedule === schedule;
                   return (
                     <div

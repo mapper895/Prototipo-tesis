@@ -8,6 +8,7 @@ import { Heart, Loader, Map, Pencil, Trash2 } from "lucide-react";
 import "react-calendar/dist/Calendar.css"; // Importa los estilos de react-calendar
 import Maps from "../components/Maps";
 import EventBooking from "../components/EventBooking";
+import SimilarEventsComponent from "../components/SimilarEventsComponent";
 
 const EventPage = () => {
   const { id } = useParams();
@@ -177,7 +178,8 @@ const EventPage = () => {
             </div>
           </div>
         </div>
-        <div className="eventos-similares">Eventos Similares</div>
+
+        <SimilarEventsComponent event={event} />
       </div>
 
       {eventToDelete && (
