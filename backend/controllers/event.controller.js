@@ -620,3 +620,25 @@ export async function getUserLikedEvents(req, res) {
     });
   }
 }
+
+// Eventos similares de un evento
+export async function getSimilarEvents(req, res) {
+  try {
+    const eventId = req.params.id;
+    const event = await Event.findById(eventId).populate({
+      path: "similarEvents",
+      select: "title description imageUrl",
+    });
+
+    if (!event) {
+      return res.status(404).json({ error: "Evento no encontrado" });
+    }
+
+    const similarEvents = event.similarEvents || [];
+
+    res.json({ similarEvents });
+  } catch (error) {
+    console.log("Error obteniendo eventos similares", error);
+    res.status(500).json({ error: "Error del servidor" });
+  }
+}

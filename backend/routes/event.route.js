@@ -12,6 +12,7 @@ import {
   getUserEvents,
   getUserLikedEvents,
   getPopularEvents,
+  getSimilarEvents,
 } from "../controllers/event.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
 
@@ -30,5 +31,6 @@ router.put("/events/:eventId/like", protectRoute, toggleLikeEvent);
 router.get("/search", searchEvents);
 router.get("/user-events", protectRoute, getUserEvents);
 router.get("/liked-events", protectRoute, getUserLikedEvents);
+router.get("/:id/similarEvents", getSimilarEvents);
 
 export default router;
