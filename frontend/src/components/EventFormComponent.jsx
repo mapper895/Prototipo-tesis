@@ -41,13 +41,19 @@ const EventFormComponent = ({
     }
   }, [location.pathname, setEventData]); // Este useEffect escucha los cambios de ruta
 
-  // Generar el array de fechas entre la fecha de inicio y la fecha de fin
+  const formatDateDDMMYYYY = (date) => {
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   const generateDatesInRange = (start, end) => {
     let dates = [];
     let currentDate = new Date(start);
     while (currentDate <= end) {
-      dates.push(currentDate.toLocaleDateString()); // Puedes formatear las fechas como quieras
-      currentDate.setDate(currentDate.getDate() + 1); // Avanza al siguiente día
+      dates.push(formatDateDDMMYYYY(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
     }
     return dates;
   };
@@ -63,7 +69,7 @@ const EventFormComponent = ({
 
       // Establecer el rango seleccionado para mostrarlo
       setSelectedRange(
-        `Desde el ${start.toLocaleDateString()} hasta el ${end.toLocaleDateString()}`
+        `Desde el ${dates[0]} hasta el ${dates[dates.length - 1]}`
       );
     }
   };
