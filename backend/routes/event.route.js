@@ -14,7 +14,10 @@ import {
   getPopularEvents,
   getSimilarEvents,
 } from "../controllers/event.controller.js";
-import { protectRoute } from "../middleware/protectRoute.js";
+import {
+  optionalProtectRoute,
+  protectRoute,
+} from "../middleware/protectRoute.js";
 
 const router = express.Router();
 
@@ -28,7 +31,7 @@ router.get("/categories", getCategories);
 router.put("/events/:id", protectRoute, updateEvent);
 router.delete("/events/:id", protectRoute, deleteEvent);
 router.put("/events/:eventId/like", protectRoute, toggleLikeEvent);
-router.get("/search", searchEvents);
+router.get("/search", optionalProtectRoute, searchEvents);
 router.get("/user-events", protectRoute, getUserEvents);
 router.get("/liked-events", protectRoute, getUserLikedEvents);
 router.get("/:id/similarEvents", getSimilarEvents);

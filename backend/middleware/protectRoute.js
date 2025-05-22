@@ -40,3 +40,44 @@ export const protectRoute = async (req, res, next) => {
     res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
+
+export const optionalProtectRoute = async (req, res, next) => {
+  try {
+    const token = req.cookies["jwt-prototipo"];
+
+    if (!token) {
+      // No hay token, sigue sin error ni user asignado
+      return next();
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, ENV_VARS.JWT_SECRET);
+    } catch (error) {
+      // Token inválido, sigue sin error ni user asignado
+      return next();
+    }
+
+    if (!decoded) {
+      return next();
+    }
+
+    const user = await User.findById(decoded.userId).select("-password");
+
+    if (!user) {
+      return next();
+    }
+
+    // Actualizamos la fecha de ultima actividad
+    user.lastActive = new Date();
+    await user.save();
+
+    req.user = user;
+
+    next();
+  } catch (error) {
+    console.log("Error en optionalProtectRoute middleware: ", error.message);
+    // No bloqueamos la petición aunque haya error
+    next();
+  }
+};

@@ -533,6 +533,16 @@ export async function searchEvents(req, res) {
       })
     );
 
+    // Guardar termino de busquda en el historial del usuario, si esta logueado
+    if (req.user && req.user._id) {
+      // Busca al usuario y actualiza el array
+      await User.findByIdAndUpdate(
+        req.user._id,
+        { $push: { searchHistory: query } },
+        { new: true, useFindAndModify: false }
+      );
+    }
+
     if (futureEvents.length === 0) {
       return res.status(404).json({
         success: false,
