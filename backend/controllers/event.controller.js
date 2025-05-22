@@ -649,3 +649,26 @@ export async function getSimilarEvents(req, res) {
     res.status(500).json({ error: "Error del servidor" });
   }
 }
+
+// Recomendaciones de un usuario
+export async function getUserRecommendations(req, res) {
+  try {
+    const user = req.user;
+
+    const recommendedIds = user.recomendation || [];
+
+    const recommendedEvents = await Event.find({
+      _id: { $in: recommendedIds },
+    });
+
+    res.status(200).json({ success: true, recommendations: recommendedEvents });
+  } catch (error) {
+    console.log("Error al obtener las recomendaciones del usuario:", error);
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "error al obtener las recomendaciones",
+      });
+  }
+}
