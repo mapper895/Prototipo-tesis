@@ -1,8 +1,14 @@
 import express from "express";
-import { triggerRecommender } from "../controllers/recommendation.controller.js";
+import {
+  runFeaturedEvents,
+  runSimilarEvents,
+  runUserRecommendations,
+} from "../controllers/recommendation.controller.js";
 
 const router = express.Router();
 
-router.post("/run", triggerRecommender);
+router.post("/similar-events", runSimilarEvents);
+router.post("/user-recommendations", runUserRecommendations);
+router.post("/featured-events", runFeaturedEvents);
 
 export default router;
