@@ -187,12 +187,12 @@ export async function getAllEvents(req, res) {
 // Obtener los 10 eventos mas populares
 export async function getPopularEvents(req, res) {
   try {
-    const events = await Event.find().sort({
-      likesCount: -1,
-    });
+    const today = moment();
 
-    // Filtrar los eventos que tienen fechas futuras
-    const today = moment(); // Fecha actual
+    // Trae eventos ordenados por popularidad descendente (likesCount)
+    const events = await Event.find().sort({ likesCount: -1 }).lean();
+
+    // Filtra solo eventos con al menos una fecha futura
     const futureEvents = events.filter((event) =>
       event.dates.some((dateStr) => {
         const date = moment(dateStr, "DD/MM/YYYY");
@@ -203,34 +203,31 @@ export async function getPopularEvents(req, res) {
     if (futureEvents.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No se encontraron eventos",
-        futureEvents: [],
+        message: "No se encontraron eventos futuros",
+        events: [],
       });
     }
 
-    // Si hay menos de 10 eventos con fechas futuras, completar con más eventos populares con fechas futuras
-    const requiredEvents = 10; // Queremos exactamente 10 eventos
-    const remainingNeeded = requiredEvents - futureEvents.length;
+    // Si hay menos de 10 eventos futuros, llena con más eventos populares (ignorando fecha)
+    // Para asegurar 10, pero preferimos solo futuros si hay suficientes
+    let resultEvents = futureEvents.slice(0, 10);
 
-    // Si no hay suficientes eventos futuros, obtener más eventos populares que también tengan fechas futuras
-    if (remainingNeeded > 0) {
-      const additionalEvents = events
-        .filter((event) => new Date(event.dates[0]) >= today) // Solo eventos con fechas futuras
-        .slice(0, remainingNeeded); // Limitar la cantidad de eventos adicionales
+    if (resultEvents.length < 10) {
+      // Obtener eventos adicionales que no estén ya en resultEvents
+      const idsInResult = new Set(resultEvents.map((e) => e._id.toString()));
 
-      // Combinar los eventos futuros con los eventos adicionales
-      futureEvents.push(...additionalEvents);
+      const additionalEvents = events.filter(
+        (e) => !idsInResult.has(e._id.toString())
+      );
+
+      // Añadir hasta completar 10
+      const needed = 10 - resultEvents.length;
+      resultEvents = resultEvents.concat(additionalEvents.slice(0, needed));
     }
 
-    if (futureEvents.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No hay eventos populares futuros",
-      });
-    }
-
-    return res.status(200).json(futureEvents.slice(0, requiredEvents));
+    return res.status(200).json(resultEvents);
   } catch (error) {
+    console.error("Error al obtener eventos populares:", error);
     return res
       .status(500)
       .json({ message: "Error al obtener eventos populares" });
