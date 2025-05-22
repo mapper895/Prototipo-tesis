@@ -3,14 +3,23 @@ import { useEventStore } from "../store/eventStore";
 import { Link } from "react-router-dom";
 
 const SimilarEventsComponent = ({ event }) => {
-  const { similarEvents, isLoadingSimilarEvents, getSimilarEvents } =
-    useEventStore();
+  const {
+    similarEvents,
+    isLoadingSimilarEvents,
+    getSimilarEvents,
+    clearSimilarEvents,
+  } = useEventStore();
 
   useEffect(() => {
     if (event?._id) {
       getSimilarEvents(event._id);
     }
-  }, [event, getSimilarEvents]);
+
+    // Limpiar similarEvents cuando el componente se desmonte o cambie el evento
+    return () => {
+      clearSimilarEvents();
+    };
+  }, [event, getSimilarEvents, clearSimilarEvents]);
 
   if (isLoadingSimilarEvents) {
     return <p>Cargando eventos similares ...</p>;
