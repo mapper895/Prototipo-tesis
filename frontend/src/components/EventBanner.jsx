@@ -65,13 +65,13 @@ const EventBanner = ({ category }) => {
       </div>
 
       <div
-        className="flex mx-auto space-x-4 overflow-x-scroll scrollbar-hide"
+        className="flex mx-auto space-x-4 overflow-x-scroll scrollbar-hide w-full max-w-[1300px]"
         ref={sliderRef}
       >
         {limitedEvents.map((event) => (
           <Link
             to={`/events/${event._id}`}
-            className="w-[250px] relative group shadow-lg mb-5"
+            className="min-w-[250px] max-w-[250px] relative group shadow-lg mb-5"
             key={event._id}
           >
             <div className="rounded-lg mb-2">
