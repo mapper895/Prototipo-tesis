@@ -15,7 +15,7 @@ router.get("/", protectRoute, getUserNotifications);
 // Ruta para obtener una notificacion como leida
 router.put("/read/:id", protectRoute, markNotificationAsRead);
 // Ruta para enviar resumen semanal manualmente
-router.get("/weekly-events/send", sendWeeklyEventSummary);
+router.post("/weekly-events/send", sendWeeklyEventSummary);
 // Ruta para disparar notificaciones manualmente
 router.post("/notifications/run", runNotifyReservationsManually);
 // Ruta para disparar manualmente la notificacion de eventos terminados
