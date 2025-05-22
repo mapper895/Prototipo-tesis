@@ -9,6 +9,7 @@ export const useEventStore = create((set, get) => ({
   userEvents: [],
   searchEvents: [],
   eventUserLikes: [],
+  userRecommendations: [],
   eventsByCategory: {},
   categories: [],
   similarEvents: [],
@@ -21,6 +22,7 @@ export const useEventStore = create((set, get) => ({
   isFetchingEvent: false,
   isDeletingEvent: false,
   isLoadingSimilarEvents: false,
+  isLoadingRecomendations: false,
 
   setEvents: (newEvents) => set({ events: newEvents }),
   setEventToDelete: (id) => set({ eventToDelete: id }),
@@ -246,4 +248,20 @@ export const useEventStore = create((set, get) => ({
   },
 
   clearSimilarEvents: () => set({ similarEvents: [] }),
+
+  getUserRecommendations: async () => {
+    set({ isLoadingRecomendations: true });
+
+    try {
+      const { data } = await axios.get("/api/v1/event/user/recommendations");
+      set({ userRecommendations: data.recommendations || [] });
+    } catch (error) {
+      console.log("Error al cargar recomendaciones de usuario: ", error);
+      set({ userRecommendations: [] });
+    } finally {
+      set({ isLoadingRecomendations: false });
+    }
+  },
+
+  clearUserRecommendations: () => set({ userRecommendations: [] }),
 }));

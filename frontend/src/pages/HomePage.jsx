@@ -5,8 +5,9 @@ import Footer from "../components/Footer";
 import EventBanner from "../components/EventBanner";
 import useCategories from "../hooks/useCategories";
 import { Loader } from "lucide-react";
+import UserRecommendationsBanner from "../components/UserRecommendationBanner";
 
-const HomePage = () => {
+const HomePage = ({ user }) => {
   const { categories, isLoadingCategories } = useCategories();
 
   if (isLoadingCategories)
@@ -32,6 +33,9 @@ const HomePage = () => {
 
         {/* Popular Section */}
         <PopularSectionBanner />
+
+        {/* Recomendaciones para el usuario */}
+        {user && <UserRecommendationsBanner user={user} />}
 
         {categories.map((category, index) => (
           <EventBanner key={index} category={category} />
