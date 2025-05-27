@@ -153,10 +153,10 @@ const EventBooking = ({ event }) => {
           disabled={isBooking}
         >
           {isBooking
-            ? "Reservando..."
+            ? "Agendando..."
             : isBooked
-            ? "¡Reservado!"
-            : "Reservar evento"}
+            ? "Agendado!"
+            : "Agendar evento"}
         </button>
       </div>
     </div>

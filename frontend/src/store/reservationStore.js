@@ -28,11 +28,11 @@ export const useReservationStore = create((set, get) => ({
       set((state) => ({
         reservations: [...state.reservations, response.data.reservations],
       }));
-      toast.success("Reserva realizada con éxito");
+      toast.success("Evento agendado con éxito");
     } catch (error) {
       set({ isBooking: false });
       toast.error(
-        error.response?.data?.message || "Error al realizar la reserva"
+        error.response?.data?.message || "Error al agendar el evento"
       );
     }
   },
@@ -51,7 +51,8 @@ export const useReservationStore = create((set, get) => ({
       });
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Error al obtener las reservaciones"
+        error.response?.data?.message ||
+          "Error al obtener los eventos agendados"
       );
       set({ isLoading: false });
     }
@@ -76,10 +77,10 @@ export const useReservationStore = create((set, get) => ({
         ),
         eventToDelete: null,
       });
-      toast.success("Reserva eliminada con éxito");
+      toast.success("Evento agendado eliminado con éxito");
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Error al eliminar la reserva"
+        error.response?.data?.message || "Error al eliminar el evento agendado"
       );
     } finally {
       set({ isDeletingEvent: false });
