@@ -8,6 +8,9 @@ export const useAuthStore = create((set) => ({
   isCheckingAuth: true,
   isLogginOut: false,
   isLogginIn: false,
+  isLoading: false,
+  categories: [],
+  onboarded: false,
 
   signup: async (credentials) => {
     set({ isSigninUp: true });
@@ -15,6 +18,8 @@ export const useAuthStore = create((set) => ({
       const response = await axios.post("/api/v1/auth/signup", credentials);
       set({ user: response.data.user, isSigninUp: false });
       toast.success("Cuenta creada con éxito");
+
+      return response.data;
     } catch (error) {
       toast.error(error.response.data.message || "Ocurrio un error");
       set({ isSigninUp: false, user: null });
@@ -54,4 +59,21 @@ export const useAuthStore = create((set) => ({
       // toast.error(error.response.data.message || "Ocurrio un error");
     }
   },
+
+  updatePreferences: async (preferences) => {
+    try {
+      set({ isLoading: true });
+      const response = await axios.post("/api/v1/auth/preferences", {
+        preferences,
+      });
+
+      set({ isLoading: false });
+      return response.data;
+    } catch (error) {
+      set({ isLoading: false });
+      toast.error(error.response.data.message || "Ocurrio un error");
+    }
+  },
+
+  setUserId: (id) => set({ userId: id }),
 }));

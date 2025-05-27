@@ -34,14 +34,16 @@ const userSchema = mongoose.Schema(
       type: Array,
       default: [],
     },
-    preferences: {
-      type: Array,
-      default: [],
-    },
+    preferences: [
+      {
+        type: String,
+      },
+    ],
     recomendation: {
       type: Array,
       default: [],
     },
+    onboarded: { type: Boolean, default: false },
     lastActive: {
       type: Date,
       default: Date.now,

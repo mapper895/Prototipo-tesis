@@ -1,6 +1,6 @@
 import Navbar from "../components/Navbar";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -9,6 +9,7 @@ const SignUpPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const { signup, isSigninUp } = useAuthStore();
 
@@ -20,9 +21,14 @@ const SignUpPage = () => {
     setShowPassword(false);
   };
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    signup({ email, username, password });
+    try {
+      await signup({ email, username, password });
+      navigate("/onboarding");
+    } catch (error) {
+      console.log("error al registrar el usuario", error);
+    }
   };
 
   return (

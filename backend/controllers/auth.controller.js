@@ -59,6 +59,7 @@ export async function signup(req, res) {
       password: hashedPassword,
       username,
       image,
+      onboarded: false,
     });
 
     generateTokenAndSetCookie(newUser._id, res);
@@ -141,5 +142,41 @@ export async function authCheck(req, res) {
   } catch (error) {
     console.log("Error en authCheck controller");
     res.status(500).json({ success: false, message: "Error en el servidor" });
+  }
+}
+
+export async function updatePreferences(req, res) {
+  try {
+    const { preferences } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario no encontrado" });
+    }
+
+    // Verificamos si el usuario ya completó el onboarding
+    if (user.onboarded) {
+      return res
+        .status(400)
+        .json({ message: "El onboarding ya ha sido completado." });
+    }
+
+    user.preferences = preferences;
+    user.onboarded = true;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      onboarded: user.onboarded,
+      message: "Preferencias del usuario actualizadas correctamente",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error al guardar las preferencias",
+      error,
+    });
   }
 }

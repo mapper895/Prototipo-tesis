@@ -17,6 +17,7 @@ import MyLikedEvents from "./pages/MyLikedEvents";
 import Dashboard from "./pages/DashboardPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import MyReservationsPage from "./pages/MyReservationsPage";
+import OnboardingForm from "./pages/OnboardingForm";
 
 function App() {
   const { user, isCheckingAuth, authCheck } = useAuthStore();
@@ -72,6 +73,12 @@ function App() {
         <Route
           path="/dashboard"
           element={user ? <Dashboard user={user} /> : <Navigate to={"/"} />}
+        />
+        <Route
+          path="/onboarding"
+          element={
+            user && !user.onboarded ? <OnboardingForm /> : <Navigate to={"/"} />
+          }
         />
         <Route path="/events/category/:category" element={<CategoryPage />} />
         <Route path="/top-10-cdmx" element={<PopularPage />} />

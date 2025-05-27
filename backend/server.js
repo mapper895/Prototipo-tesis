@@ -11,8 +11,18 @@ import { ENV_VARS } from "./config/envVars.js";
 import { connectDB } from "./config/db.js";
 import cookieParser from "cookie-parser";
 import "./utils/cronJobs.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import mongoose from "mongoose";
+
+// Obtener el nombre del archivo y la ruta de la carpeta actual
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// Configurar express para servir archivos estaticos
+app.use(express.static(path.join(__dirname, "public")));
 
 const PORT = ENV_VARS.PORT;
 
