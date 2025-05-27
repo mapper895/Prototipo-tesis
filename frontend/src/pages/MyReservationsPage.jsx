@@ -59,9 +59,9 @@ const MyReservationsPage = () => {
       <Navbar />
       <div className="max-w-[1300px] mx-auto mt-20">
         <div className="flex flex-col gap-5 my-5">
-          <h2 className="text-6xl font-light">Mis Reservaciones</h2>
+          <h2 className="text-6xl font-light">Mis Eventos Agendados</h2>
           <p className="text-lg">
-            Aquí puedes ver todas tus reservaciones realizadas.
+            Aquí puedes ver todas tus eventos agendados.
           </p>
         </div>
 
@@ -73,10 +73,11 @@ const MyReservationsPage = () => {
         />
 
         <div className="grid grid-cols-4 gap-7 my-5">
-          {console.log(reservations)}
           {reservations.length === 0 ? (
-            <div className="p-4 text-center text-lg">
-              No tienes reservaciones hechas.
+            <div className="text-center py-10">
+              <p className="text-xl font-semibold">
+                No tienes eventos agendados.
+              </p>
             </div>
           ) : (
             filteredEvents.map((event) => (
@@ -95,7 +96,7 @@ const MyReservationsPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 rounded-3xl">
           <div className="bg-white p-6 rounded shadow-md text-center">
             <h2 className="text-xl font-semibold">¿Estás seguro?</h2>
-            <p>¿Deseas eliminar esta reservación?</p>
+            <p>¿Deseas eliminar este evento agendado?</p>
             <div className="mt-4 flex justify-end space-x-2">
               <button
                 onClick={handleCancel}

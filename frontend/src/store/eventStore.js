@@ -217,6 +217,7 @@ export const useEventStore = create((set, get) => ({
       toast.error(error.response?.data?.message || "Error al obtener eventos");
     }
   },
+  clearUserEvents: () => set({ userEvents: [] }),
 
   getUserLikedEvents: async () => {
     set({ isLoading: true });
@@ -231,6 +232,7 @@ export const useEventStore = create((set, get) => ({
       );
     }
   },
+  clearUserLikedEvents: () => set({ eventUserLikes: [] }),
 
   getSimilarEvents: async (eventId) => {
     set({ isLoadingSimilarEvents: true });

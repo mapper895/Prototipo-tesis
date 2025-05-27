@@ -235,7 +235,7 @@ const Navbar = () => {
                   <Link to={"/my-events"}>Mis eventos creados</Link>
                 </div>
                 <div className="py-2 px-3">
-                  <Link to={"/my-reservations"}>Mis reservaciones</Link>
+                  <Link to={"/my-reservations"}>Mis eventos agendados</Link>
                 </div>
                 <div className="py-2 px-3">
                   <Link to={"/my-liked-events"}> Mis likes</Link>

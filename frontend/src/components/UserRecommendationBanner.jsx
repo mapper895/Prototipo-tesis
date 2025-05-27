@@ -16,7 +16,7 @@ const UserRecommendationsBanner = ({ user }) => {
     if (user) {
       getUserRecommendations();
     } else {
-      clearUserRecommendations;
+      clearUserRecommendations();
     }
   }, [user, clearUserRecommendations, getUserRecommendations]);
 

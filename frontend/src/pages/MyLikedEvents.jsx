@@ -11,7 +11,12 @@ import { Loader } from "lucide-react";
 
 const MyLikedEvents = () => {
   const { user } = useAuthStore();
-  const { getUserLikedEvents, eventUserLikes, isLoading } = useEventStore();
+  const {
+    getUserLikedEvents,
+    eventUserLikes,
+    isLoading,
+    clearUserLikedEvents,
+  } = useEventStore();
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [selectedDate, setSelectedDate] = useState(null);
@@ -22,7 +27,10 @@ const MyLikedEvents = () => {
     if (user) {
       getUserLikedEvents(user._id);
     }
-  }, [user, getUserLikedEvents]);
+    return () => {
+      clearUserLikedEvents();
+    };
+  }, [user, getUserLikedEvents, clearUserLikedEvents]);
 
   useEffect(() => {
     if (eventUserLikes) {
@@ -59,11 +67,17 @@ const MyLikedEvents = () => {
           setSelectedDate={setSelectedDate}
         />
 
-        <div className="grid grid-cols-4 gap-7 my-5">
-          {filteredEvents.map((event) => (
-            <EventCard key={event._id} event={event} />
-          ))}
-        </div>
+        {filteredEvents.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-xl font-semibold">No se encontraron eventos.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 gap-7 my-5">
+            {filteredEvents.map((event) => (
+              <EventCard key={event._id} event={event} />
+            ))}
+          </div>
+        )}
       </div>
       <Footer />
     </>

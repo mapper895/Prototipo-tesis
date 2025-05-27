@@ -20,6 +20,7 @@ const MyEventsPage = () => {
     deleteEvent,
     isDeletingEvent,
     isLoading,
+    clearUserEvents,
   } = useEventStore();
 
   const [loading, setLoading] = useState(true);
@@ -31,8 +32,10 @@ const MyEventsPage = () => {
   useEffect(() => {
     if (user) {
       getUserEvents(user._id);
+    } else {
+      clearUserEvents();
     }
-  }, [user, getUserEvents]);
+  }, [user, getUserEvents, clearUserEvents]);
 
   useEffect(() => {
     if (userEvents) {
@@ -73,20 +76,26 @@ const MyEventsPage = () => {
           setSelectedDate={setSelectedDate}
         />
 
-        <div className="grid grid-cols-4 gap-7 my-5">
-          {userEvents ? (
-            filteredEvents.map((event) => (
-              <EventCard
-                key={event._id}
-                event={event}
-                editable
-                onDelete={handleDeleteClick}
-              />
-            ))
-          ) : (
-            <div>Cargando eventos ...</div>
-          )}
-        </div>
+        {filteredEvents.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-xl font-semibold">No se encontraron eventos.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 gap-7 my-5">
+            {userEvents ? (
+              filteredEvents.map((event) => (
+                <EventCard
+                  key={event._id}
+                  event={event}
+                  editable
+                  onDelete={handleDeleteClick}
+                />
+              ))
+            ) : (
+              <div>Cargando eventos ...</div>
+            )}
+          </div>
+        )}
       </div>
 
       {eventToDelete && (
