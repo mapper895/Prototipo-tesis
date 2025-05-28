@@ -6,6 +6,7 @@ import EventBanner from "../components/EventBanner";
 import useCategories from "../hooks/useCategories";
 import { Loader } from "lucide-react";
 import UserRecommendationsBanner from "../components/UserRecommendationBanner";
+import UserReservationsBanner from "../components/UserReservationsBanner";
 
 const HomePage = ({ user }) => {
   const { categories, isLoadingCategories } = useCategories();
@@ -33,6 +34,8 @@ const HomePage = ({ user }) => {
 
         {/* Popular Section */}
         <PopularSectionBanner />
+
+        {user && <UserReservationsBanner user={user} />}
 
         {/* Recomendaciones para el usuario */}
         {user && <UserRecommendationsBanner user={user} />}

@@ -50,10 +50,10 @@ export const useReservationStore = create((set, get) => ({
         isLoading: false,
       });
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Error al obtener los eventos agendados"
-      );
+      // toast.error(
+      //   error.response?.data?.message ||
+      //     "Error al obtener los eventos agendados"
+      // );
       set({ isLoading: false });
     }
   },
