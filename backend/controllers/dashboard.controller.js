@@ -27,20 +27,20 @@ export const getUserDashboardStats = async (req, res) => {
       0
     );
 
-    // 4. Eventos próximos
+    // Fechas base con moment
+    const today = moment().startOf("day");
+    const nextWeek = moment(today).add(7, "days");
+    const firstDayCurrentMonth = moment(today).startOf("month");
+    const firstDayLastMonth = moment(today)
+      .subtract(1, "month")
+      .startOf("month");
+    const lastDayLastMonth = moment(today).subtract(1, "month").endOf("month");
+
+    // 4. Eventos próximos (fechas en próximos 7 días)
     const upcomingEvents = events.filter((ev) =>
-      ev.dates.some((date) => {
-        // Convertir la fecha "dd/MM/yyyy" a "yyyy-MM-dd"
-        const [day, month, year] = date.split("/").map(Number);
-        const eventDate = new Date(year, month - 1, day); // Crear el objeto Date
-
-        // Obtener la fecha actual y la fecha de la próxima semana
-        const today = new Date();
-        const nextWeek = new Date(today);
-        nextWeek.setDate(today.getDate() + 7); // Establecer la fecha de la próxima semana
-
-        // Filtra eventos dentro de los próximos 7 días
-        return eventDate > today && eventDate <= nextWeek;
+      ev.dates.some((dateStr) => {
+        const eventDate = moment(dateStr, "DD/MM/YYYY");
+        return eventDate.isAfter(today) && eventDate.isSameOrBefore(nextWeek);
       })
     );
 
@@ -57,19 +57,18 @@ export const getUserDashboardStats = async (req, res) => {
     );
 
     // 7. Likes a lo largo del tiempo (últimos 30 días)
-    const today = new Date();
     const last30Days = [...Array(30)]
       .map((_, i) => {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split("T")[0]; // yyyy-mm-dd
-        return { date: dateStr, likes: 0 };
+        const d = moment(today).subtract(i, "days");
+        return { date: d.format("YYYY-MM-DD"), likes: 0 };
       })
       .reverse();
 
     events.forEach((event) => {
-      const dateKey = new Date(event.createdAt).toISOString().split("T")[0];
-      const match = last30Days.find((day) => day.date === dateKey);
+      const createdAtDate = moment(event.createdAt)
+        .startOf("day")
+        .format("YYYY-MM-DD");
+      const match = last30Days.find((day) => day.date === createdAtDate);
       if (match) {
         match.likes += event.likesCount || 0;
       }
@@ -97,15 +96,35 @@ export const getUserDashboardStats = async (req, res) => {
     }));
 
     events.forEach((event) => {
-      const month = new Date(event.createdAt).getMonth();
+      const month = moment(event.createdAt).month();
       eventsPerMonth[month].count += 1;
+    });
+
+    // 9. Eventos caducos (terminados) solo del mes actual y mes anterior
+    const expiredEvents = events.filter((ev) => {
+      const eventDates = ev.dates.map((dateStr) =>
+        moment(dateStr, "DD/MM/YYYY")
+      );
+
+      const allExpired = eventDates.every((eventDate) =>
+        eventDate.isBefore(today, "day")
+      );
+
+      const hasDateInLastTwoMonths = eventDates.some(
+        (date) =>
+          date.isBetween(firstDayLastMonth, lastDayLastMonth, "day", "[]") ||
+          date.isBetween(firstDayCurrentMonth, today, "day", "[]")
+      );
+
+      return allExpired && hasDateInLastTwoMonths;
     });
 
     res.json({
       totalEvents,
       totalLikes,
       totalViews,
-      upcomingEvents: upcomingEvents,
+      upcomingEvents,
+      expiredEvents,
       mostLikedEvent,
       mostViewedEvent,
       events,

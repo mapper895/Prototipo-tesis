@@ -21,6 +21,16 @@ const DashboardPage = ({ user }) => {
   });
 
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(8);
+  const [visibleCountEnd, setVisibleCountEnd] = useState(8);
+
+  // Funciona para cargar 8 mas
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + 8);
+  };
+  const handleLoadMoreEnd = () => {
+    setVisibleCountEnd((prev) => prev + 8);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,6 +79,12 @@ const DashboardPage = ({ user }) => {
       },
     ],
   };
+
+  // Eventos que se muestran en este momento
+  const futureEvents = dashboardData.upcomingEvents || [];
+  const futureVisibleEvents = futureEvents.slice(0, visibleCount);
+  const expiredEvents = dashboardData.expiredEvents || [];
+  const visibleEventsEnd = expiredEvents.slice(0, visibleCountEnd);
 
   if (loading) {
     return (
@@ -144,8 +160,8 @@ const DashboardPage = ({ user }) => {
                 Tus próximos eventos de esta semana
               </h3>
               <div className="grid grid-cols-4 gap-7 my-5">
-                {dashboardData.upcomingEvents.length !== 0 ? (
-                  dashboardData.upcomingEvents.map((event) => (
+                {futureVisibleEvents.length !== 0 ? (
+                  futureVisibleEvents.map((event) => (
                     <EventCard key={event._id} event={event} />
                   ))
                 ) : (
@@ -153,6 +169,16 @@ const DashboardPage = ({ user }) => {
                 )}
               </div>
             </div>
+
+            {/* Botón cargar más solo si hay más eventos por mostrar */}
+            {visibleCountEnd < dashboardData.expiredEvents.length && (
+              <button
+                onClick={handleLoadMore}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Cargar más
+              </button>
+            )}
 
             {/* Resumen en Graficas */}
             <div className="my-20">
@@ -170,6 +196,32 @@ const DashboardPage = ({ user }) => {
                 </div>
               </div>
             </div>
+
+            {/* Mostrar eventos terminados */}
+            <div className="mt-20">
+              <h3 className="text-3xl font-semibold mb-4">
+                Tus eventos terminados
+              </h3>
+              <div className="grid grid-cols-4 gap-7 my-5">
+                {visibleEventsEnd.length !== 0 ? (
+                  visibleEventsEnd.map((event) => (
+                    <EventCard key={event._id} event={event} />
+                  ))
+                ) : (
+                  <p>No tienes eventos terminados</p>
+                )}
+              </div>
+            </div>
+
+            {/* Botón cargar más solo si hay más eventos por mostrar */}
+            {visibleCountEnd < dashboardData.expiredEvents.length && (
+              <button
+                onClick={handleLoadMoreEnd}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Cargar más
+              </button>
+            )}
 
             {/* Botones de Exportación */}
             <ExportButtons
