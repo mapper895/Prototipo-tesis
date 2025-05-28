@@ -48,6 +48,10 @@ def get_user_profile_recommendations():
         reserved_ids = [r["eventId"] for r in reservations if r["userId"] == user_id]
         known_ids = set(liked_ids) | set(reserved_ids)
 
+        #Agregamos las preferencias del usuario
+        preferences = set(user.get("preferences", [])) #Preferencias como categorias
+        known_ids = known_ids | preferences #Unimos las preferencias a los eventos conocidos
+
         # Aquí agregamos el historial de búsqueda concatenado en un solo string
         search_history_text = " ".join(user.get("searchHistory", []))
 
@@ -70,8 +74,16 @@ def get_user_profile_recommendations():
         else:
             search_vec = np.zeros((1, event_tfidf.shape[1]))
 
+        # Si el usuario tiene preferencias, tratarlas como un conjunto de categorias
+        if preferences:
+            #Convertimos las preferencias en un perfil basado en categorias usando el vectorizer
+            preferences_text = " ".join(preferences)
+            preferences_vec = vectorizer.transform([preferences_text])
+        else:
+            preferences_vec = np.zeros((1, event_tfidf.shape[1]))
+
         # Combinar perfil eventos y búsqueda (ponderación 70%-30% por ejemplo)
-        user_profile = 0.7 * user_profile_events + 0.3 * search_vec
+        user_profile = (0.5 * user_profile_events + 0.3 * search_vec + 0.2 * preferences_vec)
         user_profile_array = np.asarray(user_profile)
 
         similarity = cosine_similarity(user_profile_array, event_tfidf).flatten()

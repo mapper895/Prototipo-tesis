@@ -17,7 +17,7 @@ export const getUserNotifications = async (req, res) => {
 
     res.status(200).json({ success: true, notifications });
   } catch (error) {
-    console.error("Error al obtener las notificaciones:", error);
+    //console.error("Error al obtener las notificaciones:", error);
     res
       .status(500)
       .json({ success: false, message: "Error al obtener las notificaciones" });

@@ -50,7 +50,7 @@ const UserRecommendationsBanner = ({ user }) => {
   }
 
   if (!userRecommendations || userRecommendations.length === 0) {
-    return <h2>No hay recomendaciones disponibles por el momento.</h2>;
+    return null;
   }
 
   return (

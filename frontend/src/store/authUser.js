@@ -76,4 +76,17 @@ export const useAuthStore = create((set) => ({
   },
 
   setUserId: (id) => set({ userId: id }),
+
+  generateRecommendations: async () => {
+    set({ isLoading: true });
+    try {
+      await axios.get(
+        "/api/v1/recommendation/user-recommendations-by-preferences"
+      );
+      set({ isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      toast.error(error.response.data.message || "Ocurrio un error");
+    }
+  },
 }));
