@@ -3,7 +3,7 @@ import fs from "fs";
 
 const API_URL = "http://localhost:5000/api/v1/event/create-event";
 
-fs.readFile("events_12_05_2025.json", "utf8", async (error, data) => {
+fs.readFile("events_02_06_2025.json", "utf8", async (error, data) => {
   if (error) {
     console.log("Error al leer el archivo: ", error);
     return;
