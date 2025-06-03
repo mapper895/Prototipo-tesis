@@ -103,10 +103,10 @@ export const useEventStore = create((set, get) => ({
       }));
     } catch (error) {
       set({ isLoadingEvents: false });
-      toast.error(
-        error.response?.data?.message ||
-          "Error al cargar los eventos por categoría"
-      );
+      // toast.error(
+      //   error.response?.data?.message ||
+      //     "Error al cargar los eventos por categoría"
+      // );
     }
   },
 
