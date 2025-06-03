@@ -18,6 +18,7 @@ import Dashboard from "./pages/DashboardPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import MyReservationsPage from "./pages/MyReservationsPage";
 import OnboardingForm from "./pages/OnboardingForm";
+import FeedbackPopup from "./components/FeedbackPopup";
 
 function App() {
   const { user, isCheckingAuth, authCheck } = useAuthStore();
@@ -86,6 +87,7 @@ function App() {
 
         <Route path="/*" element={<NotFoundPage />} />
       </Routes>
+      <FeedbackPopup />
       <Toaster />
     </>
   );
