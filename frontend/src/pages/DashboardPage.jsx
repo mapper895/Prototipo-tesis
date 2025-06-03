@@ -171,13 +171,15 @@ const DashboardPage = ({ user }) => {
             </div>
 
             {/* Botón cargar más solo si hay más eventos por mostrar */}
-            {visibleCountEnd < dashboardData.expiredEvents.length && (
-              <button
-                onClick={handleLoadMore}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Cargar más
-              </button>
+            {visibleCount < dashboardData.upcomingEvents.length && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={handleLoadMore}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Cargar más
+                </button>
+              </div>
             )}
 
             {/* Resumen en Graficas */}
@@ -215,12 +217,14 @@ const DashboardPage = ({ user }) => {
 
             {/* Botón cargar más solo si hay más eventos por mostrar */}
             {visibleCountEnd < dashboardData.expiredEvents.length && (
-              <button
-                onClick={handleLoadMoreEnd}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Cargar más
-              </button>
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={handleLoadMoreEnd}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Cargar más
+                </button>
+              </div>
             )}
 
             {/* Botones de Exportación */}
