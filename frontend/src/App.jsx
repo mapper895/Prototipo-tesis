@@ -38,9 +38,6 @@ function App() {
       const timeDifference = lastActiveDate - createdAtDate;
       const daysDifference = timeDifference / (1000 * 3600 * 24);
 
-      console.log("Dias de diferencia", daysDifference);
-      console.log(user.feedbackGiven);
-
       // Si han pasado mas de dos dias, mostramos el FeedbackForm
       if (daysDifference >= 2 && user.feedbackGiven === false) {
         setShowFeedBack(true);

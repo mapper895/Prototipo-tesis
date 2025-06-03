@@ -13,7 +13,7 @@ import SearchComponent from "./SearchComponent";
 import { useNotificationStore } from "../store/notificationStore";
 
 const Navbar = () => {
-  const { user, logout } = useAuthStore();
+  const { user, logout, clearUserData } = useAuthStore();
   const { isLoading, notifications, getUserNotifications, markAsRead } =
     useNotificationStore();
   const { categories, isLoadingCategories } = useCategories();
@@ -104,6 +104,11 @@ const Navbar = () => {
   useEffect(() => {
     getUserNotifications();
   }, [getUserNotifications]);
+
+  const handleLogout = async () => {
+    clearUserData();
+    await logout();
+  };
 
   if (isLoadingCategories || isLoading)
     return (
@@ -243,7 +248,7 @@ const Navbar = () => {
                 <div className="py-2 px-3">
                   <Link to={"/dashboard"}> Dashboard</Link>
                 </div>
-                <div className="py-2 px-3" onClick={logout}>
+                <div className="py-2 px-3" onClick={handleLogout}>
                   Cerrar sesión
                 </div>
               </div>

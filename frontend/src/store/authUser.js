@@ -9,8 +9,19 @@ export const useAuthStore = create((set) => ({
   isLogginOut: false,
   isLogginIn: false,
   isLoading: false,
-  categories: [],
   onboarded: false,
+
+  // Función para limpiar los datos del usuario
+  clearUserData: () =>
+    set({
+      user: null,
+      isSigninUp: false,
+      isCheckingAuth: false,
+      isLogginOut: false,
+      isLogginIn: false,
+      isLoading: false,
+      onboarded: false,
+    }),
 
   signup: async (credentials) => {
     set({ isSigninUp: true });
