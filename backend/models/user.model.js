@@ -54,6 +54,7 @@ const userSchema = mongoose.Schema(
         ref: "Event",
       },
     ],
+    feedbackGiven: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
