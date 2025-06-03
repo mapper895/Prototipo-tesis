@@ -6,7 +6,7 @@ import EventPage from "./pages/EventPage";
 import AllEventsPage from "./pages/AllEventsPage";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authUser";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Loader } from "lucide-react";
 import NotFoundPage from "./pages/NotFoundPage";
 import CategoryPage from "./pages/CategoryPage";
@@ -22,10 +22,31 @@ import FeedbackPopup from "./components/FeedbackPopup";
 
 function App() {
   const { user, isCheckingAuth, authCheck } = useAuthStore();
+  const [showFeedBack, setShowFeedBack] = useState(false);
 
   useEffect(() => {
     authCheck();
   }, [authCheck]);
+
+  useEffect(() => {
+    // Verificamos si debe mostrarse el feedback
+    if (user && user.createdAt && user.lastActive) {
+      const createdAtDate = new Date(user.createdAt);
+      const lastActiveDate = new Date(user.lastActive);
+
+      // Calculamos la diferencia
+      const timeDifference = lastActiveDate - createdAtDate;
+      const daysDifference = timeDifference / (1000 * 3600 * 24);
+
+      console.log("Dias de diferencia", daysDifference);
+      console.log(user.feedbackGiven);
+
+      // Si han pasado mas de dos dias, mostramos el FeedbackForm
+      if (daysDifference >= 2 && user.feedbackGiven === false) {
+        setShowFeedBack(true);
+      }
+    }
+  }, [user]);
 
   if (isCheckingAuth) {
     return (
@@ -87,7 +108,7 @@ function App() {
 
         <Route path="/*" element={<NotFoundPage />} />
       </Routes>
-      <FeedbackPopup />
+      {showFeedBack && <FeedbackPopup />}
       <Toaster />
     </>
   );

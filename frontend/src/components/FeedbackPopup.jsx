@@ -1,18 +1,21 @@
-import { useState, useEffect } from "react";
-import { Star } from "lucide-react"; // Usamos el icono de estrella completa de lucide-react
+import { useState } from "react";
+import { Star } from "lucide-react";
+import { useFeedbackStore } from "../store/feedbackStore";
 
 const FeedbackPopup = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [rating, setRating] = useState(0); // Guarda la puntuación seleccionada
   const [hoverRating, setHoverRating] = useState(0); // Guarda la puntuación de la estrella cuando el usuario pasa el mouse sobre ella
+  const { submitFeedback, feedbackGiven } = useFeedbackStore();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsOpen(true); // Muestra el popup después de un tiempo (por ejemplo, 10 segundos)
-    }, 10000); // 10000 ms = 10 segundos
+  // Funcion que se ejecuta al enviar el feedback
+  const handleFeedbackSubmit = () => {
+    submitFeedback(rating);
+  };
 
-    return () => clearTimeout(timer);
-  }, []);
+  // Si el usuario ya ha dado el feedback, mostramos un mensaje
+  if (feedbackGiven) {
+    return <p>Gracias por tu feedback!</p>;
+  }
 
   // Función para manejar el clic en una estrella
   const handleStarClick = (value) => {
@@ -57,23 +60,22 @@ const FeedbackPopup = () => {
 
   return (
     <>
-      {isOpen && (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl mb-4 text-center">¡Tu opinión importa!</h2>
-            <div className="flex justify-center mb-4">{renderStars()}</div>
-            <div className="text-center">
-              <p>Tu calificación: {rating}</p>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="px-4 py-2 bg-blue-600 text-white rounded mt-4"
-              >
-                Enviar Feedback
-              </button>
-            </div>
+      <div className="fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+          <h2 className="text-xl mb-4 text-center">¡Tu opinión importa!</h2>
+          <p className="text-md mb-4 text-center">¿Que te está pareciendo?</p>
+          <div className="flex justify-center mb-4">{renderStars()}</div>
+          <div className="text-center">
+            <p>Tu calificación: {rating}</p>
+            <button
+              onClick={handleFeedbackSubmit}
+              className="px-4 py-2 bg-blue-600 text-white rounded mt-4"
+            >
+              Enviar Feedback
+            </button>
           </div>
         </div>
-      )}
+      </div>
     </>
   );
 };
