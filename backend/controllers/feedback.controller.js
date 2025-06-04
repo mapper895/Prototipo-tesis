@@ -36,3 +36,41 @@ export async function submitFeedback(req, res) {
     return res.status(500).json({ message: "Error en el servidor." });
   }
 }
+
+export async function getRating(req, res) {
+  try {
+    const user = req.user;
+
+    if (user.username !== "admin") {
+      return res.status(404).json({ message: "Usuario no valido" });
+    }
+    const feedbacks = await Feedback.find();
+
+    // Contadores para cada rating (1, 2, 3, 4, 5 estrellas)
+    let totalRatings = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    let sumRatings = 0;
+
+    // Recorremos todos los feedbacks para contar y sumar las valoraciones
+    feedbacks.forEach((feedback) => {
+      totalRatings[feedback.rating]++;
+      sumRatings += feedback.rating;
+    });
+
+    // Calculamos el porcentaje promedio
+    const averageRating = sumRatings / feedbacks.length;
+
+    // Enviamos la respuesta con el puntaje promedio y la distribucion
+    res
+      .status(200)
+      .json({
+        success: true,
+        averageRating: averageRating.toFixed(1),
+        totalRatings,
+        totalFeedbacks: feedbacks.length,
+      });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Error al obtener rating" });
+  }
+}

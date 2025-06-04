@@ -22,3 +22,14 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+@layer utilities {
+  .star-outer::before {
+    content: "\2605 \2605 \2605 \2605 \2605";
+    color: #fff8;
+  }
+
+  .star-inner::before {
+    content: "\2605 \2605 \2605 \2605 \2605";
+    color: #ffd700;
+  }
+}

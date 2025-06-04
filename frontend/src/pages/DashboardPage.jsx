@@ -7,6 +7,8 @@ import { getDashboardStats } from "../store/dashboardStore"; // Función de Stor
 import Navbar from "../components/Navbar";
 import EventCard from "../components/EventCard";
 import { Loader } from "lucide-react";
+import FeedbackScorecard from "../components/FeedbackScorecard";
+import Footer from "../components/Footer";
 
 const DashboardPage = ({ user }) => {
   const [dashboardData, setDashboardData] = useState({
@@ -122,7 +124,6 @@ const DashboardPage = ({ user }) => {
           <>
             {/* Resumen de Estadísticas */}
             <DashboardStats stats={dashboardData} />
-
             {/* Mostrar los eventos más likeados y con más vistas */}
             <div className="mt-20">
               <h3 className="text-3xl font-semibold mb-4">
@@ -153,7 +154,6 @@ const DashboardPage = ({ user }) => {
                 </div>
               </div>
             </div>
-
             {/* Mostrar proximos eventos */}
             <div className="mt-20">
               <h3 className="text-3xl font-semibold mb-4">
@@ -169,7 +169,6 @@ const DashboardPage = ({ user }) => {
                 )}
               </div>
             </div>
-
             {/* Botón cargar más solo si hay más eventos por mostrar */}
             {visibleCount < dashboardData.upcomingEvents.length && (
               <div className="flex justify-center mt-8">
@@ -181,7 +180,6 @@ const DashboardPage = ({ user }) => {
                 </button>
               </div>
             )}
-
             {/* Resumen en Graficas */}
             <div className="my-20">
               <h3 className="text-3xl font-semibold">Resumen en gráficas</h3>
@@ -198,7 +196,6 @@ const DashboardPage = ({ user }) => {
                 </div>
               </div>
             </div>
-
             {/* Mostrar eventos terminados */}
             <div className="mt-20">
               <h3 className="text-3xl font-semibold mb-4">
@@ -214,7 +211,6 @@ const DashboardPage = ({ user }) => {
                 )}
               </div>
             </div>
-
             {/* Botón cargar más solo si hay más eventos por mostrar */}
             {visibleCountEnd < dashboardData.expiredEvents.length && (
               <div className="flex justify-center mt-8">
@@ -226,7 +222,6 @@ const DashboardPage = ({ user }) => {
                 </button>
               </div>
             )}
-
             {/* Botones de Exportación */}
             <ExportButtons
               username={user.username}
@@ -235,6 +230,9 @@ const DashboardPage = ({ user }) => {
           </>
         )}
       </div>
+      {/* Rating *Solo dispoonible para el admin* */}
+      {user.username === "admin" && <FeedbackScorecard />}
+      <Footer />
     </>
   );
 };
