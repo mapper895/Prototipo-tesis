@@ -54,9 +54,9 @@ const SearchComponent = () => {
   };
 
   return (
-    <div className="relative w-[300px] max-w-md" ref={searchRef}>
+    <div className="relative w-full sm:w-[300px] max-w-md" ref={searchRef}>
       <form
-        className="relative flex items-center w-[300px] max-w-md p-2 bg-[#001f60] border rounded-full shadow-sm"
+        className="relative flex items-center w-full sm:w-[300px] p-2 bg-[#001f60] border rounded-full shadow-sm"
         onSubmit={(e) => e.preventDefault()}
       >
         <span className="absolute left-3 text-white">

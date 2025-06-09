@@ -7,9 +7,24 @@ import useCategories from "../hooks/useCategories";
 import { Loader } from "lucide-react";
 import UserRecommendationsBanner from "../components/UserRecommendationBanner";
 import UserReservationsBanner from "../components/UserReservationsBanner";
+import { useEffect, useState } from "react";
+import SmallNavbar from "../components/SmallNavbar";
 
 const HomePage = ({ user }) => {
   const { categories, isLoadingCategories } = useCategories();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar el tamaño de la pantalla
+  const checkScreenSize = () => {
+    setIsMobile(window.innerWidth <= 1280); // Consideramos 768px o menos como pantallas pequeñas
+  };
+
+  useEffect(() => {
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize); // Escuchar cambios de tamaño
+
+    return () => window.removeEventListener("resize", checkScreenSize); // Limpiar el evento
+  }, []);
 
   if (isLoadingCategories)
     return (
@@ -22,10 +37,10 @@ const HomePage = ({ user }) => {
 
   return (
     <>
-      <Navbar />
-      <div className="flex flex-col items-center justify-center w-full gap-10 overflow-hidden mt-20">
+      {isMobile ? <SmallNavbar /> : <Navbar />}
+      <div className="flex flex-col items-center justify-center w-full sm:gap-10 gap-5 overflow-hidden sm:mt-20 mt-10  mx-auto">
         {/* Main Text */}
-        <div className="text-center text-5xl font-light mt-10">
+        <div className="text-center sm:text-5xl text-3xl font-light xl:mt-10">
           Eventos Culturales <br /> CDMX
         </div>
 

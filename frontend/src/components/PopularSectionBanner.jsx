@@ -41,17 +41,19 @@ const PopularSectionBanner = () => {
     );
 
   return (
-    <div className="bg-[#001f60] w-full h-[480px]">
+    <div className="bg-[#001f60] w-full ">
       <div
-        className="max-w-[1300px] relative mx-auto py-10"
+        className="max-w-screen-xl relative py-10 xl:mx-auto mx-4"
         onMouseEnter={() => setshowArrows(true)}
         onMouseLeave={() => setshowArrows(false)}
       >
         <div className="flex items-center justify-between mb-5 text-white">
-          <h2 className="text-2xl font-bold">Top 10 eventos en CDMX</h2>
+          <h2 className="sm:text-2xl text-lg font-bold">
+            Top 10 eventos en CDMX
+          </h2>
           <Link
             to={"/top-10-cdmx"}
-            className="text-sm font-medium hover:underline"
+            className="sm:text-sm text-xs font-medium hover:underline"
           >
             Ver todo
           </Link>
@@ -63,17 +65,17 @@ const PopularSectionBanner = () => {
           {popularEvents.map((event, index) => (
             <Link
               to={`/events/${event._id}`}
-              className="relative min-w-[250px] group"
+              className="relative min-w-[100px] sm:min-w-[240px] group"
               key={event._id}
             >
               <div className="relative">
                 <img
                   src={event.imageUrl}
                   alt={event.title}
-                  className="w-full h-[300px] object-cover rounded-md transition-transform duration-300 ease-in-out hover:scale-110"
+                  className="w-full sm:h-[300px] h-[150px] object-cover rounded-md transition-transform duration-300 ease-in-out hover:scale-110"
                 />
                 <div
-                  className="absolute bottom-2 left-3 text-8xl font-bold text-white"
+                  className="absolute bottom-2 left-3 sm:text-8xl text-4xl font-bold text-white"
                   style={{
                     textShadow:
                       "3px 3px 0 #000, -3px -3px 0 #000, -3px 3px 0 #000, 3px -3px 0 #000",
@@ -82,7 +84,7 @@ const PopularSectionBanner = () => {
                   {index + 1}
                 </div>
               </div>
-              <div className="mt-4 text-base font-semibold text-white">
+              <div className="mt-4 sm:text-base text-xs font-semibold text-white">
                 {event.title}
               </div>
             </Link>

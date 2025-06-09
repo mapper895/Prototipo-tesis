@@ -50,41 +50,44 @@ const EventBanner = ({ category }) => {
 
   return (
     <div
-      className="w-[1300px] flex flex-col gap-5 relative justify-evenly"
+      className="max-w-screen-xl w-full flex flex-col gap-5 relative justify-evenly"
       onMouseEnter={() => setshowArrows(true)}
       onMouseLeave={() => setshowArrows(false)}
     >
-      <div className="flex items-end justify-between">
-        <div className="text-3xl">
+      <div className="flex items-end justify-between mx-4 xl:mx-0">
+        <div className="sm:text-3xl text-xl">
           {category.replaceAll("_", " ")[0].toUpperCase() +
             category.replaceAll("_", " ").slice(1)}
         </div>
-        <Link to={`/events/category/${category}`} className="hover:underline">
+        <Link
+          to={`/events/category/${category}`}
+          className="hover:underline sm:text-base text-xs"
+        >
           Ver todo
         </Link>
       </div>
 
       <div
-        className="flex mx-auto space-x-4 overflow-x-scroll scrollbar-hide w-full max-w-[1300px]"
+        className="flex w-full sm:mx-auto sm:space-x-4 space-x-2 xl:px-0 px-4 overflow-x-scroll scrollbar-hide"
         ref={sliderRef}
       >
         {limitedEvents.map((event) => (
           <Link
             to={`/events/${event._id}`}
-            className="min-w-[250px] max-w-[250px] relative group shadow-lg mb-5"
+            className="sm:min-w-[250px] sm:max-w-[250px] max-w-[110px] min-w-[110px] relative group shadow-lg mb-5"
             key={event._id}
           >
             <div className="rounded-lg mb-2">
               <img
                 src={event.imageUrl}
                 alt="Event Image"
-                className="w-full h-[150px] transition-transform duration-300 ease-in-out group-hover:scale-110 object-cover"
+                className="w-full sm:h-[150px] h-[110px] transition-transform duration-300 ease-in-out group-hover:scale-110 object-cover"
               />
             </div>
-            <div className="font-bold text-lg ml-2 line-clamp-2">
+            <div className="font-bold sm:text-lg text-sm ml-2 line-clamp-2">
               {event.title}
             </div>
-            <div className="text-sm mx-2 mb-2 line-clamp-2">
+            <div className="sm:text-sm text-xs mx-2 mb-2 line-clamp-2">
               {event.description}
             </div>
           </Link>
