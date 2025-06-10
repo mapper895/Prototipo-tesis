@@ -179,7 +179,7 @@ const EventPage = () => {
             </div>
 
             {/* Muestra los datos extra del evento */}
-            <div className="md:w-4/5 w-full flex flex-col items-center gap-4 text-center md:text-start">
+            <div className="md:w-4/5 w-full flex flex-col items-center gap-4 text-center">
               <h2 className="md:text-2xl text-xl mx-auto">
                 Información adicional
               </h2>

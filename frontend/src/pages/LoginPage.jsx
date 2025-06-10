@@ -1,8 +1,9 @@
 import Navbar from "../components/Navbar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
 import { Eye, EyeOff } from "lucide-react";
+import SmallNavbar from "../components/SmallNavbar";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +11,19 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const { login, isLogginIn } = useAuthStore();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar el tamaño de la pantalla
+  const checkScreenSize = () => {
+    setIsMobile(window.innerWidth <= 1280); // Consideramos 768px o menos como pantallas pequeñas
+  };
+
+  useEffect(() => {
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize); // Escuchar cambios de tamaño
+
+    return () => window.removeEventListener("resize", checkScreenSize); // Limpiar el evento
+  }, []);
 
   const handleMouseDown = () => {
     setShowPassword(true);
@@ -26,7 +40,7 @@ const LoginPage = () => {
 
   return (
     <>
-      <Navbar />
+      {isMobile ? <SmallNavbar /> : <Navbar />}
       <div className="flex justify-center items-center mt-32 mx-3">
         <div className="w-full max-w-md p-8 space-y-6 bg-grey/60 rounded-lg shadow-md">
           <h1 className="text-center text-5xl mb-4">Inicia Sesión</h1>
