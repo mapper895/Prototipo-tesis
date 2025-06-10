@@ -27,6 +27,7 @@ export function runPythonRecommender(task, userId) {
     }
 
     const scriptPath = path.join(__dirname, "../../python", scriptFile);
+    console.log(`Ruta del script de python: ${scriptPath}`);
 
     exec(`python "${scriptPath}" ${userId}`, (error, stdout, stderr) => {
       if (error) {
