@@ -73,9 +73,7 @@ const OnboardingForm = () => {
                 onClick={() => handleCategorySelect(category)}
               >
                 <img
-                  src={`http://localhost:5000/images/${category
-                    .toLowerCase()
-                    .replace(/\s+/g, "_")}.jpg`}
+                  src={`/${category.toLowerCase().replace(/\s+/g, "_")}.jpg`}
                   alt={category}
                   className="w-full md:h-40 h-28 object-cover rounded-md"
                 />
