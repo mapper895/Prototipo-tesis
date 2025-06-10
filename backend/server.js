@@ -18,14 +18,15 @@ import mongoose from "mongoose";
 
 // Obtener el nombre del archivo y la ruta de la carpeta actual
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __dirname = path.dirname(__filename);
 
 const app = express();
 
 // Configurar express para servir archivos estaticos
-app.use(express.static(path.join(__dirname, "public")));
+// app.use(express.static(path.join(__dirname, "public")))
 
 const PORT = ENV_VARS.PORT;
+const __dirname = path.resolve();
 
 app.use(express.json());
 app.use(cookieParser());
@@ -38,6 +39,14 @@ app.use("/api/v1/reservation", reservationRoute);
 app.use("/api/v1/notification", notificationRoute);
 app.use("/api/v1/recommendation", recommendationRoute);
 app.use("/api/v1/feedback", feedbackRoute);
+
+if (ENV_VARS.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
 
 app.listen(PORT, () => {
   console.log("El servidor esta listo en http://localhost:" + PORT);
