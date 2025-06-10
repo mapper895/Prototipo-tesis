@@ -7,6 +7,7 @@ import EventCard from "../components/EventCard";
 import { filterEvents } from "../utils/filterEvents";
 import { Loader } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import SmallNavbar from "../components/SmallNavbar";
 
 const AllEventsPage = () => {
   const { searchEvents, getEventsBySearch, isLoading } = useEventStore();
@@ -16,6 +17,19 @@ const AllEventsPage = () => {
   const query = new URLSearchParams(location.search).get("query");
 
   const filteredEvents = filterEvents(searchEvents, filter, selectedDate);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar el tamaño de la pantalla
+  const checkScreenSize = () => {
+    setIsMobile(window.innerWidth <= 1280); // Consideramos 768px o menos como pantallas pequeñas
+  };
+
+  useEffect(() => {
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize); // Escuchar cambios de tamaño
+
+    return () => window.removeEventListener("resize", checkScreenSize); // Limpiar el evento
+  }, []);
 
   useEffect(() => {
     if (searchEvents.length === 0) {
@@ -35,11 +49,13 @@ const AllEventsPage = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="max-w-[1300px] mx-auto mt-20">
+      {isMobile ? <SmallNavbar /> : <Navbar />}
+      <div className="max-w-screen-xl mx-auto xl:mt-20 p-4 xl:p-0">
         <div className="flex flex-col gap-5 my-5">
-          <h2 className="text-6xl font-light">Busqueda de: {query}</h2>
-          <p className="text-lg">
+          <h2 className="md:text-6xl text-4xl font-light">
+            Busqueda de: {query}
+          </h2>
+          <p className="xl:text-lg text-sm">
             A continuacion todos los eventos que encontramos sobre &quot;{query}
             &quot;
           </p>
@@ -52,7 +68,7 @@ const AllEventsPage = () => {
           setSelectedDate={setSelectedDate}
         />
 
-        <div className="grid grid-cols-4 gap-7 my-5">
+        <div className="grid md:grid-cols-3 xl:grid-cols-4 grid-cols-2 md:gap-7 gap-4 md:my-5 my-2">
           {filteredEvents.map((event) => (
             <EventCard key={event._id} event={event} />
           ))}
