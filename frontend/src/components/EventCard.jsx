@@ -8,7 +8,7 @@ const EventCard = ({
   onDelete,
 }) => {
   return (
-    <div className="flex flex-col shadow-lg rounded-lg overflow-hidden">
+    <div className="flex flex-col justify-between shadow-lg rounded-lg overflow-hidden">
       <Link to={`/events/${event._id}`}>
         <img
           src={event.imageUrl}
