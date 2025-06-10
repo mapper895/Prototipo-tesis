@@ -14,7 +14,7 @@ const FeedbackPopup = () => {
 
   // Si el usuario ya ha dado el feedback, mostramos un mensaje
   if (feedbackGiven) {
-    return <p>Gracias por tu feedback!</p>;
+    return null;
   }
 
   // Función para manejar el clic en una estrella
