@@ -7,6 +7,7 @@ import { useMapsStore } from "../store/mapsStore";
 import toast from "react-hot-toast";
 import EventFormComponent from "../components/EventFormComponent";
 import { Loader } from "lucide-react";
+import SmallNavbar from "../components/SmallNavbar";
 
 const EventPage = () => {
   const { user } = useAuthStore();
@@ -44,6 +45,19 @@ const EventPage = () => {
   } = useEventStore();
 
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar el tamaño de la pantalla
+  const checkScreenSize = () => {
+    setIsMobile(window.innerWidth <= 1280); // Consideramos 768px o menos como pantallas pequeñas
+  };
+
+  useEffect(() => {
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize); // Escuchar cambios de tamaño
+
+    return () => window.removeEventListener("resize", checkScreenSize); // Limpiar el evento
+  }, []);
 
   // Cuando el componente se monte, obtenemos las categorías y los datos del evento (si estamos editando)
   useEffect(() => {
@@ -105,7 +119,7 @@ const EventPage = () => {
 
   if (isLoading || !apiKey) {
     return (
-      <div className="h-screen">
+      <div className="h-screen fixed top-0 right-0 z-99 ">
         <div className="flex justify-center items-center bg-white h-full">
           <Loader className="animate-spin text-[#001f60] size-10" />
         </div>
@@ -115,10 +129,10 @@ const EventPage = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="flex justify-center items-center mt-32 mx-3">
+      {isMobile ? <SmallNavbar /> : <Navbar />}
+      <div className="flex justify-center items-center xl:mt-32 mb-5 mt-4 mx-3">
         <div className="w-full max-w-md p-8 space-y-6 bg-grey/60 rounded-lg shadow-md">
-          <h1 className="text-center text-5xl mb-4">
+          <h1 className="text-center md:text-5xl text-3xl mb-4">
             {eventId ? "Editar evento" : "Crear evento"}
           </h1>
 
