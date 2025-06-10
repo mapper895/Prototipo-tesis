@@ -24,9 +24,9 @@ const FeedbackScorecard = () => {
 
   return (
     <div className="grid place-items-center py-10 w-full bg-[#001f60] text-white">
-      <p className="text-4xl mb-8">Feedback de los usuarios</p>
-      <div className="w-[75vw] flex items-center gap-x-8">
-        <div className="w-[30%] bg-blue-800 p-4 rounded-xl text-center">
+      <p className="md:text-4xl text-2xl mb-8">Feedback de los usuarios</p>
+      <div className="max-w-screen-xl w-[75vw] flex md:flex-row flex-col items-center md:gap-x-8 md:gap-y-0 gap-y-5">
+        <div className="md:w-[30%] w-full bg-blue-800 p-4 rounded-xl text-center">
           <h1 className="text-5xl text-white">{averageRating}</h1>
           <div className="star-outer relative text-3xl inline-block">
             <div
@@ -38,7 +38,7 @@ const FeedbackScorecard = () => {
             Total de feedbacks: {totalFeedbacks}
           </p>
         </div>
-        <div className="w-[70%]">
+        <div className="md:w-[70%] w-full">
           {Object.entries(totalRatings).map(([rating, count]) => (
             <div
               key={rating}

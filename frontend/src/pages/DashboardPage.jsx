@@ -9,6 +9,7 @@ import EventCard from "../components/EventCard";
 import { Loader } from "lucide-react";
 import FeedbackScorecard from "../components/FeedbackScorecard";
 import Footer from "../components/Footer";
+import SmallNavbar from "../components/SmallNavbar";
 
 const DashboardPage = ({ user }) => {
   const [dashboardData, setDashboardData] = useState({
@@ -25,6 +26,19 @@ const DashboardPage = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(8);
   const [visibleCountEnd, setVisibleCountEnd] = useState(8);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar el tamaño de la pantalla
+  const checkScreenSize = () => {
+    setIsMobile(window.innerWidth <= 1280); // Consideramos 768px o menos como pantallas pequeñas
+  };
+
+  useEffect(() => {
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize); // Escuchar cambios de tamaño
+
+    return () => window.removeEventListener("resize", checkScreenSize); // Limpiar el evento
+  }, []);
 
   // Funciona para cargar 8 mas
   const handleLoadMore = () => {
@@ -100,11 +114,13 @@ const DashboardPage = ({ user }) => {
 
   return (
     <>
-      <Navbar />
-      <div className="max-w-[1300px] mx-auto mt-20">
-        <div className="flex flex-col gap-5 my-10">
-          <h2 className="text-6xl font-light">Dashboard de tus Eventos</h2>
-          <p className="text-lg">
+      {isMobile ? <SmallNavbar /> : <Navbar />}
+      <div className="max-w-screen-xl mx-auto xl:mt-20 p-4 xl:p-0">
+        <div className="flex flex-col gap-5 xl:my-10 my-5">
+          <h2 className="md:text-6xl text-4xl font-light">
+            Dashboard de tus Eventos
+          </h2>
+          <p className="xl:text-lg text-sm">
             Aquí podras ver las estadisticas de tus eventos.
           </p>
         </div>
@@ -125,28 +141,28 @@ const DashboardPage = ({ user }) => {
             {/* Resumen de Estadísticas */}
             <DashboardStats stats={dashboardData} />
             {/* Mostrar los eventos más likeados y con más vistas */}
-            <div className="mt-20">
-              <h3 className="text-3xl font-semibold mb-4">
+            <div className="xl:mt-20 mt-5">
+              <h3 className="xl:text-3xl text-2xl font-semibold mb-4">
                 Eventos más populares
               </h3>
-              <div className="grid grid-cols-2 gap-7 my-5">
+              <div className="grid md:grid-cols-2 grid-cols-1 gap-10 my-5">
                 {/* Evento mas likeado */}
                 <div className="space-y-4">
-                  <div className="flex justify-between mx-4">
-                    <h4 className="text-xl">Evento Con Más Likes</h4>
-                    <div className="mt-2 text-gray-500">
-                      <span>
-                        Likes: {dashboardData.mostViewedEvent.likesCount}
-                      </span>
+                  <div className="flex justify-between items-center">
+                    <h4 className="md:text-xl text-sm">Evento Con Más Likes</h4>
+                    <div className="text-gray-500 md:text-base text-xs ">
+                      Likes: {dashboardData.mostViewedEvent.likesCount}
                     </div>
                   </div>
                   <EventCard event={dashboardData.mostLikedEvent} />
                 </div>
                 {/* Evento con mas vistas */}
                 <div className="space-y-4">
-                  <div className="flex justify-between mx-4">
-                    <h4 className="text-xl">Evento Con Más Vistas</h4>
-                    <div className="mt-2 text-gray-500">
+                  <div className="flex justify-between items-center">
+                    <h4 className="md:text-xl text-sm">
+                      Evento Con Más Vistas
+                    </h4>
+                    <div className=" text-gray-500 md:text-base text-xs">
                       <span>Vistas: {dashboardData.mostViewedEvent.views}</span>
                     </div>
                   </div>
@@ -155,11 +171,11 @@ const DashboardPage = ({ user }) => {
               </div>
             </div>
             {/* Mostrar proximos eventos */}
-            <div className="mt-20">
-              <h3 className="text-3xl font-semibold mb-4">
+            <div className="xl:mt-20 mt-10">
+              <h3 className="md:text-3xl text-2xl font-semibold mb-4">
                 Tus próximos eventos de esta semana
               </h3>
-              <div className="grid grid-cols-4 gap-7 my-5">
+              <div className="grid md:grid-cols-3 xl:grid-cols-4 grid-cols-2 md:gap-7 gap-4 md:my-5 my-2">
                 {futureVisibleEvents.length !== 0 ? (
                   futureVisibleEvents.map((event) => (
                     <EventCard key={event._id} event={event} />
@@ -181,27 +197,33 @@ const DashboardPage = ({ user }) => {
               </div>
             )}
             {/* Resumen en Graficas */}
-            <div className="my-20">
-              <h3 className="text-3xl font-semibold">Resumen en gráficas</h3>
-              <div className="flex space-x-4 mt-6">
+            <div className="xl:my-20 my-10">
+              <h3 className="md:text-3xl text-2xl font-semibold">
+                Resumen en gráficas
+              </h3>
+              <div className="grid md:grid-cols-2 gird-cols-1 gap-10 mt-4">
                 {/* Gráfica de Likes */}
-                <div className="flex-1 mx-4">
-                  <h3 className="text-xl mb-4">Likes en los últimos días</h3>
+                <div className="mx-4">
+                  <h3 className="md:text-xl text-sm text-center mb-4">
+                    Likes en los últimos días
+                  </h3>
                   <DashboardChart chartData={likesChartData} chartType="line" />
                 </div>
                 {/* Gráfica de Eventos por Mes */}
-                <div className="flex-1 mx-4">
-                  <h3 className="text-xl mb-4">Eventos creados en cada mes</h3>
+                <div className="mx-4">
+                  <h3 className="md:text-xl text-sm text-center mb-4">
+                    Eventos creados en cada mes
+                  </h3>
                   <DashboardChart chartData={eventsChartData} chartType="bar" />
                 </div>
               </div>
             </div>
             {/* Mostrar eventos terminados */}
-            <div className="mt-20">
-              <h3 className="text-3xl font-semibold mb-4">
+            <div className="xl:mt-20">
+              <h3 className="md:text-3xl text-2xl font-semibold mb-4">
                 Tus eventos terminados
               </h3>
-              <div className="grid grid-cols-4 gap-7 my-5">
+              <div className="grid md:grid-cols-3 xl:grid-cols-4 grid-cols-2 md:gap-7 gap-4 md:my-5 my-2">
                 {visibleEventsEnd.length !== 0 ? (
                   visibleEventsEnd.map((event) => (
                     <EventCard key={event._id} event={event} />
