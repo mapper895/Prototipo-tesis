@@ -48,11 +48,11 @@ const OnboardingForm = () => {
       )}
 
       <div className="container mx-auto py-12 px-6">
-        <h1 className="text-3xl font-semibold text-center">
+        <h1 className="md:text-3xl text-xl font-semibold text-center">
           ¡Bienvenido! <br />
           Queremos saber tus gustos para poder recomendarte eventos.
         </h1>
-        <p className="text-center text-lg mt-4">
+        <p className="text-center md:text-lg text-base mt-4">
           Selecciona hasta 5 categorías que más te interesen.
         </p>
 
@@ -61,11 +61,11 @@ const OnboardingForm = () => {
             <p>Cargando categorías...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-6 mt-8">
+          <div className="grid xl:grid-cols-4 md:grid-cols-3 grid-cols-2 md:gap-6 gap-4 mt-8">
             {categories.map((category) => (
               <div
                 key={category}
-                className={`p-4 border rounded-lg cursor-pointer transition transform hover:scale-105 ${
+                className={`border rounded-lg cursor-pointer transition transform hover:scale-105 ${
                   selectedCategories.includes(category)
                     ? "border-blue-500 bg-blue-50"
                     : "border-gray-300"
@@ -77,9 +77,11 @@ const OnboardingForm = () => {
                     .toLowerCase()
                     .replace(/\s+/g, "_")}.jpg`}
                   alt={category}
-                  className="w-full h-40 object-cover rounded-md"
+                  className="w-full md:h-40 h-28 object-cover rounded-md"
                 />
-                <p className="mt-2 text-center text-lg">{category}</p>
+                <p className="mt-2 p-2 text-center md:text-lg text-sm">
+                  {category}
+                </p>
               </div>
             ))}
           </div>
