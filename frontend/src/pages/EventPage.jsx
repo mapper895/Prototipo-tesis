@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEventStore } from "../store/eventStore"; // Asegúrate de importar correctamente el store
 import { useAuthStore } from "../store/authUser";
@@ -9,6 +9,7 @@ import "react-calendar/dist/Calendar.css"; // Importa los estilos de react-calen
 import Maps from "../components/Maps";
 import EventBooking from "../components/EventBooking";
 import SimilarEventsComponent from "../components/SimilarEventsComponent";
+import SmallNavbar from "../components/SmallNavbar";
 
 const EventPage = () => {
   const { id } = useParams();
@@ -25,6 +26,19 @@ const EventPage = () => {
   } = useEventStore();
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar el tamaño de la pantalla
+  const checkScreenSize = () => {
+    setIsMobile(window.innerWidth <= 1280); // Consideramos 768px o menos como pantallas pequeñas
+  };
+
+  useEffect(() => {
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize); // Escuchar cambios de tamaño
+
+    return () => window.removeEventListener("resize", checkScreenSize); // Limpiar el evento
+  }, []);
 
   useEffect(() => {
     getEventById(id); // Llama a la función con el ID completo
@@ -56,9 +70,9 @@ const EventPage = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="max-w-[1300px] mx-auto mt-20">
-        <div className="flex flex-row">
+      {isMobile ? <SmallNavbar /> : <Navbar />}
+      <div className="max-w-screen-xl mx-auto xl:mt-20 px-4 xl:px-0">
+        <div className="flex md:flex-row flex-col">
           {/* Lado izquierdo */}
           <div className="flex flex-col gap-10 flex-1">
             <div className="w-full flex flex-col gap-5 border-b pb-5">
@@ -68,7 +82,9 @@ const EventPage = () => {
                 className="w-full h-[250px] object-cover"
               />
               <div className="flex justify-between">
-                <div className="text-4xl font-light">{event.title}</div>
+                <div className="md:text-4xl text-2xl font-light px-2 md:px-0">
+                  {event.title}
+                </div>
                 {/* Boton de likes*/}
                 <button onClick={() => toggleLike(event._id)}>
                   <Heart
@@ -80,19 +96,19 @@ const EventPage = () => {
                     }`}
                   />
                 </button>
-                {/* Boton para compartir */}
+                {/* Boton para compartir, ***falta por hacer*** */}
               </div>
               {/* Botones de edicion o eliminacion de eventos */}
               {user && event.createdBy === user._id && (
                 <div className="flex justify-evenly w-full">
                   <Link
-                    className="px-10 py-4 rounded-xl p-2 bg-blue-200 flex items-center justify-center gap-2 text-sm"
+                    className="md:px-10 px-5 py-4 rounded-xl p-2 bg-blue-200 flex items-center justify-center gap-2 md:text-sm text-xs"
                     to={`/edit-event/${event._id}`}
                   >
                     Editar evento <Pencil size={16} />
                   </Link>
                   <div
-                    className="px-10 py-4 rounded-xl p-2 bg-red-500 flex items-center justify-center gap-2 text-sm cursor-pointer"
+                    className="md:px-10 px-5 py-4 rounded-xl p-2 bg-red-500 flex items-center justify-center gap-2 md:text-sm text-xs cursor-pointer"
                     onClick={() => handleDeleteClick(event._id)}
                   >
                     Eliminar evento <Trash2 size={16} />
@@ -103,15 +119,15 @@ const EventPage = () => {
 
             {/* Descripcion */}
             <div className="flex flex-col gap-5">
-              <div className="text-4xl">Descripción</div>
-              <div>{event.description}</div>
+              <div className="md:text-4xl text-2xl">Descripción</div>
+              <div className="md:text-base text-sm">{event.description}</div>
             </div>
 
             {/* Ubicacion */}
-            <div className="flex flex-col gap-5">
-              <div className="flex gap-4">
-                <div className="w-2/5 flex flex-col justify-between">
-                  <div className="text-4xl">Ubicación</div>
+            <div className="flex gap-5">
+              <div className="flex md:flex-row flex-col gap-4">
+                <div className="md:w-2/5 w-full flex flex-col justify-between gap-4 mb-4">
+                  <div className="md:text-4xl text-2xl">Ubicación</div>
                   <p className="my-auto">{event.location}</p>
                   <a
                     target="_blank"
@@ -123,7 +139,7 @@ const EventPage = () => {
                     ¿Como llegar?
                   </a>
                 </div>
-                <div className="w-3/5 h-[250px]">
+                <div className="md:w-3/5 w-full h-[250px]">
                   {event.latitude && event.longitude && (
                     <Maps
                       lat={event.latitude}
@@ -136,14 +152,14 @@ const EventPage = () => {
             </div>
           </div>
           {/* Lado derecho */}
-          <div className="flex flex-col flex-1 items-center mt-20 gap-10">
-            <div className="text-6xl font-light">Fecha y Hora</div>
+          <div className="flex flex-col flex-1 md:items-center md:mt-20 mt-10 gap-10">
+            <div className="md:text-6xl text-3xl font-light">Fecha y Hora</div>
 
             {/* Calendario y horarios | Boton de reserva/notificacion */}
             <EventBooking event={event} />
 
             {/* Muestra los tipos de boletos o costos */}
-            <div className="w-4/5 flex flex-col">
+            <div className="md:w-4/5 w-full flex flex-col">
               <h2 className="text-2xl mx-auto">Precios disponibles</h2>
               <div className="space-y-4">
                 {event.costs ? (
@@ -163,8 +179,10 @@ const EventPage = () => {
             </div>
 
             {/* Muestra los datos extra del evento */}
-            <div className="w-4/5 flex flex-col items-center gap-4">
-              <h2 className="text-2xl mx-auto">Información adicional</h2>
+            <div className="md:w-4/5 w-full flex flex-col items-center gap-4 text-center md:text-start">
+              <h2 className="md:text-2xl text-xl mx-auto">
+                Información adicional
+              </h2>
               <p>Organziador del evento: {event.organizer}</p>
               <p>Edad: {event.target}</p>
               <a
