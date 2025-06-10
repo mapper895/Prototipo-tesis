@@ -56,11 +56,7 @@ const SmallNavbar = () => {
           {user && (
             <div className="flex items-center justify-center">
               <div className="text-base">Hola {user.username}!</div>
-              <img
-                src={user.image}
-                alt="Avatar"
-                className="h-12 rounded cursor-pointer"
-              />
+              <img src={user.image} alt="Avatar" className="h-12 rounded" />
             </div>
           )}
           {!user ? (
