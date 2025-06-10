@@ -7,6 +7,7 @@ import EventFilters from "../components/EventFilters";
 import EventCard from "../components/EventCard";
 import { filterEvents } from "../utils/filterEvents";
 import { Loader } from "lucide-react";
+import SmallNavbar from "../components/SmallNavbar";
 
 const CategoryPage = () => {
   const { category } = useParams();
@@ -18,6 +19,19 @@ const CategoryPage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
 
   const filteredEvents = filterEvents(categoryEvents, filter, selectedDate);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar el tamaño de la pantalla
+  const checkScreenSize = () => {
+    setIsMobile(window.innerWidth <= 1280); // Consideramos 768px o menos como pantallas pequeñas
+  };
+
+  useEffect(() => {
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize); // Escuchar cambios de tamaño
+
+    return () => window.removeEventListener("resize", checkScreenSize); // Limpiar el evento
+  }, []);
 
   useEffect(() => {
     if (!eventsByCategory[category]) {
@@ -37,18 +51,18 @@ const CategoryPage = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="max-w-[1300px] mx-auto mt-20">
-        <div className="flex flex-col gap-5 my-5">
-          <div className="flex gap-2">
+      {isMobile ? <SmallNavbar /> : <Navbar />}
+      <div className="max-w-screen-xl mx-auto xl:mt-20 p-4 xl:p-0">
+        <div className="flex flex-col gap-5 xl:my-5 mb-4">
+          <div className="flex gap-2 xl:text-base text-xs">
             <Link to="/">Inicio</Link>
             {">"}
             <p className="capitalize">{category.replaceAll("_", " ")}</p>
           </div>
-          <h2 className="text-6xl font-light capitalize">
+          <h2 className="md:text-6xl text-4xl font-light capitalize">
             {category.replaceAll("_", " ")}
           </h2>
-          <p className="text-lg">
+          <p className="xl:text-lg text-sm">
             Descubre los mejores eventos de {category.replaceAll("_", " ")} en
             la Ciudad de México.
           </p>
@@ -61,7 +75,7 @@ const CategoryPage = () => {
           setSelectedDate={setSelectedDate}
         />
 
-        <div className="grid grid-cols-4 gap-7 my-5">
+        <div className="grid md:grid-cols-3 xl:grid-cols-4 grid-cols-2 md:gap-7 gap-4 md:my-5 my-2">
           {filteredEvents.map((event) => (
             <EventCard key={event._id} event={event} />
           ))}
