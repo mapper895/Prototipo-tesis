@@ -117,7 +117,7 @@ const MyEventsPage = () => {
           <div className="bg-white p-6 rounded shadow-md text-center">
             <h2 className="text-xl font-semibold">¿Estás seguro?</h2>
             <p>¿Deseas eliminar este evento?</p>
-            <div className="mt-4 flex justify-end space-x-2">
+            <div className="mt-4 flex justify-center space-x-2">
               <button
                 onClick={clearEventToDelete}
                 className="px-4 py-2 bg-gray-300 rounded"

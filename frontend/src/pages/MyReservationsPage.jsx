@@ -7,6 +7,7 @@ import EventCard from "../components/EventCard";
 import Footer from "../components/Footer";
 import { Loader } from "lucide-react";
 import { useAuthStore } from "../store/authUser";
+import SmallNavbar from "../components/SmallNavbar";
 
 const MyReservationsPage = () => {
   const { user } = useAuthStore();
@@ -26,6 +27,19 @@ const MyReservationsPage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
 
   const filteredEvents = filterReservations(reservations, filter, selectedDate);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar el tamaño de la pantalla
+  const checkScreenSize = () => {
+    setIsMobile(window.innerWidth <= 1280); // Consideramos 768px o menos como pantallas pequeñas
+  };
+
+  useEffect(() => {
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize); // Escuchar cambios de tamaño
+
+    return () => window.removeEventListener("resize", checkScreenSize); // Limpiar el evento
+  }, []);
 
   const handleDeleteClick = (id) => {
     setEventToDelete(id);
@@ -56,11 +70,13 @@ const MyReservationsPage = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="max-w-[1300px] mx-auto mt-20">
+      {isMobile ? <SmallNavbar /> : <Navbar />}
+      <div className="max-w-screen-xl mx-auto xl:mt-20 px-4 xl:px-0 mb-10">
         <div className="flex flex-col gap-5 my-5">
-          <h2 className="text-6xl font-light">Mis Eventos Agendados</h2>
-          <p className="text-lg">
+          <h2 className="md:text-6xl text-4xl font-light">
+            Mis Eventos Agendados
+          </h2>
+          <p className="md:text-lg text-sm">
             Aquí puedes ver todas tus eventos agendados.
           </p>
         </div>
@@ -72,7 +88,7 @@ const MyReservationsPage = () => {
           setSelectedDate={setSelectedDate}
         />
 
-        <div className="grid grid-cols-4 gap-7 my-5">
+        <div className="grid md:grid-cols-3 xl:grid-cols-4 grid-cols-2 md:gap-7 gap-4 md:my-5 my-2">
           {reservations.length === 0 ? (
             <div className="text-center py-10">
               <p className="text-xl font-semibold">
@@ -94,10 +110,10 @@ const MyReservationsPage = () => {
 
       {eventToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 rounded-3xl">
-          <div className="bg-white p-6 rounded shadow-md text-center">
+          <div className="bg-white p-6 rounded shadow-md text-center w-[300px]">
             <h2 className="text-xl font-semibold">¿Estás seguro?</h2>
             <p>¿Deseas eliminar este evento agendado?</p>
-            <div className="mt-4 flex justify-end space-x-2">
+            <div className="mt-4 flex justify-center space-x-2">
               <button
                 onClick={handleCancel}
                 className="px-4 py-2 bg-gray-300 rounded"
