@@ -125,7 +125,7 @@ const EventPage = () => {
 
             {/* Ubicacion */}
             <div className="flex gap-5">
-              <div className="flex md:flex-row flex-col gap-4">
+              <div className="flex md:flex-row flex-col gap-4 w-full">
                 <div className="md:w-2/5 w-full flex flex-col justify-between gap-4 mb-4">
                   <div className="md:text-4xl text-2xl">Ubicación</div>
                   <p className="my-auto">{event.location}</p>
