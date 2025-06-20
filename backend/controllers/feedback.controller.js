@@ -1,5 +1,7 @@
+import { ENV_VARS } from "../config/envVars.js";
 import { Feedback } from "../models/feedback.model.js";
 import { User } from "../models/user.model.js";
+import { sendEmail } from "../utils/emailService.js";
 
 // Guardar feedback
 export async function submitFeedback(req, res) {
@@ -60,17 +62,44 @@ export async function getRating(req, res) {
     const averageRating = sumRatings / feedbacks.length;
 
     // Enviamos la respuesta con el puntaje promedio y la distribucion
-    res
-      .status(200)
-      .json({
-        success: true,
-        averageRating: averageRating.toFixed(1),
-        totalRatings,
-        totalFeedbacks: feedbacks.length,
-      });
+    res.status(200).json({
+      success: true,
+      averageRating: averageRating.toFixed(1),
+      totalRatings,
+      totalFeedbacks: feedbacks.length,
+    });
   } catch (error) {
     res
       .status(500)
       .json({ success: false, message: "Error al obtener rating" });
+  }
+}
+
+//Enviar comentario por correo
+export async function sendComment(req, res) {
+  const { comment } = req.body;
+
+  if (!comment) {
+    return res
+      .status(400)
+      .json({ success: false, message: "El comentario es requerido" });
+  }
+
+  try {
+    await sendEmail(
+      ENV_VARS.GMAIL_EMAIL_USER,
+      "Nuevo comentario en el sitio",
+      null,
+      `<p><strong>Comentario: <strong><br>${comment}</p>`
+    );
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Comentario enviado con exito" });
+  } catch (error) {
+    console.log("Error al ennviar el correo: ".error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error al enviar el comentario" });
   }
 }
