@@ -3,6 +3,11 @@ import bcryptjs from "bcryptjs";
 import { generateTokenAndSetCookie } from "../utils/generateToken.js";
 import { sendWelcomeEmail } from "../utils/notificationService.js";
 
+function passwordValidation(password) {
+  const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+  return regex.test(password);
+}
+
 export async function signup(req, res) {
   try {
     const { email, password, username } = req.body;
@@ -25,6 +30,34 @@ export async function signup(req, res) {
       return res.status(400).json({
         success: false,
         message: "La contraseña debe por lo menos 6 caracteres",
+      });
+    }
+
+    // Verificar si la contraseña es común
+    const commonPasswords = [
+      "123456",
+      "password",
+      "123456789",
+      "qwerty",
+      "abc123",
+      "password1",
+      "12345",
+    ];
+
+    if (commonPasswords.includes(password)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "La contraseña es demasiado común. Por favor, elige una contraseña más segura.",
+      });
+    }
+
+    // Validar complejidad de la contraseña
+    if (!passwordValidation(password)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "La contraseña debe contener al menos una letra mayúscula, un número y un carácter especial",
       });
     }
 
