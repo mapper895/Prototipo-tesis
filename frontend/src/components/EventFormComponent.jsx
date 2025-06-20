@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { parse } from "date-fns";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 const EventFormComponent = ({
   eventData,
@@ -148,6 +149,43 @@ const EventFormComponent = ({
     setEventData({ ...eventData, costs: newCosts });
   };
 
+  // Función para subir la imagen a Cloudinary
+  const uploadImageToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "proyecto_terminal"); // Asegúrate de poner tu "upload preset"
+
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/daaj78igi/image/upload`, // Asegúrate de poner tu "cloud_name"
+        formData
+      );
+
+      // Si la carga fue exitosa, devuelve la URL de la imagen
+      return response.data.secure_url; // Esta es la URL pública de la imagen cargada
+    } catch (error) {
+      console.error("Error al subir la imagen a Cloudinary:", error);
+      throw new Error("No se pudo cargar la imagen");
+    }
+  };
+
+  // Función para manejar la carga de imagen
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0]; // Obtener el archivo cargado
+
+    if (!file) return; // Si no hay archivo, no hacemos nada
+
+    try {
+      // Llamar a la función para subir la imagen
+      const imageUrl = await uploadImageToCloudinary(file); // Obtienes la URL pública de Cloudinary
+
+      // Ahora actualizamos el estado de Zustand con la URL de la imagen
+      setEventData({ imageUrl: imageUrl });
+    } catch (error) {
+      console.error("Error al cargar la imagen", error);
+    }
+  };
+
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       <div>
@@ -155,7 +193,7 @@ const EventFormComponent = ({
           htmlFor="title"
           className="text-sm font-medium text-gray-700 block"
         >
-          Nombre del evento
+          Nombre del evento <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -173,7 +211,7 @@ const EventFormComponent = ({
           htmlFor="description"
           className="text-sm font-medium text-gray-700 block"
         >
-          Descripción del evento
+          Descripción del evento <span className="text-red-500">*</span>
         </label>
         <textarea
           className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
@@ -190,7 +228,7 @@ const EventFormComponent = ({
           htmlFor="categories"
           className="text-sm font-medium text-gray-700 block"
         >
-          Categoria
+          Categoria <span className="text-red-500">*</span>
         </label>
         <select
           className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
@@ -215,7 +253,7 @@ const EventFormComponent = ({
           htmlFor="location"
           className="text-sm font-medium text-gray-700 block"
         >
-          Lugar
+          Lugar <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -282,27 +320,31 @@ const EventFormComponent = ({
         >
           Horarios del evento
         </label>
-        {eventData.schedules.map((time, index) => (
-          <div key={index} className="flex items-center space-x-2">
-            <input
-              type="time"
-              className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
-              value={time}
-              onChange={(e) => {
-                const newSchedules = [...eventData.schedules];
-                newSchedules[index] = e.target.value;
-                setEventData({ ...eventData, schedules: newSchedules });
-              }}
-            />
-            <button
-              type="button"
-              className="text-red-500"
-              onClick={() => handleRemoveTime(index)}
-            >
-              Eliminar
-            </button>
-          </div>
-        ))}
+        {eventData.schedules && eventData.schedules.length > 0 ? (
+          eventData.schedules.map((time, index) => (
+            <div key={index} className="flex items-center space-x-2">
+              <input
+                type="time"
+                className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
+                value={time || ""}
+                onChange={(e) => {
+                  const newSchedules = [...eventData.schedules];
+                  newSchedules[index] = e.target.value;
+                  setEventData({ ...eventData, schedules: newSchedules });
+                }}
+              />
+              <button
+                type="button"
+                className="text-red-500"
+                onClick={() => handleRemoveTime(index)}
+              >
+                Eliminar
+              </button>
+            </div>
+          ))
+        ) : (
+          <p>No hay horarios agregados</p>
+        )}
         <button type="button" className="text-blue-500" onClick={handleAddTime}>
           Agregar horario
         </button>
@@ -316,7 +358,7 @@ const EventFormComponent = ({
           Duración del evento
         </label>
         <input
-          type="number"
+          type="text"
           className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
           placeholder="Duración del evento (ej. 2 horas)"
           id="duration"
@@ -370,31 +412,39 @@ const EventFormComponent = ({
         >
           Costos
         </label>
-        {eventData.costs.map((cost, index) => (
-          <div key={index} className="flex items-center space-x-2">
-            <input
-              type="text"
-              className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
-              placeholder="Tipo (ej. General)"
-              value={cost.type}
-              onChange={(e) => handleCostChange(index, "type", e.target.value)}
-            />
-            <input
-              type="text"
-              className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
-              placeholder="Precio (ej. $100)"
-              value={cost.price}
-              onChange={(e) => handleCostChange(index, "price", e.target.value)}
-            />
-            <button
-              type="button"
-              className="text-red-500"
-              onClick={() => handleRemoveCost(index)}
-            >
-              Eliminar
-            </button>
-          </div>
-        ))}
+        {eventData.costs && eventData.costs.length > 0 ? (
+          eventData.costs.map((cost, index) => (
+            <div key={index} className="flex items-center space-x-2">
+              <input
+                type="text"
+                className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
+                placeholder="Tipo (ej. General)"
+                value={cost.type}
+                onChange={(e) =>
+                  handleCostChange(index, "type", e.target.value)
+                }
+              />
+              <input
+                type="text"
+                className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
+                placeholder="Precio (ej. $100)"
+                value={cost.price}
+                onChange={(e) =>
+                  handleCostChange(index, "price", e.target.value)
+                }
+              />
+              <button
+                type="button"
+                className="text-red-500"
+                onClick={() => handleRemoveCost(index)}
+              >
+                Eliminar
+              </button>
+            </div>
+          ))
+        ) : (
+          <p>No hay costos agregados</p>
+        )}
         <button type="button" className="text-blue-500" onClick={handleAddCost}>
           Agregar costo
         </button>
@@ -441,19 +491,28 @@ const EventFormComponent = ({
           htmlFor="image"
           className="text-sm font-medium text-gray-700 block"
         >
-          Url de la imagen del evento
+          Cargar imagen del evento
         </label>
         <input
-          type="text"
-          className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
-          placeholder="https://imagen.com"
+          type="file"
           id="image"
-          value={eventData.imageUrl}
-          onChange={(e) =>
-            setEventData({ ...eventData, imageUrl: e.target.value })
-          }
+          accept="image/*"
+          onChange={handleImageUpload} // Llama a la función para manejar la carga
+          className="w-full px-3 py-2 mt-1 border border-[#001f60] rounded-md bg-transparent text-black focus:outline-none focus:ring"
         />
+        {/* Mostrar vista previa de la imagen */}
+        {eventData.imageUrl && (
+          <div className="mt-4">
+            <img
+              src={eventData.imageUrl}
+              alt="Vista previa de la imagen"
+              className="w-32 h-32 object-cover"
+            />
+          </div>
+        )}
       </div>
+
+      <p className="text-red-600">* Campos obligatorios </p>
 
       <button
         className="w-full py-2 bg-[#001f60] text-white font-semibold rounded-md hover:bg-[#456eff] "

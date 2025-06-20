@@ -131,9 +131,7 @@ const EventBooking = ({ event }) => {
                   );
                 })}
               </div>
-              <p className="text-xs">
-                Duracion del evento: {event.duration} hrs.
-              </p>
+              <p className="text-xs">Duracion del evento: {event.duration}</p>
             </>
           ) : (
             <p>No hay horarios disponibles</p>
