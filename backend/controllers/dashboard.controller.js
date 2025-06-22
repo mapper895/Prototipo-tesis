@@ -260,7 +260,7 @@ export const exportAllEvents = async (req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filemane=allEvents_${
+      `attachment; filename=allEvents_${
         new Date().toISOString().split("T")[0]
       }.json`
     );

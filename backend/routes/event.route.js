@@ -14,6 +14,8 @@ import {
   getPopularEvents,
   getSimilarEvents,
   getUserRecommendations,
+  getAllEventsForUpdate,
+  createAutomaticEvent,
 } from "../controllers/event.controller.js";
 import {
   optionalProtectRoute,
@@ -24,7 +26,9 @@ const router = express.Router();
 
 // Rutas para los eventos
 router.post("/create-event", protectRoute, createEvent);
+router.post("/automatic-create-event", createAutomaticEvent);
 router.get("/events", getAllEvents);
+router.get("/all-events", getAllEventsForUpdate);
 router.get("/popular-events", getPopularEvents);
 router.get("/events/:id", getEventById);
 router.get("/events/category/:category", getEventsByCategory);

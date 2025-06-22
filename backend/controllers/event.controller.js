@@ -154,7 +154,138 @@ export async function createEvent(req, res) {
   }
 }
 
-// Obtener todos los eventos
+// Crear un nuevo evento automatizado
+export async function createAutomaticEvent(req, res) {
+  try {
+    const {
+      eventId,
+      title,
+      description,
+      category,
+      duration,
+      location,
+      latitude,
+      longitude,
+      imageUrl,
+      target,
+      accessibility,
+      organizer,
+      eventUrl,
+      dates,
+      schedules,
+      costs,
+    } = req.body;
+
+    // Convertimos latitud y longitud a numeros
+    let lat = parseFloat(latitude);
+    let lng = parseFloat(longitude);
+
+    // Si no tenemos las coordenadas las obtenemos con la API de Google Maps
+    if (!lat || !lng) {
+      console.log(
+        "No se proporcionaron coordenadas. Usando la API de Google Maps"
+      );
+
+      // Si no se proporciona la ubicacion, retornamos error
+      if (!location) {
+        return res.status(400).json({ message: "La direccion es obligatoria" });
+      }
+
+      // Obtener las coordenadas con la api de Google Maps
+      const googleMapsUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+        location
+      )}&key=${ENV_VARS.GOOGLE_MAPS_API_KEY}`;
+
+      const response = await axios.get(googleMapsUrl);
+      const data = response.data;
+
+      if (!data || data.status !== "OK" || data.results.length === 0) {
+        return res.status(400).json({ message: "Dirección no válida" });
+      }
+
+      const locationData = data.results[0].geometry.location;
+
+      lat = locationData.lat;
+      lng = locationData.lng;
+
+      console.log("Coordenadas obtenidas de la API: ", lat, lng);
+    }
+
+    // Verificar si ya existe un evento con el mismo título y fecha
+    const existingEvent = await Event.findOne({
+      title: title,
+      dates: { $size: dates.length, $all: dates },
+    });
+
+    if (existingEvent) {
+      return res.status(400).json({
+        success: false,
+        message: "Ya existe el evento",
+      });
+    }
+
+    const adminUser = await User.findOne({ username: "admin" });
+    if (!adminUser) {
+      return res.status(500).json({
+        message: "No se encontro un administrador en la base de datos",
+      });
+    }
+    let userId = adminUser._id;
+
+    const newEvent = new Event({
+      eventId,
+      title,
+      description,
+      category,
+      duration,
+      location,
+      latitude: lat,
+      longitude: lng,
+      imageUrl,
+      target,
+      accessibility,
+      organizer,
+      eventUrl,
+      dates,
+      schedules,
+      costs,
+      createdBy: userId,
+    });
+
+    const savedEvent = await newEvent.save();
+
+    // Despues de crear el evento, actualizamos el campo "createdEvents" en el usuario
+    await User.findByIdAndUpdate(userId, {
+      $push: { createdEvents: savedEvent._id }, // Agregamos el Id del evento a createdEvents
+    });
+
+    res.status(201).json({
+      success: true,
+      event: savedEvent,
+    });
+  } catch (error) {
+    console.log("Error al crear el evento:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error al crear el evento",
+    });
+  }
+}
+// Obtener todos los eventos (scraping)
+export async function getAllEventsForUpdate(req, res) {
+  try {
+    const events = await Event.find();
+
+    res.status(200).json(events);
+  } catch (error) {
+    console.log("Error al obtener eventos: ", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error al obtener eventos" });
+  }
+}
+
+// Obtener todos los eventos futuros
 export async function getAllEvents(req, res) {
   try {
     const events = await Event.find().sort({ createdAt: -1 }).exec();
@@ -664,11 +795,9 @@ export async function getUserRecommendations(req, res) {
     res.status(200).json({ success: true, recommendations: recommendedEvents });
   } catch (error) {
     console.log("Error al obtener las recomendaciones del usuario:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "error al obtener las recomendaciones",
-      });
+    res.status(500).json({
+      success: false,
+      message: "error al obtener las recomendaciones",
+    });
   }
 }
