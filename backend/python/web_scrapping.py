@@ -1,7 +1,6 @@
 from time import sleep
 from datetime import datetime
 import json
-import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -10,7 +9,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# Configurar Chrome para headless en Render
+# Configurar Chrome para Render
 opts = Options()
 opts.add_argument("user-agent=Mozilla/5.0")
 opts.add_argument("--headless")
@@ -28,13 +27,13 @@ driver.set_page_load_timeout(180)
 wait = WebDriverWait(driver, 15)
 eventos = []
 
-# Cargar la página
+# Cargar el sitio
 try:
-    print("Cargando sitio...")
+    print("🔄 Cargando sitio...")
     driver.get("https://cartelera.cdmx.gob.mx/")
-    print("Sitio cargado.")
+    print("✅ Sitio cargado.")
 except Exception as e:
-    print(f"Error al cargar la página: {e}")
+    print(f"❌ Error al cargar la página: {e}")
     driver.quit()
     exit(1)
 
@@ -42,9 +41,9 @@ except Exception as e:
 try:
     last_button = driver.find_element(By.XPATH, '//li[@jp-role="last"]')
     numero_paginas = int(last_button.get_attribute("jp-data"))
-    print(f"Total de páginas: {numero_paginas}")
+    print(f"📄 Total de páginas: {numero_paginas}")
 except Exception as e:
-    print(f"Error al obtener número de páginas: {e}")
+    print(f"❌ Error al obtener número de páginas: {e}")
     driver.quit()
     exit(1)
 
@@ -52,13 +51,14 @@ pagina_actual = 1
 ID = 0
 
 while pagina_actual <= numero_paginas:
+    print(f"➡️ Procesando página {pagina_actual}...")
     for i in range(9):
         ID += 1
         sleep(1)
 
         titulos_anuncios = driver.find_elements(By.XPATH, '//span[@class="cdmx-billboard-event-result-list-item-event-name"]')
         if i >= len(titulos_anuncios):
-            print(f"No hay título #{i} en la página {pagina_actual}")
+            print(f"⚠️ No hay título #{i} en página {pagina_actual}")
             continue
 
         titulo = titulos_anuncios[i]
@@ -69,7 +69,7 @@ while pagina_actual <= numero_paginas:
             wait.until(EC.element_to_be_clickable(titulo))
             driver.execute_script("arguments[0].click();", titulo)
         except Exception as e:
-            print(f"Error al hacer clic en título #{i}: {e}")
+            print(f"❌ Error al hacer clic en título #{i}: {e}")
             continue
 
         sleep(5)
@@ -111,7 +111,7 @@ while pagina_actual <= numero_paginas:
             eventos.append(evento)
 
         except Exception as e:
-            print(f"Error al extraer evento {ID}: {e}")
+            print(f"⚠️ Error al extraer evento {ID}: {e}")
 
         # Volver a la lista
         for intento in range(3):
@@ -120,22 +120,28 @@ while pagina_actual <= numero_paginas:
                 driver.execute_script("arguments[0].click();", volver)
                 break
             except Exception as e:
-                print(f"Reintento {intento+1} al volver: {e}")
+                print(f"🔁 Reintento {intento+1} al volver: {e}")
                 sleep(3)
 
         sleep(3)
 
-    # Ir a siguiente página
+    # Intentar avanzar a la siguiente página
     if pagina_actual < numero_paginas:
-        try:
-            driver.execute_script("window.scrollBy(0, 500);")
-            sleep(2)
-            siguiente = wait.until(EC.element_to_be_clickable((By.XPATH, '//li[@jp-role="next"]')))
-            driver.execute_script("arguments[0].click();", siguiente)
-            sleep(3)
-            driver.execute_script("window.scrollBy(0, -500);")
-        except Exception as e:
-            print(f"Error al pasar a página {pagina_actual+1}: {e}")
+        for intento in range(3):
+            try:
+                print(f"➡️ Intentando avanzar a página {pagina_actual + 1} (intento {intento+1})...")
+                driver.execute_script("window.scrollBy(0, 1000);")
+                sleep(2)
+
+                siguiente = wait.until(EC.element_to_be_clickable((By.XPATH, '//li[@jp-role="next"]')))
+                driver.execute_script("arguments[0].click();", siguiente)
+                sleep(5)
+                break
+            except Exception as e:
+                print(f"🔁 Reintento {intento+1} fallido al pasar a página {pagina_actual + 1}: {e}")
+                sleep(3)
+        else:
+            print(f"❌ No se pudo avanzar a la página {pagina_actual + 1}. Abortando scraping.")
             break
 
     pagina_actual += 1
@@ -147,6 +153,6 @@ try:
         json.dump(eventos, f, ensure_ascii=False, indent=4)
     print(f"✅ {len(eventos)} eventos guardados en '{nombre_archivo}'")
 except Exception as e:
-    print(f"Error al guardar JSON: {e}")
+    print(f"❌ Error al guardar JSON: {e}")
 
 driver.quit()
