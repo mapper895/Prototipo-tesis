@@ -27,6 +27,7 @@
     "mongoose": "^8.6.3",
     "node-cron": "^3.0.2",
     "nodemailer": "^7.0.3",
+    "openai": "^5.7.0",
     "pdfkit": "^0.16.0"
   },
   "devDependencies": {

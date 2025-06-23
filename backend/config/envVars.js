@@ -11,4 +11,8 @@ export const ENV_VARS = {
   GOOGLE_MAPS_MAP_ID: process.env.GOOGLE_MAPS_MAP_ID,
   GMAIL_EMAIL_USER: process.env.GMAIL_EMAIL_USER,
   GMAIL_EMAIL_PASS: process.env.GMAIL_EMAIL_PASS,
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+  META_ACCESS_TOKEN: process.env.META_ACCESS_TOKEN,
+  FB_PAGE_ID: process.env.FB_PAGE_ID,
+  IG_ACCOUNT_ID: process.env.IG_ACCOUNT_ID,
 };
