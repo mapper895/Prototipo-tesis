@@ -3,3 +3,4 @@ numpy
 scikit-learn
 selenium
 beautifulsoup4
+requests

@@ -41,7 +41,7 @@ app.use("/api/v1/reservation", reservationRoute);
 app.use("/api/v1/notification", notificationRoute);
 app.use("/api/v1/recommendation", recommendationRoute);
 app.use("/api/v1/feedback", feedbackRoute);
-//app.use("/api/v1/event-publisher", eventPublisher);
+app.use("/api/v1/event-publisher", eventPublisher);
 
 if (ENV_VARS.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
@@ -51,29 +51,7 @@ if (ENV_VARS.NODE_ENV === "production") {
   });
 }
 
-async function testConexion() {
-  const url = "https://cartelera.cdmx.gob.mx/";
-  try {
-    console.log(`Intentando acceder a ${url} desde Render...`);
-    const response = await axios.get(url, { timeout: 30000 });
-    console.log("Conexión exitosa. Código de estado:", response.status);
-    console.log(
-      "Contenido (primeros 200 caracteres):",
-      response.data.slice(0, 200)
-    );
-  } catch (error) {
-    if (error.code === "ECONNABORTED") {
-      console.error("Timeout: El sitio tardó demasiado en responder.");
-    } else if (error.response) {
-      console.error("Error HTTP:", error.response.status);
-    } else {
-      console.error("Error general:", error.message);
-    }
-  }
-}
-
 app.listen(PORT, () => {
   console.log("El servidor esta listo en http://localhost:" + PORT);
   connectDB();
-  testConexion();
 });
