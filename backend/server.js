@@ -16,6 +16,7 @@ import "./utils/cronJobs.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import mongoose from "mongoose";
+import axios from "axios";
 
 // Obtener el nombre del archivo y la ruta de la carpeta actual
 const __filename = fileURLToPath(import.meta.url);
