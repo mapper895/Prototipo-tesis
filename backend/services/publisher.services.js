@@ -2,6 +2,11 @@ import axios from "axios";
 import { OpenAI } from "openai";
 import { Event } from "../models/event.model.js";
 import { ENV_VARS } from "../config/envVars.js";
+import fetch from "node-fetch";
+
+if (!globalThis.fetch) {
+  globalThis.fetch = fetch;
+}
 
 const openai = new OpenAI({ apiKey: ENV_VARS.OPENAI_API_KEY });
 
