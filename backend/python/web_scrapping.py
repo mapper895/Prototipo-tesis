@@ -5,9 +5,8 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 import json
 
@@ -15,9 +14,18 @@ import json
 opts = Options()
 opts.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/ 129.0.6668.59 Safari/537.36")
 
+# Configuración para ejecutar el navegador sin cabeza (headless)
+opts.add_argument("--headless")  # Ejecutar sin interfaz gráfica
+opts.add_argument("--disable-gpu")  # Desactivar la GPU, útil en servidores sin entorno gráfico
+opts.add_argument("--no-sandbox")  # Desactivar el sandbox (requerido en algunos servidores)
+opts.add_argument("--disable-dev-shm-usage")  # Solución a posibles problemas con la memoria compartida
+
+# Indicar la ubicación del binario de Chromium
+opts.binary_location = "/usr/bin/chromium"  # En Render, el binario de Chromium se encuentra aquí
+
 # Inicializar el driver
 driver = webdriver.Chrome(
-    service=Service(ChromeDriverManager().install()),
+    service=Service("/usr/bin/chromedriver"),
     options=opts
 )
 
@@ -37,7 +45,7 @@ print(f"Número total de páginas: {numero_paginas}")
 
 #print(numero_paginas)
 
-numero_paginas = 4
+#numero_paginas = 4
 
 pagina_actual = 1  # Inicializa el número de página
 
