@@ -11,7 +11,8 @@ export const publishEventController = async (req, res) => {
   const { eventId } = req.params;
   const fbPageId = ENV_VARS.FB_PAGE_ID;
   const igAccountId = ENV_VARS.IG_ACCOUNT_ID;
-  const accessToken = ENV_VARS.META_ACCESS_TOKEN;
+  const fbAccessToken = ENV_VARS.FB_ACCESS_TOKEN;
+  const igAccessToken = ENV_VARS.IG_ACCESS_TOKEN;
 
   try {
     const event = await getEventById(eventId);
@@ -47,13 +48,13 @@ En el marco de la exposición Un cielo sin fronteras. Rosario Castellanos: archi
       fbPageId,
       copy,
       imageUrl,
-      accessToken
+      fbAccessToken
     );
     const igResponse = await postToInstagram(
       igAccountId,
       imageUrl,
       copy,
-      accessToken
+      igAccessToken
     );
 
     res.status(200).json({

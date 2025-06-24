@@ -68,6 +68,9 @@ export const postToFacebookPage = async (
   accessToken
 ) => {
   try {
+    if (!pageId || pageId === "0") throw new Error("ID de página inválido");
+    if (!accessToken) throw new Error("Access token no proporcionado");
+
     const url = `https://graph.facebook.com/v18.0/${pageId}/photos`;
 
     const response = await axios.post(url, null, {

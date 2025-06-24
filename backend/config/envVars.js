@@ -12,7 +12,8 @@ export const ENV_VARS = {
   GMAIL_EMAIL_USER: process.env.GMAIL_EMAIL_USER,
   GMAIL_EMAIL_PASS: process.env.GMAIL_EMAIL_PASS,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-  META_ACCESS_TOKEN: process.env.META_ACCESS_TOKEN,
+  FB_ACCESS_TOKEN: process.env.FB_ACCESS_TOKEN,
+  IG_ACCESS_TOKEN: process.env.IG_ACCESS_TOKEN,
   FB_PAGE_ID: process.env.FB_PAGE_ID,
   IG_ACCOUNT_ID: process.env.IG_ACCOUNT_ID,
 };
