@@ -1,6 +1,7 @@
 from time import sleep
 from datetime import datetime
 import json
+import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -9,7 +10,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# Configurar Chrome para entorno headless (Render)
+# Configurar Chrome para headless en Render
 opts = Options()
 opts.add_argument("user-agent=Mozilla/5.0")
 opts.add_argument("--headless")
@@ -24,26 +25,26 @@ driver = webdriver.Chrome(
 )
 
 driver.set_page_load_timeout(180)
-wait = WebDriverWait(driver, 30)
+wait = WebDriverWait(driver, 15)
 eventos = []
 
-# Cargar página
+# Cargar la página
 try:
-    print("🔄 Cargando sitio...")
+    print("Cargando sitio...")
     driver.get("https://cartelera.cdmx.gob.mx/")
-    print("✅ Sitio cargado.")
+    print("Sitio cargado.")
 except Exception as e:
-    print(f"❌ Error al cargar la página: {e}")
+    print(f"Error al cargar la página: {e}")
     driver.quit()
     exit(1)
 
-# Total de páginas
+# Obtener número total de páginas
 try:
     last_button = driver.find_element(By.XPATH, '//li[@jp-role="last"]')
     numero_paginas = int(last_button.get_attribute("jp-data"))
-    print(f"📄 Total de páginas: {numero_paginas}")
+    print(f"Total de páginas: {numero_paginas}")
 except Exception as e:
-    print(f"❌ Error al obtener número de páginas: {e}")
+    print(f"Error al obtener número de páginas: {e}")
     driver.quit()
     exit(1)
 
@@ -51,27 +52,31 @@ pagina_actual = 1
 ID = 0
 
 while pagina_actual <= numero_paginas:
-    print(f"➡️ Procesando página {pagina_actual}...")
     for i in range(9):
         ID += 1
         sleep(1)
-        titulos = driver.find_elements(By.XPATH, '//span[@class="cdmx-billboard-event-result-list-item-event-name"]')
-        if i >= len(titulos):
-            print(f"⚠️ Título {i} no disponible en página {pagina_actual}")
+
+        titulos_anuncios = driver.find_elements(By.XPATH, '//span[@class="cdmx-billboard-event-result-list-item-event-name"]')
+        if i >= len(titulos_anuncios):
+            print(f"No hay título #{i} en la página {pagina_actual}")
             continue
 
-        titulo = titulos[i]
+        titulo = titulos_anuncios[i]
+        driver.execute_script("arguments[0].scrollIntoView(true);", titulo)
+        sleep(1)
+
         try:
-            driver.execute_script("arguments[0].scrollIntoView(true);", titulo)
             wait.until(EC.element_to_be_clickable(titulo))
             driver.execute_script("arguments[0].click();", titulo)
         except Exception as e:
-            print(f"❌ Error al hacer clic en título #{i}: {type(e).__name__}: {e}")
+            print(f"Error al hacer clic en título #{i}: {e}")
             continue
 
-        sleep(4)
+        sleep(5)
+
         try:
             info = driver.execute_script("return window.cdmx_billboard_event_info;")
+
             evento = {
                 "eventId": info["event_id"],
                 "title": info["event_name"],
@@ -92,9 +97,9 @@ while pagina_actual <= numero_paginas:
             }
 
             if "schedule" in info:
-                for s in info["schedule"].values():
-                    evento["dates"].extend(s.get("event_dates", []))
-                    evento["schedules"].extend(s.get("event_hours", []))
+                for item in info["schedule"].values():
+                    evento["dates"].extend(item.get("event_dates", []))
+                    evento["schedules"].extend(item.get("event_hours", []))
 
             if "costs" in info:
                 for costo in info["costs"].values():
@@ -104,25 +109,31 @@ while pagina_actual <= numero_paginas:
                     })
 
             eventos.append(evento)
-        except Exception as e:
-            print(f"❌ Error extrayendo evento {ID}: {type(e).__name__}: {e}")
 
+        except Exception as e:
+            print(f"Error al extraer evento {ID}: {e}")
+
+        # Volver a la lista
         for intento in range(3):
             try:
                 volver = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "cdmx-billboard-input-button-red")))
                 driver.execute_script("arguments[0].click();", volver)
                 break
             except Exception as e:
-                print(f"🔁 Reintento {intento+1} al volver: {type(e).__name__}: {e}")
+                print(f"Reintento {intento+1} al volver: {e}")
                 sleep(3)
 
-        sleep(2)
+        sleep(3)
 
-    # Siguiente página
-    if pagina_actual < numero_paginas:
+    # Ir a siguiente página
+    if pagina_actual <= numero_paginas:
+    # Encuentra el botón "next" específicamente
         driver.execute_script("window.scrollBy(0, 500);")
         boton_next = driver.find_element(By.XPATH, '//li[@jp-role="next"]')
+
+        
         sleep(3)
+        # Haz clic en el botón
         boton_next.click()
         sleep(3)
         driver.execute_script("window.scrollBy(0, -500);")
@@ -130,13 +141,13 @@ while pagina_actual <= numero_paginas:
 
     pagina_actual += 1
 
-# Guardar JSON
-archivo = f"web_scraping_{datetime.today().strftime('%Y-%m-%d')}.json"
+# Guardar archivo JSON
+nombre_archivo = f"web_scraping_{datetime.today().strftime('%Y-%m-%d')}.json"
 try:
-    with open(archivo, "w", encoding="utf-8") as f:
+    with open(nombre_archivo, "w", encoding="utf-8") as f:
         json.dump(eventos, f, ensure_ascii=False, indent=4)
-    print(f"✅ {len(eventos)} eventos guardados en '{archivo}'")
+    print(f"✅ {len(eventos)} eventos guardados en '{nombre_archivo}'")
 except Exception as e:
-    print(f"❌ Error al guardar JSON: {e}")
+    print(f"Error al guardar JSON: {e}")
 
 driver.quit()
