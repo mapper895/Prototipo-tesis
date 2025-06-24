@@ -68,12 +68,14 @@ export const postToFacebookPage = async (
   accessToken
 ) => {
   try {
-    const url = `https:graph.facebook.com/v18.0/${pageId}/photos`;
+    const url = `https://graph.facebook.com/v18.0/${pageId}/photos`;
 
-    const response = await axios.post(url, {
-      url: imageUrl,
-      caption: message,
-      access_token: accessToken,
+    const response = await axios.post(url, null, {
+      params: {
+        url: imageUrl,
+        caption: message,
+        access_token: accessToken,
+      },
     });
 
     return response.data;
@@ -95,7 +97,7 @@ export const postToInstagram = async (
 ) => {
   try {
     const containerRes = await axios.post(
-      `https:graph.facebook.com/v18.0/${igAccountId}/media`,
+      `https://graph.facebook.com/v18.0/${igAccountId}/media`,
       {
         image_url: imageUrl,
         caption,
