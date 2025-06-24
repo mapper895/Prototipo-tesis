@@ -160,7 +160,7 @@ cron.schedule("0 8 */3 * *", () => {
 
 // Se ejecuta una vez a la semana (lunes a las 2:00 AM)
 cron.schedule(
-  "0 19 * * 1",
+  "0 22 * * 1",
   async () => {
     console.log(
       "Iniciando el proceso semanal de scraping y actualización de eventos..."
