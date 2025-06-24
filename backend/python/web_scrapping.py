@@ -24,6 +24,7 @@ driver = webdriver.Chrome(
 )
 
 driver.set_page_load_timeout(180)
+driver.set_script_timeout(60)  # importante para evitar timeout en scrollIntoView
 wait = WebDriverWait(driver, 15)
 eventos = []
 
@@ -51,6 +52,9 @@ pagina_actual = 1
 ID = 0
 
 while pagina_actual <= numero_paginas:
+    if pagina_actual > 3:
+        break  # 🔧 Límite temporal de pruebas: solo procesar hasta 3 páginas
+    
     print(f"➡️ Procesando página {pagina_actual}...")
     for i in range(9):
         ID += 1
@@ -62,7 +66,19 @@ while pagina_actual <= numero_paginas:
             continue
 
         titulo = titulos_anuncios[i]
-        driver.execute_script("arguments[0].scrollIntoView(true);", titulo)
+
+        # Intentar scroll con fallback
+        try:
+            driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", titulo)
+        except Exception as e:
+            print(f"⚠️ Error al hacer scrollIntoView: {e}. Usando scroll manual.")
+            try:
+                location = titulo.location_once_scrolled_into_view
+                driver.execute_script(f"window.scrollTo(0, {location['y'] - 100});")
+            except Exception as ex:
+                print(f"❌ Scroll manual también falló: {ex}")
+                continue
+
         sleep(1)
 
         try:
@@ -125,7 +141,7 @@ while pagina_actual <= numero_paginas:
 
         sleep(3)
 
-    # Intentar avanzar a la siguiente página
+    # Ir a siguiente página con reintentos
     if pagina_actual < numero_paginas:
         for intento in range(3):
             try:
