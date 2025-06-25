@@ -34,7 +34,7 @@ async function runAllRecommenders() {
 // Función para ejecutar el script de web scraping
 export const runScraping = () => {
   return new Promise((resolve, reject) => {
-    exec("python backend/python/web_scrapping.py", (error, stdout, stderr) => {
+    exec("python python/web_scrapping.py", (error, stdout, stderr) => {
       if (error) {
         console.error(`Error al ejecutar el scraping: ${stderr}`);
         reject(error);
@@ -160,7 +160,7 @@ cron.schedule("0 8 */3 * *", () => {
 
 // Se ejecuta una vez a la semana (lunes a las 2:00 AM)
 cron.schedule(
-  "0 12 * * 2",
+  "0 21 * * 2",
   async () => {
     console.log(
       "Iniciando el proceso semanal de scraping y actualización de eventos..."

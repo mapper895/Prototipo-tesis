@@ -1,131 +1,183 @@
+#test
 from time import sleep
-from datetime import datetime
-import json
-import requests
-from bs4 import BeautifulSoup
+from datetime import datetime, timezone
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+from bs4 import BeautifulSoup
+import json
 
-# Configurar Chrome para headless en Render
+
 opts = Options()
-opts.add_argument("user-agent=Mozilla/5.0")
-opts.add_argument("--headless")
-opts.add_argument("--disable-gpu")
+opts.add_argument("--headless=new")  # Chrome 109+ usa '--headless=new'
 opts.add_argument("--no-sandbox")
 opts.add_argument("--disable-dev-shm-usage")
-opts.binary_location = "/usr/bin/chromium"
+opts.add_argument("--disable-gpu")
+opts.add_argument("--window-size=1920,1080")
+opts.add_argument("--disable-infobars")
+opts.add_argument("--disable-extensions")
+opts.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.59 Safari/537.36")
 
-driver = webdriver.Chrome(
-    service=Service("/usr/bin/chromedriver"),
-    options=opts
-)
+# Inicializar el driver
+try:
+    driver = webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()),
+        options=opts
+    )
+except Exception as e:
+    print("Error inicializando el navegador:", e)
+    raise
 
-driver.set_page_load_timeout(180)
-wait = WebDriverWait(driver, 15)
+
+
+#Parte para saber cuantas paginas hay
+driver.get('https://cartelera.cdmx.gob.mx/')
 eventos = []
+last_button = driver.find_element(By.XPATH, '//li[@jp-role="last"]')
+jp_data_value = last_button.get_attribute("jp-data")
+numero_paginas = int(jp_data_value)
 
-# Cargar la página
-try:
-    print("Cargando sitio...")
-    driver.get("https://cartelera.cdmx.gob.mx/")
-    print("Sitio cargado.")
-except Exception as e:
-    print(f"Error al cargar la página: {e}")
-    driver.quit()
-    exit(1)
+print(f"Número total de páginas: {numero_paginas}")
 
-# Obtener número total de páginas
-try:
-    last_button = driver.find_element(By.XPATH, '//li[@jp-role="last"]')
-    numero_paginas = int(last_button.get_attribute("jp-data"))
-    print(f"Total de páginas: {numero_paginas}")
-except Exception as e:
-    print(f"Error al obtener número de páginas: {e}")
-    driver.quit()
-    exit(1)
+#numero_paginas = 30
 
-pagina_actual = 1
+
+#print(numero_paginas)
+
+numero_paginas = 1
+
+pagina_actual = 1  # Inicializa el número de página
+
 ID = 0
 
 while pagina_actual <= numero_paginas:
+  
+    # Iterar sobre los primeros 9 títulos
+    i=8
     for i in range(9):
-        ID += 1
+        ID = ID +1
+        driver.execute_script("window.scrollBy(0, 500);")
         sleep(1)
-
         titulos_anuncios = driver.find_elements(By.XPATH, '//span[@class="cdmx-billboard-event-result-list-item-event-name"]')
-        if i >= len(titulos_anuncios):
-            print(f"No hay título #{i} en la página {pagina_actual}")
-            continue
+        titulo_actual = titulos_anuncios[i]
+        titulo_actual.click()
 
-        titulo = titulos_anuncios[i]
-        driver.execute_script("arguments[0].scrollIntoView(true);", titulo)
-        sleep(1)
-
-        try:
-            wait.until(EC.element_to_be_clickable(titulo))
-            driver.execute_script("arguments[0].click();", titulo)
-        except Exception as e:
-            print(f"Error al hacer clic en título #{i}: {e}")
-            continue
-
+        # Esperar a que cargue la nueva página
         sleep(5)
 
+        # Extraer información del evento
+          
         try:
-            info = driver.execute_script("return window.cdmx_billboard_event_info;")
+            
+            info_evento = driver.execute_script("return window.cdmx_billboard_event_info;")
 
-            evento = {
-                "eventId": info["event_id"],
-                "title": info["event_name"],
-                "description": BeautifulSoup(info["event_description"], "html.parser").get_text(separator="\n").strip(),
-                "category": info["event_type"]["name"],
-                "duration": info.get("event_duration", ""),
-                "location": info["event_location"]["address"],
-                "latitude": info["event_location"]["lat"],
-                "longitude": info["event_location"]["lng"],
-                "imageUrl": info["event_image"],
-                "target": info.get("event_audience", ""),
-                "accessibility": info.get("event_accesibility", ""),
-                "organizer": info.get("event_entity", ""),
-                "eventUrl": info.get("event_url", ""),
-                "dates": [],
-                "schedules": [],
-                "costs": []
-            }
+            id_evento_real = info_evento["event_id"]
+            nombre = info_evento["event_name"]
+            descripcion_html = info_evento["event_description"]
+            soup = BeautifulSoup(descripcion_html, "html.parser")
+            descripcion = soup.get_text(separator="\n").strip()
+            duracion = info_evento.get("event_duration", "")
+            tipo = info_evento["event_type"]["name"]
+            direccion = info_evento["event_location"]["address"]
+            lat = info_evento["event_location"]["lat"]
+            lng = info_evento["event_location"]["lng"]
+            imagen = info_evento["event_image"]
+            publico = info_evento.get("event_audience", "")
+            accesibilidad = info_evento.get("event_accesibility", "")
+            organizador = info_evento.get("event_entity", "")
+            url_evento = info_evento.get("event_url", "")
 
-            if "schedule" in info:
-                for item in info["schedule"].values():
-                    evento["dates"].extend(item.get("event_dates", []))
-                    evento["schedules"].extend(item.get("event_hours", []))
+            # Fechas y horarios
+            fechas = []
+            horarios = []
 
-            if "costs" in info:
-                for costo in info["costs"].values():
-                    evento["costs"].append({
+            if "schedule" in info_evento:
+                for item in info_evento["schedule"].values():
+                    fechas.extend(item.get("event_dates", []))
+                    horarios.extend(item.get("event_hours", []))
+
+            # Costos
+            costos = []
+            if "costs" in info_evento:
+                for costo in info_evento["costs"].values():
+                    costos.append({
                         "type": costo["cost_name"],
                         "price": costo["cost_price"]
                     })
 
+            # Guardar evento como diccionario
+            """"
+            evento = {
+                "id_local": ID,
+                "eventId": id_evento_real,
+                "nombre": nombre,
+                "descripcion": descripcion,
+                "tipo": tipo,
+                "duracion": duracion,
+                "direccion": direccion,
+                "lat": lat,
+                "lng": lng,
+                "imagen": imagen,
+                "publico": publico,
+                "accesibilidad": accesibilidad,
+                "organizador": organizador,
+                "url": url_evento,
+                "fechas": fechas,
+                "horarios": horarios,
+                "costos": costos
+            }
+                """
+            evento = {
+               
+                "eventId": id_evento_real,
+                "title": nombre,
+                "description": descripcion,
+                "category": tipo,
+                "duration": duracion,
+                "location": direccion,
+                "latitude": lat,
+                "longitude": lng,
+                "imageUrl": imagen,
+                "target": publico,
+                "accessibility": accesibilidad,
+                "organizer": organizador,
+                "eventUrl": url_evento,
+                "dates": fechas,
+                "schedules": horarios,
+                "costs": costos
+            }
+            
+
             eventos.append(evento)
 
         except Exception as e:
-            print(f"Error al extraer evento {ID}: {e}")
+            print(f"Error al extraer el evento con ID local {ID}: {e}")
+               
 
-        # Volver a la lista
-        for intento in range(3):
+
+
+        # Intentar hacer clic en el botón "Volver" con reintentos
+        max_reintentos = 3  # Número máximo de reintentos
+        reintentos = 0
+
+        while reintentos < max_reintentos:
             try:
-                volver = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "cdmx-billboard-input-button-red")))
-                driver.execute_script("arguments[0].click();", volver)
-                break
-            except Exception as e:
-                print(f"Reintento {intento+1} al volver: {e}")
-                sleep(3)
-
+                boton_volver = driver.find_element(By.CLASS_NAME, "cdmx-billboard-input-button-red")
+                boton_volver.click()
+                break  # Salir del ciclo si el clic es exitoso
+            except Exception:
+                reintentos += 1
+                if reintentos < max_reintentos:
+                    sleep(5)    
+                
+        # Esperar un momento para asegurar que la página principal cargue correctamente
         sleep(3)
-
-    # Ir a siguiente página
+        # Si no es la última página, haz clic en el botón "next"
     if pagina_actual <= numero_paginas:
     # Encuentra el botón "next" específicamente
         driver.execute_script("window.scrollBy(0, 500);")
@@ -138,16 +190,16 @@ while pagina_actual <= numero_paginas:
         sleep(3)
         driver.execute_script("window.scrollBy(0, -500);")
         sleep(3)
+    
+    pagina_actual += 1  # Incrementa el número de página
 
-    pagina_actual += 1
+# Guardar la información en un archivo JSON
+fecha_hoy = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+nombre_archivo = f"web_scraping_{fecha_hoy}.json"
 
-# Guardar archivo JSON
-nombre_archivo = f"web_scraping_{datetime.today().strftime('%Y-%m-%d')}.json"
-try:
-    with open(nombre_archivo, "w", encoding="utf-8") as f:
-        json.dump(eventos, f, ensure_ascii=False, indent=4)
-    print(f"✅ {len(eventos)} eventos guardados en '{nombre_archivo}'")
-except Exception as e:
-    print(f"Error al guardar JSON: {e}")
+with open(nombre_archivo, "w", encoding="utf-8") as file:
+    json.dump(eventos, file, ensure_ascii=False, indent=4)
+
+print(f"Proceso completado. La información se guardó en {nombre_archivo}.")
 
 driver.quit()
