@@ -158,30 +158,31 @@ cron.schedule("0 8 */3 * *", () => {
   console.log("Cron job ejecutado: actualización de recomendaciones.");
 });
 
+//Automatizacion del web scraping
 // Se ejecuta una vez a la semana (lunes a las 2:00 AM)
-cron.schedule(
-  "0 21 * * 2",
-  async () => {
-    console.log(
-      "Iniciando el proceso semanal de scraping y actualización de eventos..."
-    );
-    try {
-      // Ejecuta el script de web scraping
-      await runScraping();
+// cron.schedule(
+//   "0 21 * * 2",
+//   async () => {
+//     console.log(
+//       "Iniciando el proceso semanal de scraping y actualización de eventos..."
+//     );
+//     try {
+//       // Ejecuta el script de web scraping
+//       await runScraping();
 
-      // Una vez que el scraping haya terminado, obtiene los eventos de la plataforma
-      const eventosExistentes = await getExistingEvents();
+//       // Una vez que el scraping haya terminado, obtiene los eventos de la plataforma
+//       const eventosExistentes = await getExistingEvents();
 
-      // Compara los eventos obtenidos con los ya existentes en la base de datos
-      const nuevosEventos = await compareEvents(eventosExistentes);
+//       // Compara los eventos obtenidos con los ya existentes en la base de datos
+//       const nuevosEventos = await compareEvents(eventosExistentes);
 
-      // Subir los nuevos eventos a la plataforma
-      await uploadNewEvents(nuevosEventos);
+//       // Subir los nuevos eventos a la plataforma
+//       await uploadNewEvents(nuevosEventos);
 
-      console.log("Proceso completado.");
-    } catch (error) {
-      console.log("Error en el proceso del cron job", error);
-    }
-  },
-  { timezone: "America/Mexico_City" }
-);
+//       console.log("Proceso completado.");
+//     } catch (error) {
+//       console.log("Error en el proceso del cron job", error);
+//     }
+//   },
+//   { timezone: "America/Mexico_City" }
+// );

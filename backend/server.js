@@ -45,7 +45,7 @@ app.use("/api/v1/feedback", feedbackRoute);
 app.use("/api/v1/event-publisher", eventPublisher);
 
 if (ENV_VARS.NODE_ENV === "production") {
-  testScrapingProcess();
+  //testScrapingProcess();
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
   app.get("*", (req, res) => {
