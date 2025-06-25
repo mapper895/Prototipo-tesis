@@ -62,6 +62,8 @@ while pagina_actual <= numero_paginas:
         sleep(1)
         titulos_anuncios = driver.find_elements(By.XPATH, '//span[@class="cdmx-billboard-event-result-list-item-event-name"]')
         titulo_actual = titulos_anuncios[i]
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", titulo_actual)
+        sleep(1)
         titulo_actual.click()
 
         # Esperar a que cargue la nueva página
