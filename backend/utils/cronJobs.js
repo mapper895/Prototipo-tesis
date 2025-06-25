@@ -190,7 +190,7 @@ cron.schedule("0 8 */3 * *", () => {
 
 // Automatizacion de la publicacion de eventos en redes sociales(publicidad)
 cron.schedule(
-  "0 12 * * 3",
+  "0 13 * * 3",
   async () => {
     console.log("Ejecutando cron job para publicar el evento mas popular...");
 
