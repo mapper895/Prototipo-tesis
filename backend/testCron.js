@@ -5,7 +5,7 @@ import {
   uploadNewEvents,
 } from "./utils/cronJobs.js";
 
-const testScrapingProcess = async () => {
+export const testScrapingProcess = async () => {
   console.log("Iniciando el proceso de scraping y actualización de eventos...");
   try {
     // Ejecutar el script de web scraping
@@ -29,6 +29,3 @@ const testScrapingProcess = async () => {
     );
   }
 };
-
-// Ejecutar el proceso de prueba manualmente
-testScrapingProcess();

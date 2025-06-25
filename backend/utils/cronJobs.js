@@ -34,7 +34,7 @@ async function runAllRecommenders() {
 // Función para ejecutar el script de web scraping
 export const runScraping = () => {
   return new Promise((resolve, reject) => {
-    exec("python python/web_scrapping.py", (error, stdout, stderr) => {
+    exec("python backend/python/web_scrapping.py", (error, stdout, stderr) => {
       if (error) {
         console.error(`Error al ejecutar el scraping: ${stderr}`);
         reject(error);

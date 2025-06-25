@@ -17,6 +17,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 import axios from "axios";
+import { testScrapingProcess } from "./testCron.js";
 
 // Obtener el nombre del archivo y la ruta de la carpeta actual
 const __filename = fileURLToPath(import.meta.url);
@@ -44,6 +45,7 @@ app.use("/api/v1/feedback", feedbackRoute);
 app.use("/api/v1/event-publisher", eventPublisher);
 
 if (ENV_VARS.NODE_ENV === "production") {
+  testScrapingProcess();
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
   app.get("*", (req, res) => {
