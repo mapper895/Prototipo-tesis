@@ -46,7 +46,7 @@ print(f"Número total de páginas: {numero_paginas}")
 
 #print(numero_paginas)
 
-numero_paginas = 1
+numero_paginas = 2
 
 pagina_actual = 1  # Inicializa el número de página
 
