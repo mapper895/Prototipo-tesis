@@ -51,15 +51,18 @@ export const runScraping = () => {
 // Función para ejecutar el script de web scraping(local)
 export const runLocalScraping = () => {
   return new Promise((resolve, reject) => {
-    exec("python python/local_web_scraping.py", (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error al ejecutar el scraping: ${stderr}`);
-        reject(error);
-      } else {
-        console.log(`Scraping completado: ${stdout}`);
-        resolve();
+    exec(
+      "python backend/python/local_web_scraping.py",
+      (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error al ejecutar el scraping: ${stderr}`);
+          reject(error);
+        } else {
+          console.log(`Scraping completado: ${stdout}`);
+          resolve();
+        }
       }
-    });
+    );
   });
 };
 
@@ -190,7 +193,7 @@ cron.schedule("0 8 */3 * *", () => {
 
 // Automatizacion de la publicacion de eventos en redes sociales(publicidad)
 cron.schedule(
-  "0 13 * * 3",
+  "0 15 * * 3",
   async () => {
     console.log("Ejecutando cron job para publicar el evento mas popular...");
 
