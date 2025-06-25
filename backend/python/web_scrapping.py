@@ -6,7 +6,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
@@ -26,9 +25,9 @@ opts.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap
 # Inicializar el driver
 try:
     driver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()),
+        executable_path="/usr/bin/chromedriver",  # usa el binario que ya viene instalado en el contenedor
         options=opts
-    )
+    )   
 except Exception as e:
     print("Error inicializando el navegador:", e)
     raise
