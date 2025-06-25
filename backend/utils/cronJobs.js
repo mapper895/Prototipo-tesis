@@ -10,6 +10,8 @@ import { runPythonRecommender } from "../services/recommender/runRecommender.js"
 import axios from "axios";
 import { exec } from "child_process";
 import fs from "fs";
+import { getMostPopularFutureEvent } from "./eventUtils.js";
+import { publishEventController } from "../controllers/eventPublisher.controller.js";
 
 // Función para ejecutar todas las tareas de recomendación
 async function runAllRecommenders() {
@@ -31,10 +33,25 @@ async function runAllRecommenders() {
   }
 }
 
-// Función para ejecutar el script de web scraping
+// Función para ejecutar el script de web scraping(server)
 export const runScraping = () => {
   return new Promise((resolve, reject) => {
     exec("python backend/python/web_scrapping.py", (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error al ejecutar el scraping: ${stderr}`);
+        reject(error);
+      } else {
+        console.log(`Scraping completado: ${stdout}`);
+        resolve();
+      }
+    });
+  });
+};
+
+// Función para ejecutar el script de web scraping(local)
+export const runLocalScraping = () => {
+  return new Promise((resolve, reject) => {
+    exec("python python/local_web_scraping.py", (error, stdout, stderr) => {
       if (error) {
         console.error(`Error al ejecutar el scraping: ${stderr}`);
         reject(error);
@@ -105,6 +122,19 @@ export const uploadNewEvents = async (nuevosEventos) => {
   }
 };
 
+// Funcion para reutilizar el controlador que espera (req,res)
+const fakeReqRes = () => {
+  const req = { params: {} };
+  const res = {
+    status: (code) => ({
+      json: (data) => {
+        console.log(`Status: ${code}`, data);
+      },
+    }),
+  };
+  return { req, res };
+};
+
 // Envia los eventos destacados de la semana
 cron.schedule("0 8 * * 2", async () => {
   // Cada martes a las 8am
@@ -157,6 +187,31 @@ cron.schedule("0 8 */3 * *", () => {
   runAllRecommenders();
   console.log("Cron job ejecutado: actualización de recomendaciones.");
 });
+
+// Automatizacion de la publicacion de eventos en redes sociales(publicidad)
+cron.schedule(
+  "0 12 * * 3",
+  async () => {
+    console.log("Ejecutando cron job para publicar el evento mas popular...");
+
+    try {
+      const popularEvent = await getMostPopularFutureEvent();
+
+      if (!popularEvent) {
+        console.log("No hay eventos populares futuros para publicar");
+        return;
+      }
+
+      const { req, res } = fakeReqRes();
+      req.params.eventId = popularEvent._id.toString();
+
+      await publishEventController(req, res);
+    } catch (error) {
+      console.log("Error en el cron job: ", error.message);
+    }
+  },
+  { timezone: "America/Mexico_City" }
+);
 
 //Automatizacion del web scraping
 // Se ejecuta una vez a la semana (lunes a las 2:00 AM)
