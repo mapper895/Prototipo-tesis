@@ -24,10 +24,8 @@ opts.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap
 
 # Inicializar el driver
 try:
-    driver = webdriver.Chrome(
-        executable_path="/usr/bin/chromedriver",  # usa el binario que ya viene instalado en el contenedor
-        options=opts
-    )   
+    service = Service("/usr/bin/chromedriver")
+    driver = webdriver.Chrome(service=service, options=opts)   
 except Exception as e:
     print("Error inicializando el navegador:", e)
     raise
