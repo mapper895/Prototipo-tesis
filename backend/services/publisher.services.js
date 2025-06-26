@@ -16,7 +16,7 @@ export const getEventById = async (eventId) => {
 };
 
 // Generar imagen con DALL-E
-export const generateImage = async (prompt) => {
+export const generateImage = async (prompt, fallbackUrl) => {
   try {
     const response = await openai.images.generate({
       model: "dall-e-3",
@@ -25,12 +25,20 @@ export const generateImage = async (prompt) => {
       response_format: "url",
     });
 
-    return response.data[0].url;
+    const url = response?.data?.[0]?.url;
+    if (!url) throw new Error("Respuesta sin URL");
+
+    return url;
   } catch (error) {
     console.log(
       "Error al generar imagen: ",
       error.response?.data || error.message || error
     );
+    // Usar imagen del evento si no se puede generar una nueva
+    if (fallbackUrl) {
+      console.log("Usando imagen almacenada del evento");
+      return fallbackUrl;
+    }
     throw new Error("Error al generar imagen con DALL-E");
   }
 };

@@ -25,7 +25,7 @@ export const publishEventController = async (req, res) => {
 
     const firstDate = event.dates?.[0] || "fecha por definir";
     const imagePrompt = `Evento: ${event.title}. Categoria: ${event.category}. Fecha: ${firstDate}. Lugar: ${event.location}. Crea una imagen llamativa para redes sociales.`;
-    const imageUrl = await generateImage(imagePrompt);
+    const imageUrl = await generateImage(imagePrompt, event.imageUrl);
     const copy = await generateCopy(event);
 
     // const fbResponse = await postToFacebookPage(
