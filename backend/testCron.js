@@ -3,13 +3,14 @@ import {
   getExistingEvents,
   compareEvents,
   uploadNewEvents,
+  runLocalScraping,
 } from "./utils/cronJobs.js";
 
 export const testScrapingProcess = async () => {
   console.log("Iniciando el proceso de scraping y actualización de eventos...");
   try {
     // Ejecutar el script de web scraping
-    await runScraping();
+    await runLocalScraping();
 
     // Obtener los eventos de la plataforma
     const eventosExistentes = await getExistingEvents();
