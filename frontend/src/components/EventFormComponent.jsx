@@ -180,10 +180,15 @@ const EventFormComponent = ({
       const imageUrl = await uploadImageToCloudinary(file); // Obtienes la URL pública de Cloudinary
 
       // Ahora actualizamos el estado de Zustand con la URL de la imagen
-      setEventData({ imageUrl: imageUrl });
+      setEventData((prev) => ({ ...prev, imageUrl }));
     } catch (error) {
       console.error("Error al cargar la imagen", error);
     }
+  };
+
+  // Funcion para quitar la imagen del estado
+  const handleRemoveImage = () => {
+    setEventData({ ...eventData, imageUrl: "" });
   };
 
   return (
@@ -508,6 +513,13 @@ const EventFormComponent = ({
               alt="Vista previa de la imagen"
               className="w-32 h-32 object-cover"
             />
+            <button
+              type="button"
+              className="text-red-500 mt-2"
+              onClick={handleRemoveImage}
+            >
+              Quitar imagen
+            </button>
           </div>
         )}
       </div>

@@ -19,6 +19,7 @@ import SearchResultsPage from "./pages/SearchResultsPage";
 import MyReservationsPage from "./pages/MyReservationsPage";
 import OnboardingForm from "./pages/OnboardingForm";
 import FeedbackPopup from "./components/FeedbackPopup";
+import LegalPage from "./pages/LegalPage";
 
 function App() {
   const { user, isCheckingAuth, authCheck } = useAuthStore();
@@ -102,6 +103,7 @@ function App() {
         <Route path="/events/category/:category" element={<CategoryPage />} />
         <Route path="/top-10-cdmx" element={<PopularPage />} />
         <Route path="/search-results" element={<SearchResultsPage />} />
+        <Route path="/legal/:type" element={<LegalPage />} />
 
         <Route path="/*" element={<NotFoundPage />} />
       </Routes>

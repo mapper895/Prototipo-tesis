@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useFeedbackStore } from "../store/feedbackStore";
 
 const Footer = () => {
@@ -85,12 +86,18 @@ const Footer = () => {
       </div>
       <div className="w-full flex items-center justify-between md:flex-row flex-col gap-5 md:gap-0 text-center">
         <ul className="flex gap-5 ml-5 text-white list-none md:flex-row flex-col">
-          <li className="md:text-lg text-sm cursor-pointer hover:underline">
+          <Link
+            to={"/legal/terminos-de-uso"}
+            className="md:text-lg text-sm cursor-pointer hover:underline"
+          >
             Términos de uso
-          </li>
-          <li className="md:text-lg text-sm cursor-pointer hover:underline">
+          </Link>
+          <Link
+            to={"/legal/politica-de-privacidad"}
+            className="md:text-lg text-sm cursor-pointer hover:underline"
+          >
             Política de privacidad
-          </li>
+          </Link>
         </ul>
         <p className="mr-5 md:text-lg text-sm text-white">
           Desarrollada por alumnos del IPN - &copy;{new Date().getFullYear()}

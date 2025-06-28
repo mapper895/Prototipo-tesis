@@ -9,7 +9,7 @@ export const protectRoute = async (req, res, next) => {
     if (!token) {
       return res
         .status(401)
-        .json({ success: false, message: "Desautorizado - No hay token" });
+        .json({ success: false, message: "Desautorizado - Inicia sesión" });
     }
 
     const decoded = jwt.verify(token, ENV_VARS.JWT_SECRET);
@@ -17,7 +17,7 @@ export const protectRoute = async (req, res, next) => {
     if (!decoded) {
       return res
         .status(401)
-        .json({ success: false, message: "Desautorizado - token no valido" });
+        .json({ success: false, message: "Desautorizado - sesión no válida" });
     }
 
     const user = await User.findById(decoded.userId).select("-password");

@@ -171,7 +171,7 @@ const Navbar = () => {
         </div>
         {/* Parte derecha del nav */}
         {!user ? (
-          <Link to={"/signup"}>
+          <Link to={"/login"}>
             <CircleUserRound className="size-8" />{" "}
           </Link>
         ) : (

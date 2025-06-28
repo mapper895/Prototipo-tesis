@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useEventStore } from "../store/eventStore";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
-import { useMapsStore } from "../store/mapsStore";
 import toast from "react-hot-toast";
 import EventFormComponent from "../components/EventFormComponent";
 import { Loader } from "lucide-react";
@@ -12,7 +11,6 @@ import SmallNavbar from "../components/SmallNavbar";
 const EventPage = () => {
   const { user } = useAuthStore();
   const { eventId } = useParams();
-  const { getApiKey, apiKey } = useMapsStore();
 
   const [eventData, setEventData] = useState({
     title: "",
@@ -61,15 +59,12 @@ const EventPage = () => {
 
   // Cuando el componente se monte, obtenemos las categorías y los datos del evento (si estamos editando)
   useEffect(() => {
-    if (!apiKey) {
-      getApiKey();
-    }
     getCategories();
     if (eventId) {
       getEventById(eventId); // Llamamos para obtener el evento si estamos en edición
     }
     setIsLoading(false);
-  }, [apiKey, getApiKey, getCategories, getEventById, eventId]);
+  }, [getCategories, getEventById, eventId]);
 
   // Si estamos editando, cargamos los datos del evento en el estado
   useEffect(() => {
@@ -117,7 +112,7 @@ const EventPage = () => {
     }
   };
 
-  if (isLoading || !apiKey) {
+  if (isLoading) {
     return (
       <div className="h-screen fixed top-0 right-0 z-99 ">
         <div className="flex justify-center items-center bg-white h-full">
@@ -146,7 +141,6 @@ const EventPage = () => {
             isCreatingEvent={isCreatingEvent}
             isUpdatingEvent={isUpdatingEvent}
             eventId={eventId}
-            apiKey={apiKey}
           />
         </div>
       </div>
