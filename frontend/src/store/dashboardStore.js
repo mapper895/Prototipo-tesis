@@ -59,6 +59,7 @@ export const exportDashboardToPDF = async () => {
       document.body.appendChild(link);
       link.click(); // Simular un clic para iniciar la descarga
       document.body.removeChild(link); // Eliminar el enlace después de la descarga
+      window.URL.revokeObjectURL(url);
     } else {
       alert("No se ha recibido un archivo PDF");
     }

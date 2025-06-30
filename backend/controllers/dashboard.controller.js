@@ -1,4 +1,5 @@
 import { Event } from "../models/event.model.js";
+import Reservation from "../models/reservation.model.js";
 import { parse } from "json2csv";
 import PDFDocument from "pdfkit";
 import fs from "fs";
@@ -171,9 +172,12 @@ export const exportDashboardToCSV = async (req, res) => {
 
     //  Guardamos el archivo CSV en el servidor
     const filePath = `reporte_eventos_${userId}.csv`;
-    fs.writeFileSync(filePath, csv);
+    const utf8Bom = "\ufeff";
+    fs.writeFileSync(filePath, utf8Bom + csv, { encoding: "utf-8" });
 
     // Enviamos el archivo CSV al cliente
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename=${filePath}`);
     res.download(filePath, () => {
       // Eliminar archivo temporal despues de la descarga
       fs.unlinkSync(filePath);
@@ -191,49 +195,65 @@ export const exportDashboardToPDF = async (req, res) => {
   try {
     const events = await Event.find({ createdBy: userId });
 
-    // Crear el documento PDF
-    const doc = new PDFDocument();
-
-    // Establecer la respuesta como un PDF (esto envía directamente el archivo al cliente sin guardarlo)
+    const doc = new PDFDocument({ margin: 50 });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
       `attachment; filename=reporte_eventos_${userId}.pdf`
     );
+    doc.pipe(res);
 
-    doc.pipe(res); // Enviar el archivo PDF directamente a la respuesta
-
-    doc.fontSize(20).text("Reporte de Eventos", { align: "center" });
+    doc.fontSize(20).text(`Reporte de Eventos de '${req.user.username}'`, {
+      align: "center",
+      lineGap: 10,
+    });
 
     const convertToDate = (dateStr) => {
       const [day, month, year] = dateStr.split("/").map(Number);
       return new Date(year, month - 1, day);
     };
 
-    // Agregar los eventos al PDF
-    events.forEach((event, index) => {
-      const sortedDates = event.dates
-        .map((date) => convertToDate(date))
-        .sort((a, b) => a - b);
-      const startDate = sortedDates[0]; // Fecha de inicio (primer fecha)
-      const endDate = sortedDates[sortedDates.length - 1]; // Fecha de fin (última fecha)
+    // Iteramos sobre los eventos y agregamos los detalles al PDF
+    for (const event of events) {
+      // Contamos los agendados para el evento
+      const reservationCount = await Reservation.countDocuments({
+        eventId: event._id,
+      });
 
-      // Mostrar las fechas de inicio y fin en formato adecuado
-      const formattedStartDate = startDate.toLocaleDateString();
-      const formattedEndDate = endDate.toLocaleDateString();
+      // Ordenamos las fechas del evento
+      const sortedDates = event.dates.map(convertToDate).sort((a, b) => a - b);
+      const formattedStartDate = sortedDates[0].toLocaleDateString();
+      const formattedEndDate =
+        sortedDates[sortedDates.length - 1].toLocaleDateString();
 
+      // Título del evento
+      doc
+        .moveDown()
+        .fontSize(14)
+        .fillColor("#000")
+        .text(`${event.title} - ${event.category}`, {
+          underline: true,
+          lineGap: 4,
+        });
+
+      // Detalles del evento
       doc
         .fontSize(12)
-        .text(
-          `${index + 1}. ${event.title} - ${event.category} - Likes: ${
-            event.likesCount
-          } - Views: ${
-            event.views
-          } - Fechas: ${formattedStartDate} a ${formattedEndDate}`
-        );
-    });
+        .fillColor("#333")
+        .text(`Categoría: ${event.category}`)
+        .text(`Likes: ${event.likesCount}`)
+        .text(`Vistas: ${event.views}`)
+        .text(`Fechas: ${formattedStartDate} a ${formattedEndDate}`)
+        .text(`Agendados: ${reservationCount}`);
 
-    doc.end(); // Terminar el documento PDF
+      doc
+        .moveDown()
+        .moveTo(doc.page.margins.left, doc.y)
+        .lineTo(doc.page.width - doc.page.margins.right, doc.y)
+        .stroke();
+    }
+
+    doc.end(); // Finaliza el documento PDF
   } catch (error) {
     console.error("Error al generar el reporte PDF", error);
     res.status(500).json({ message: "Error al generar el reporte PDF" });
