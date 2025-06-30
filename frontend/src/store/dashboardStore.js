@@ -17,6 +17,8 @@ export const getDashboardStats = async () => {
 // Función para exportar a CSV con fecha en el nombre del archivo
 export const exportDashboardToCSV = async () => {
   try {
+    document.getElementById("loading").classList.remove("hidden");
+
     const response = await axios.get("/api/v1/dashboard/export/csv", {
       responseType: "blob", // Asegurarse de que el backend devuelva un blob
     });
@@ -32,6 +34,7 @@ export const exportDashboardToCSV = async () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link); // Eliminar el enlace después de hacer clic
+    document.getElementById("loading").classList.add("hidden");
   } catch (error) {
     toast.error(error.response?.data?.message || "Error al generar el CSV");
   }
@@ -40,6 +43,8 @@ export const exportDashboardToCSV = async () => {
 // Función para exportar el dashboard a PDF
 export const exportDashboardToPDF = async () => {
   try {
+    document.getElementById("loading").classList.remove("hidden");
+
     const response = await axios.get("/api/v1/dashboard/export/pdf", {
       responseType: "blob",
     });
@@ -59,6 +64,9 @@ export const exportDashboardToPDF = async () => {
       document.body.appendChild(link);
       link.click(); // Simular un clic para iniciar la descarga
       document.body.removeChild(link); // Eliminar el enlace después de la descarga
+
+      document.getElementById("loading").classList.add("hidden");
+
       window.URL.revokeObjectURL(url);
     } else {
       alert("No se ha recibido un archivo PDF");
