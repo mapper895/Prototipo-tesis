@@ -73,7 +73,7 @@ export const sendWeeklyEvents = async (userEmail, events) => {
   // Creamos lista HTML con los enlace a los eventos
   const eventListHtml = events
     .map((e) => {
-      const url = `http://localhost:5173/events/${e._id}`;
+      const url = `https://tesis-app-7sij.onrender.com/events${e._id}`;
       const firstDate = e.dates && e.dates.length > 0 ? e.dates[0] : "";
       const formattedDate = firstDate
         ? formatDateSpanish(firstDate)
