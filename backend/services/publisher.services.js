@@ -46,11 +46,14 @@ export const generateImage = async (prompt, fallbackUrl) => {
 // Generar texto publicitario con GPT-4
 // Pasar la fecha a array de fechas
 export const generateCopy = async (event) => {
-  const prompt = `Crea un texto promocional para redes sociales sobre el siguiente evento. Sé llamativo, termina con una llamada a la acción. 
-    Título: ${event.title}
-    Descripción: ${event.description}
-    Fecha: ${event.dates?.[0] || "fecha por definir"}
-    Categoria: ${event.category}`;
+  const prompt = `Redacta un texto atractivo y dinámico para promocionar el siguiente evento en redes sociales. Usa un lenguaje cercano y creativo. Inspírate en la descripción para transmitir la esencia del evento. Termina con una invitación clara a participar e incluye el siguiente enlace como llamada a la acción. No repitas literalmente los campos.
+
+Título del evento: ${event.title}
+Descripción: ${event.description}
+Fecha: ${event.dates?.[0] || "fecha por definir"}
+Categoría: ${event.category}
+Ubicación: ${event.location}
+Enlace al evento: https://tesis-app-7sij.onrender.com/events/${event._id}`;
 
   try {
     const response = await openai.chat.completions.create({
