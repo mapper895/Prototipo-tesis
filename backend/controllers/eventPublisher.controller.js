@@ -24,7 +24,8 @@ export const publishEventController = async (req, res) => {
     }
 
     const firstDate = event.dates?.[0] || "fecha por definir";
-    const imagePrompt = `Evento: ${event.title}. Categoria: ${event.category}. Fecha: ${firstDate}. Lugar: ${event.location}. Crea una imagen llamativa para redes sociales.`;
+    const imagePrompt = `An abstract, text-free, eye-catching illustration inspired by the following event: ${event.title}. Use the description below purely as visual inspiration. No text, no labels, only graphics: ${event.description}`;
+
     const imageUrl = await generateImage(imagePrompt, event.imageUrl);
     const copy = await generateCopy(event);
 
