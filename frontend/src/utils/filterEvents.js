@@ -1,44 +1,33 @@
 export const filterEvents = (events, filter, selectedDate) => {
   const now = new Date();
 
+  const formatDate = (date) => {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   if (selectedDate) {
-    return events.filter((event) => {
-      // Verificamos si alguna de las fechas del evento coincide con la fecha seleccionada
-      return event.dates.some((dateString) => {
-        const eventDate = new Date(dateString.split("/").reverse().join("-")); // Convertimos dd/MM/yyyy a yyyy-MM-dd
-        return (
-          eventDate.getDate() === selectedDate.getDate() &&
-          eventDate.getMonth() === selectedDate.getMonth() &&
-          eventDate.getFullYear() === selectedDate.getFullYear()
-        );
-      });
-    });
+    const selectedStr = formatDate(selectedDate);
+    return events.filter((event) => event.dates.includes(selectedStr));
   }
 
   if (filter === "today") {
-    return events.filter((event) => {
-      // Verificar si alguna de las fechas del evento corresponde al día actual
-      return event.dates.some((dateString) => {
-        const eventDate = new Date(dateString.split("/").reverse().join("-"));
-        return (
-          eventDate.getDate() === now.getDate() &&
-          eventDate.getMonth() === now.getMonth() &&
-          eventDate.getFullYear() === now.getFullYear()
-        );
-      });
-    });
+    const todayStr = formatDate(now);
+    return events.filter((event) => event.dates.includes(todayStr));
   }
 
   if (filter === "week") {
-    const startOfWeek = now;
-    const endOfWeek = new Date(now);
-    endOfWeek.setDate(now.getDate() + 7);
+    const today = new Date();
+    const nextWeek = new Date();
+    nextWeek.setDate(today.getDate() + 7);
 
     return events.filter((event) => {
-      // Verificar si alguna de las fechas del evento está dentro de esta semana
-      return event.dates.some((dateString) => {
-        const eventDate = new Date(dateString.split("/").reverse().join("-"));
-        return eventDate >= startOfWeek && eventDate <= endOfWeek;
+      return event.dates.some((dateStr) => {
+        const [day, month, year] = dateStr.split("/");
+        const date = new Date(`${year}-${month}-${day}`);
+        return date >= today && date <= nextWeek;
       });
     });
   }
@@ -49,47 +38,38 @@ export const filterEvents = (events, filter, selectedDate) => {
 export const filterReservations = (reservations, filter, selectedDate) => {
   const now = new Date();
 
+  const formatDate = (date) => {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   if (selectedDate) {
-    return reservations.filter((reservation) => {
-      // Verificamos si alguna de las fechas del evento coincide con la fecha seleccionada
-      return reservation.eventId.dates.some((dateString) => {
-        const eventDate = new Date(dateString.split("/").reverse().join("-")); // Convertimos dd/MM/yyyy a yyyy-MM-dd
-        return (
-          eventDate.getDate() === selectedDate.getDate() &&
-          eventDate.getMonth() === selectedDate.getMonth() &&
-          eventDate.getFullYear() === selectedDate.getFullYear()
-        );
-      });
-    });
+    const selectedStr = formatDate(selectedDate);
+    return reservations.filter(
+      (reservation) => reservation.eventDate === selectedStr
+    );
   }
 
   if (filter === "today") {
-    return reservations.filter((reservation) => {
-      // Verificar si alguna de las fechas del evento corresponde al día actual
-      return reservation.eventId.dates.some((dateString) => {
-        const eventDate = new Date(dateString.split("/").reverse().join("-"));
-        return (
-          eventDate.getDate() === now.getDate() &&
-          eventDate.getMonth() === now.getMonth() &&
-          eventDate.getFullYear() === now.getFullYear()
-        );
-      });
-    });
+    const todayStr = formatDate(now);
+    return reservations.filter(
+      (reservation) => reservation.eventDate === todayStr
+    );
   }
 
   if (filter === "week") {
-    const startOfWeek = now;
-    const endOfWeek = new Date(now);
-    endOfWeek.setDate(now.getDate() + 7);
+    const today = new Date();
+    const nextWeek = new Date();
+    nextWeek.setDate(today.getDate() + 7);
 
     return reservations.filter((reservation) => {
-      // Verificar si alguna de las fechas del evento está dentro de esta semana
-      return reservation.eventId.dates.some((dateString) => {
-        const eventDate = new Date(dateString.split("/").reverse().join("-"));
-        return eventDate >= startOfWeek && eventDate <= endOfWeek;
-      });
+      const [day, month, year] = reservation.eventDate.split("/");
+      const resDate = new Date(`${year}-${month}-${day}`);
+      return resDate >= today && resDate <= nextWeek;
     });
   }
 
-  return reservations; // Si no se aplica un filtro específico, devolvemos todas las reservas
+  return reservations;
 };

@@ -95,6 +95,10 @@ const MyReservationsPage = () => {
                 No tienes eventos agendados.
               </p>
             </div>
+          ) : filteredEvents.length === 0 ? (
+            <p className="text-xl font-semibold">
+              No tienes eventos agendados para esa fecha.
+            </p>
           ) : (
             filteredEvents.map((event) => (
               <EventCard
