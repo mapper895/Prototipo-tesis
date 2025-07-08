@@ -20,7 +20,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="flex-col items-center w-full bg-[#001f60] py-4 md:mt-10">
+    <footer className="flex-col items-center w-full bg-[#001f60] py-4">
       {/* <form
         onSubmit={handleSubmit}
         className="w-full flex flex-col justify-center items-center gap-5"
