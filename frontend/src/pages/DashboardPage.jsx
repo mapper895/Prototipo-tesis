@@ -101,6 +101,13 @@ const DashboardPage = ({ user }) => {
   const futureVisibleEvents = futureEvents.slice(0, visibleCount);
   const expiredEvents = dashboardData.expiredEvents || [];
   const visibleEventsEnd = expiredEvents.slice(0, visibleCountEnd);
+  const hasLikesChartData = dashboardData.likesOverTime?.some(
+    (d) => d.likes > 0
+  );
+
+  const hasEventsChartData = dashboardData.eventsPerMonth?.some(
+    (d) => d.count > 0
+  );
 
   if (loading) {
     return (
@@ -147,27 +154,44 @@ const DashboardPage = ({ user }) => {
               </h3>
               <div className="grid md:grid-cols-2 grid-cols-1 gap-10 my-5">
                 {/* Evento mas likeado */}
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="md:text-xl text-sm">Evento Con Más Likes</h4>
-                    <div className="text-gray-500 md:text-base text-xs ">
-                      Likes: {dashboardData.mostViewedEvent.likesCount}
+                {dashboardData.mostViewedEvent.likesCount > 0 ? (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h4 className="md:text-xl text-sm">
+                        Evento Con Más Likes
+                      </h4>
+                      <div className="text-gray-500 md:text-base text-xs ">
+                        Likes: {dashboardData.mostViewedEvent.likesCount}
+                      </div>
                     </div>
+                    <EventCard event={dashboardData.mostLikedEvent} />
                   </div>
-                  <EventCard event={dashboardData.mostLikedEvent} />
-                </div>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <p>No tienes eventos con likes</p>
+                  </div>
+                )}
+
                 {/* Evento con mas vistas */}
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="md:text-xl text-sm">
-                      Evento Con Más Vistas
-                    </h4>
-                    <div className=" text-gray-500 md:text-base text-xs">
-                      <span>Vistas: {dashboardData.mostViewedEvent.views}</span>
+                {dashboardData.mostViewedEvent.views > 0 ? (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h4 className="md:text-xl text-sm">
+                        Evento Con Más Vistas
+                      </h4>
+                      <div className=" text-gray-500 md:text-base text-xs">
+                        <span>
+                          Vistas: {dashboardData.mostViewedEvent.views}
+                        </span>
+                      </div>
                     </div>
+                    <EventCard event={dashboardData.mostViewedEvent} />
                   </div>
-                  <EventCard event={dashboardData.mostViewedEvent} />
-                </div>
+                ) : (
+                  <div>
+                    <p>No tienes eventos con likes</p>
+                  </div>
+                )}
               </div>
             </div>
             {/* Mostrar proximos eventos */}
@@ -207,14 +231,34 @@ const DashboardPage = ({ user }) => {
                   <h3 className="md:text-xl text-sm text-center mb-4">
                     Likes en los últimos días
                   </h3>
-                  <DashboardChart chartData={likesChartData} chartType="line" />
+
+                  {hasLikesChartData ? (
+                    <DashboardChart
+                      chartData={likesChartData}
+                      chartType="line"
+                    />
+                  ) : (
+                    <p className="text-center text-gray-500 text-sm">
+                      No hay datos suficientes para mostrar esta gráfica.
+                    </p>
+                  )}
                 </div>
                 {/* Gráfica de Eventos por Mes */}
                 <div className="mx-4">
                   <h3 className="md:text-xl text-sm text-center mb-4">
                     Eventos creados en cada mes
                   </h3>
-                  <DashboardChart chartData={eventsChartData} chartType="bar" />
+
+                  {hasEventsChartData ? (
+                    <DashboardChart
+                      chartData={eventsChartData}
+                      chartType="bar"
+                    />
+                  ) : (
+                    <p className="text-center text-gray-500 text-sm">
+                      No hay datos suficientes para mostrar esta gráfica.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
