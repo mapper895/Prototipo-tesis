@@ -77,9 +77,13 @@ const EventPage = () => {
           <div className="flex flex-col gap-10 flex-1">
             <div className="w-full flex flex-col gap-5 border-b pb-5">
               <img
-                src={event.imageUrl}
+                src={event.imageUrl || "/generic_event_image.jpg"}
                 alt="imagen_evento"
                 className="w-full h-[250px] object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/generic_event_image.jpg";
+                }}
               />
               <div className="flex justify-between">
                 <div className="md:text-4xl text-2xl font-light px-2 md:px-0">

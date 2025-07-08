@@ -11,9 +11,13 @@ const EventCard = ({
     <div className="flex flex-col justify-between shadow-lg rounded-lg overflow-hidden">
       <Link to={`/events/${event._id}`}>
         <img
-          src={event.imageUrl}
+          src={event.imageUrl || "/generic_event_image.jpg"}
           alt="evento"
           className="w-full h-48 object-cover hover:scale-110 transition-transform duration-300 ease-in-out"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "/generic_event_image.jpg";
+          }}
         />
         <div className="font-bold text-lg ml-2 line-clamp-2">{event.title}</div>
         <div className="text-gray-600 mx-2 mb-1 line-clamp-2">
