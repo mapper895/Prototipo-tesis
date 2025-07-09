@@ -79,9 +79,13 @@ const EventBanner = ({ category }) => {
           >
             <div className="rounded-lg mb-2">
               <img
-                src={event.imageUrl}
+                src={event.imageUrl || "/generic_event_image.jpg"}
                 alt="Event Image"
                 className="w-full sm:h-[150px] h-[110px] transition-transform duration-300 ease-in-out group-hover:scale-110 object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/generic_event_image.jpg";
+                }}
               />
             </div>
             <div className="font-bold sm:text-lg text-sm ml-2 line-clamp-2">
