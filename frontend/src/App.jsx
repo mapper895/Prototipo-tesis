@@ -30,19 +30,23 @@ function App() {
   }, [authCheck]);
 
   useEffect(() => {
-    // Verificamos si debe mostrarse el feedback
-    if (user && user.createdAt && user.lastActive) {
+    console.log("Entramos en la cuenta de tiempo");
+    if (user?.createdAt && user?.feedbackGiven === false) {
       const createdAtDate = new Date(user.createdAt);
-      const lastActiveDate = new Date(user.lastActive);
+      console.log("Estamos dentro del tiempo de feedback");
 
-      // Calculamos la diferencia
-      const timeDifference = lastActiveDate - createdAtDate;
-      const daysDifference = timeDifference / (1000 * 3600 * 24);
+      const interval = setInterval(() => {
+        const now = new Date();
+        const minutesDifference = (now - createdAtDate) / (1000 * 60);
 
-      // Si han pasado mas de dos dias, mostramos el FeedbackForm
-      if (daysDifference >= 2 && user.feedbackGiven === false) {
-        setShowFeedBack(true);
-      }
+        if (minutesDifference >= 10) {
+          setShowFeedBack(true);
+          clearInterval(interval); // Dejamos de checar una vez que se cumple
+          console.log("Se cumplio el tiempo");
+        }
+      }, 30000); // Verifica cada 30 segundos
+
+      return () => clearInterval(interval); // Limpieza al desmontar
     }
   }, [user]);
 
