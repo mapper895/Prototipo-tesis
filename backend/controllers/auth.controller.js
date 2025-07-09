@@ -98,7 +98,7 @@ export async function signup(req, res) {
     generateTokenAndSetCookie(newUser._id, res);
     await newUser.save();
 
-    await sendWelcomeEmail(email);
+    await sendWelcomeEmail(email, username);
 
     res.status(201).json({
       success: true,

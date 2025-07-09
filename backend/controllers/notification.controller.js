@@ -2,10 +2,12 @@ import Notification from "../models/notification.model.js";
 import {
   notifyEventEnded,
   notifyReservationsForTomorrow,
+  sendEventReminder,
   sendWeeklyEvents,
 } from "../utils/notificationService.js";
 import { User } from "../models/user.model.js";
 import { Event } from "../models/event.model.js";
+import moment from "moment";
 
 // Obtener notificaciones de un usuario
 export const getUserNotifications = async (req, res) => {
@@ -129,5 +131,36 @@ export const runNotifyEventEndedManually = async (req, res) => {
     res
       .status(500)
       .json({ error: "Error al enviar notificaciones de eventos terminados" });
+  }
+};
+
+// Funcion para enviar correos de recordatorio al creador del evento de los eventos que empiezan mañana
+export const sendReminder = async (req, res) => {
+  try {
+    const tomorrow = moment().add(1, "day").format("DD/MM/YYYY");
+
+    const events = await Event.find({ reminderSent: { $ne: true } }).populate(
+      "createdBy"
+    );
+
+    for (const event of events) {
+      if (!event.dates || event.dates.length === 0) continue;
+
+      const firstDate = event.dates[0];
+      if (firstDate !== tomorrow) continue;
+
+      const creator = event.createdBy;
+      if (!creator || creator.username === "admin") continue;
+
+      await sendEventReminder(creator.email, event, creator.username);
+      await Event.findByIdAndUpdate(event._id, { reminderSent: true });
+
+      res.status(200).json({
+        message: "Recordatorioa enviados correctamente a los creadores",
+      });
+    }
+  } catch (error) {
+    console.log("Error en sendReminders: ", error);
+    res.status(500).json({ message: "Error al enviar recordatorios" });
   }
 };

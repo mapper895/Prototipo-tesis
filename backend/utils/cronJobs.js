@@ -165,6 +165,46 @@ cron.schedule(
   { timezone: "America/Mexico_City" }
 );
 
+//Envio de correos para los organizadores recordando que su evento se acerca
+//Ejecutar todos los días a las 8am
+cron.schedule(
+  "0 8 * * *",
+  async () => {
+    try {
+      const tomorrow = moment().add(1, "day").format("DD/MM/YYYY");
+
+      // Buscar eventos que inicien mañana
+      const events = await Event.find({ reminderSent: { $ne: true } })
+        .populate("createdBy")
+        .lean();
+
+      for (const event of events) {
+        if (!event.dates || event.dates.length === 0) continue;
+
+        const firstDate = event.dates[0];
+        if (firstDate !== tomorrow) continue;
+
+        const creator = event.createdBy;
+
+        // Evitar si no hay creador o si es admin
+        if (!creator || creator.username === "admin") continue;
+
+        // Enviar recordatorio al creador
+        await sendEventReminder(creator.email, event, creator.username);
+        console.log(
+          `Recordatorio enviado a ${creator.email} para el evento "${event.title}"`
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Error al enviar recordatorios de eventos próximos:",
+        error
+      );
+    }
+  },
+  { timezone: "America/Mexico_City" }
+);
+
 // Obtiene y envia notificaciones sobre las reservas de los eventos que son el dia de mañana
 cron.schedule(
   "0 8 * * *",

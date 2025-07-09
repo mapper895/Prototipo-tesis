@@ -6,11 +6,32 @@ import { sendEmail } from "./emailService.js";
 import moment from "moment"; // Para facilitar el manejo de fechas
 
 // Enviar correo de bienvenida al crear un usuario nuevo
-export const sendWelcomeEmail = async (userEmail) => {
+export const sendWelcomeEmail = async (userEmail, username) => {
   const subject = "Bienvenido a Nuetra App";
   const html = `
-    <h2>¡Gracias por registrarte!</h2>
-    <p>Esperamos que disfrutes nuestra plataforma.</p>
+     <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto;">
+      <h2 style="color: #001f60;">¡Hola ${username}!</h2>
+      <p>Gracias por registrarte en nuestra plataforma de eventos.</p>
+
+      <p>Aquí puedes:</p>
+      <ul>
+        <li>Explorar y agendar eventos culturales en la CDMX.</li>
+        <li>Guardar tus eventos favoritos para más tarde.</li>
+        <li>Recibir recomendaciones personalizadas según tus intereses.</li>
+      </ul>
+
+      <p>Empieza ahora mismo:</p>
+      <a href="https://tesis-app-7sij.onrender.com" 
+         style="display: inline-block; background-color: #001f60; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+         Ir a la plataforma
+      </a>
+
+      <hr style="margin: 30px 0;">
+      <p style="font-size: 14px; color: #777;">
+        ¿Necesitas ayuda? Escríbenos a <a href="mailto:proyectoterminal5@gmail.com">proyectoterminal5@gmail.com</a>.<br>
+        ¡Nos alegra tenerte con nosotros!
+      </p>
+    </div>
   `;
   return sendEmail(userEmail, subject, null, html);
 };
@@ -52,7 +73,7 @@ const formatDateSpanish = (dateStr) => {
 };
 
 // Enviar recordatorio de evento próximo al creador del evento
-export const sendEventReminder = async (userEmail, event) => {
+export const sendEventReminder = async (userEmail, event, username) => {
   const subject = `Recordatorio: Evento próximo - ${event.title}`;
 
   const dates = event.dates || [];
@@ -61,33 +82,116 @@ export const sendEventReminder = async (userEmail, event) => {
 
   const firstDateFormatted = formatDateSpanish(firstDate);
   const lastDateFormatted = formatDateSpanish(lastDate);
-  const text = `Hola, tu evento "${event.title}" está programado del ${firstDateFormatted} al ${lastDateFormatted}. ¡No lo olvides!`;
+  const html = `
+  <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto;">
+    <h2 style="color: #001f60;">¡Hola ${username}!</h2>
 
-  return sendEmail(userEmail, subject, text);
+    <p>Te recordamos que tu evento <strong>"${
+      event.title
+    }"</strong> está próximo a iniciar.</p>
+
+    <div style="background-color: #F3F4F6; padding: 10px 15px; border-radius: 5px; margin-bottom: 15px;">
+      <p><strong>📅 Fechas:</strong> del ${firstDateFormatted} al ${lastDateFormatted}</p>
+      <p><strong>📍 Lugar:</strong> ${event.location}</p>
+      ${
+        event.schedules && event.schedules.length > 0
+          ? `<p><strong>🕐 Horarios:</strong> ${event.schedules.join(", ")}</p>`
+          : ""
+      }
+    </div>
+
+    ${
+      event.description
+        ? `<p style="margin-bottom: 15px;"><strong>Descripción:</strong> ${event.description}</p>`
+        : ""
+    }
+
+    ${
+      event.imageUrl
+        ? `<img src="${event.imageUrl}" alt="Imagen del evento" style="width:100%; max-width:500px; border-radius: 8px; margin-bottom: 20px;" />`
+        : ""
+    }
+
+    ${
+      event._id
+        ? `<a href="https://tesis-app-7sij.onrender.com/events/${event._id}" 
+            style="display: inline-block; background-color: #001f60; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-bottom: 20px;">
+            Ver evento
+          </a>`
+        : ""
+    }
+
+    <hr style="margin: 30px 0;">
+    <p style="font-size: 14px; color: #777;">
+      ¿Tienes dudas o necesitas hacer cambios? Escríbenos a 
+      <a href="mailto:proyectoterminal5@gmail.com">proyectoterminal5@gmail.com</a>.
+    </p>
+  </div>
+`;
+
+  return sendEmail(userEmail, subject, null, html);
 };
 
 //Enviar resumen semanal de eventos destacados
 export const sendWeeklyEvents = async (userEmail, events) => {
-  const subject = "Eventos Destacados de la Semana";
+  const subject = "🗓️ Tu cartelera semanal - Eventos destacados";
 
   // Creamos lista HTML con los enlace a los eventos
   const eventListHtml = events
     .map((e) => {
-      const url = `https://tesis-app-7sij.onrender.com/events${e._id}`;
-      const firstDate = e.dates && e.dates.length > 0 ? e.dates[0] : "";
-      const formattedDate = firstDate
+      const url = `https://tesis-app-7sij.onrender.com/events/${e._id}`;
+      const firstDate = e.dates?.[0] || "";
+      const lastDate =
+        e.dates.length > 1 ? e.dates[e.dates.length - 1] : firstDate;
+
+      const lastDateFormatted = lastDate
+        ? formatDateSpanish(lastDate)
+        : "Fecha no disponible";
+      const firstFormattedDate = firstDate
         ? formatDateSpanish(firstDate)
         : "Fecha no disponible";
+      const imageUrl = e.imageUrl || "";
+      const description = e.description
+        ? e.description.slice(0, 200) + "..."
+        : "Sin descripción disponible.";
 
-      return `<li><a href="${url}" target="_blank" style="color:blue; rext-decoration:underline;">${e.title} - ${formattedDate} </a></li>`;
+      return `
+        <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin-bottom: 25px;">
+          <img src="${imageUrl}" alt="Imagen del evento" style="width: 100%; height: auto; display: block;" />
+          <div style="padding: 15px;">
+            <h3 style="margin-top: 0; margin-bottom: 10px; color: #001f60;">${e.title}</h3>
+            <p style="margin: 0 0 10px;"><strong>📅 Fecha:</strong> del ${firstFormattedDate} al ${lastDateFormatted}</p>
+            <p style="margin: 0 0 15px; line-height: 1.5; color: #444;">${description}</p>
+            <a href="${url}" target="_blank"
+               style="display: inline-block; background-color: #001f60; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none;">
+              Ver evento
+            </a>
+          </div>
+        </div>
+      `;
     })
     .join("");
 
-  const html = `<p>Hola, estos son los eventos destacados de esta semana: </p>
-    <ul>
-    ${eventListHtml}
-    </ul>
-    <p>¡No te los pierdas!</p>`;
+  const html = `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto;">
+      <h2 style="color: #001f60;">🎉 Eventos recomendados para ti esta semana</h2>
+      <p>Te compartimos algunos eventos destacados que podrían interesarte:</p>
+
+      ${eventListHtml}
+
+      <p style="text-align: center; margin-top: 30px;">¿Quieres ver más?</p>
+      <div style="text-align: center;">
+        <a href="https://tesis-app-7sij.onrender.com" 
+           style="display: inline-block; background-color: #001f60; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+           Explorar todos los eventos
+        </a>
+      </div>
+
+      <hr style="margin: 40px 0;">
+      <p style="font-size: 14px; color: #777;">
+        ¿Tienes preguntas o sugerencias? Contáctanos en 
+        <a href="mailto:proyectoterminal5@gmail.com">proyectoterminal5@gmail.com</a>.
+      </p>
+    </div>`;
 
   //Envioamos el correo usando la propiedad 'html'
   return sendEmail(userEmail, subject, null, html);
@@ -110,7 +214,33 @@ export const notifyReservationsForTomorrow = async () => {
 
     if (!user || !event) continue; // Por si hay referencias incompletas
 
+    const formattedDate = formatDateSpanish(reservation.eventDate);
     const message = `El dia de mañana es el evento - ${event.title} -. ¡No lo olvides!`;
+
+    const html = `
+  <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto;">
+    <h2 style="color: #001f60;">📌 ¡Tienes un evento agendado para mañana!</h2>
+
+    <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 20px 0;">
+      <img src="${event.imageUrl || ""}" 
+           alt="Imagen del evento" style="width: 100%; height: auto; display: block;" />
+      <div style="padding: 15px;">
+        <h3 style="margin: 0 0 10px; color: #001f60;">${event.title}</h3>
+        <p><strong>📅 Fecha:</strong> ${formattedDate}</p>
+        <p><strong>🕒 Horario:</strong> ${reservation.eventSchedule}</p>
+        <p style="margin-top: 10px;">¡Prepárate para disfrutarlo!</p>
+        <a href="https://tesis-app-7sij.onrender.com/events/${event._id}" 
+           style="display: inline-block; background-color: #001f60; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none;">
+          Ver detalles del evento
+        </a>
+      </div>
+    </div>
+
+    <p style="font-size: 14px; color: #777;">
+      Si tienes preguntas, contáctanos en <a href="mailto:proyectoterminal5@gmail.com">proyectoterminal5@gmail.com</a>.
+    </p>
+  </div>
+`;
 
     // Creamos notificacione en BD
     const notification = new Notification({
@@ -123,8 +253,9 @@ export const notifyReservationsForTomorrow = async () => {
     // Enviar correo recordatorio
     await sendEmail(
       user.email,
-      `Recordatorio: Evento - ${event.title}`,
-      message
+      `⏰ Recordatorio: Tu evento "${event.title}" es mañana`,
+      null,
+      html
     );
 
     // Guardamos datos para devolverlos después
@@ -173,19 +304,40 @@ export const sendReservationConfirmationEmail = async (
   event
 ) => {
   const eventDateFormatted = formatDateSpanish(reservation.eventDate);
+  const eventUrl = `https://tesis-app-7sij.onrender.com/events/${event._id}`;
+  const imageUrl = event.imageUrl || "";
 
-  const subject = `Confirmacion de reservación para ${event.title}`;
+  const subject = `🎟️ Confirmación de evento agendado - "${event.title}"`;
 
-  const html = `<h2>Reserva confirmada</h2>
-    <p>Gracias por reservar en nuestro sistema. Aquí los detalles de tu reservación:</p>
-    <ul>
-      <li><strong>Evento:</strong> ${event.title}</li>
-      <li><strong>Fecha:</strong> ${eventDateFormatted}</li>
-      <li><strong>Horario:</strong> ${reservation.eventSchedule}</li>
-      <li><strong>Ubicación:</strong> ${event.location}</li>
-    </ul>
-    <p>¡Te esperamos!</p>
-    <img src="${event.imageUrl}" alt="Imagen del evento" style="width:300px;"/>`;
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto;">
+      <h2 style="color: #001f60;">✅ ¡Tu evento está agendado!</h2>
+      <p>Aquí están los detalles de tu evento:</p>
+
+      <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 20px 0;">
+        <img src="${imageUrl}" alt="Imagen del evento" style="width: 100%; height: auto; display: block;" />
+        <div style="padding: 15px;">
+          <h3 style="margin: 0 0 10px; color: #001f60;">${event.title}</h3>
+          <p><strong>📅 Fecha:</strong> ${eventDateFormatted}</p>
+          <p><strong>🕒 Horario:</strong> ${reservation.eventSchedule}</p>
+          <p><strong📍> Ubicación:</strong> ${event.location}</p>
+
+          <a href="${eventUrl}" target="_blank"
+             style="display: inline-block; background-color: #001f60; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; margin-top: 10px;">
+            Ver evento
+          </a>
+        </div>
+      </div>
+
+      <p style="margin-top: 20px;">¡Esperamos que lo disfrutes!</p>
+
+      <hr style="margin: 40px 0;">
+      <p style="font-size: 14px; color: #777;">
+        ¿Tienes preguntas o necesitas modificar tu evento agendado? Escríbenos a 
+        <a href="mailto:proyectoterminal5@gmail.com">proyectoterminal5@gmail.com</a>.
+      </p>
+    </div>
+  `;
 
   return sendEmail(userEmail, subject, null, html);
 };
@@ -196,23 +348,82 @@ export const sendEventNotificationEmail = async (
   event,
   action = "creado"
 ) => {
-  // Usamos action para diferenciar si es creacion o actualizacion
-  const firstDate = event.dates && event.dates.length > 0 ? event.dates[0] : "";
-  const formattedDate = firstDate
-    ? formatDateSpanish(firstDate)
-    : "Fecha no disponible";
+  const dates = event.dates || [];
+  const firstDate = dates[0] || "";
+  const lastDate = dates.length > 1 ? dates[dates.length - 1] : firstDate;
 
-  const subject = `Evento ${action}: ${event.title}`;
+  const formattedFirstDate = firstDate ? formatDateSpanish(firstDate) : "";
+  const formattedLastDate =
+    lastDate && lastDate !== firstDate ? formatDateSpanish(lastDate) : null;
 
-  const html = `<h2>Evento ${action} exitosamente</h2>
-    <p>Detalles del evento:</p>
-    <ul>
-      <li><strong>Título:</strong> ${event.title}</li>
-      <li><strong>Fecha inicio:</strong> ${formattedDate}</li>
-      <li><strong>Ubicación:</strong> ${event.location}</li>
-      <li><strong>Descripción:</strong> ${event.description}</li>
-    </ul>
-    <img src="${event.imageUrl}" alt="Imagen del evento" style="width:300px;"/>`;
+  const subject = `📢 Evento ${action}: ${event.title}`;
+  const imageUrl =
+    event.imageUrl || "https://via.placeholder.com/600x300?text=Evento";
+  const eventUrl = `https://tesis-app-7sij.onrender.com/events/${event._id}`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto;">
+      <h2 style="color: #001f60;">✅ Evento ${action} exitosamente</h2>
+      <p>Tu evento ha sido ${
+        action === "actualizado" ? "actualizado" : "creado"
+      } correctamente. Aquí están los detalles:</p>
+
+      <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 20px 0;">
+        <img src="${imageUrl}" alt="Imagen del evento" style="width: 100%; height: auto; display: block;" />
+        <div style="padding: 15px;">
+          <h3 style="color: #001f60;">${event.title}</h3>
+          
+          ${
+            formattedFirstDate
+              ? `<p><strong>📅 Fecha de inicio:</strong> ${formattedFirstDate}</p>`
+              : ""
+          }
+          ${
+            formattedLastDate
+              ? `<p><strong>📅 Fecha de fin:</strong> ${formattedLastDate}</p>`
+              : ""
+          }
+
+          ${
+            event.schedules?.length
+              ? `<p><strong>🕒 Horarios:</strong> ${event.schedules.join(
+                  ", "
+                )}</p>`
+              : ""
+          }
+
+          ${
+            event.location
+              ? `<p><strong>📍 Ubicación:</strong> ${event.location}</p>`
+              : ""
+          }
+
+          ${
+            event.category
+              ? `<p><strong>🎨 Categoría:</strong> ${event.category}</p>`
+              : ""
+          }
+
+          ${
+            event.description
+              ? `<p><strong>📝 Descripción:</strong><br>${event.description}</p>`
+              : ""
+          }
+
+          <a href="${eventUrl}" target="_blank"
+             style="display: inline-block; background-color: #001f60; color: white; padding: 10px 16px; border-radius: 5px; text-decoration: none; margin-top: 10px;">
+            Ver evento en la plataforma
+          </a>
+        </div>
+      </div>
+
+      <hr style="margin: 40px 0;">
+      <p style="font-size: 14px; color: #777;">
+        ¿Tienes preguntas o necesitas ayuda? Contáctanos en 
+        <a href="mailto:proyectoterminal5@gmail.com">proyectoterminal5@gmail.com</a>.
+      </p>
+    </div>
+  `;
 
   return sendEmail(userEmail, subject, null, html);
 };
@@ -247,15 +458,46 @@ export const notifyEventEnded = async () => {
 
       // Preparar datos para el correo
       const subject = `Resumen: Evento terminado - ${event.title}`;
+      const firstDate = event.dates[0];
+      const lastDate = event.dates[event.dates.length - 1];
+      const formattedFirstDate = formatDateSpanish(firstDate);
+      const formattedLastDate = formatDateSpanish(lastDate);
+      const imageUrl = event.imageUrl || "";
+
       const html = `
-      <h2>Tu evento "${event.title}" ha terminado</h2>
-        <p><strong>Descripción:</strong> ${event.description}</p>
-        <p><strong>Fechas:</strong> ${event.dates.join(", ")}</p>
-        <p><strong>Vistas:</strong> ${event.views || 0}</p>
-        <p><strong>Likes:</strong> ${event.likesCount || 0}</p>
-        <p><strong>Reservas totales:</strong> ${reservationCount}</p>
-        <p>Gracias por utilizar nuestra plataforma.</p>
-      `;
+  <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto;">
+    <h2 style="color: #001f60;">Tu evento ha finalizado</h2>
+    <p>Gracias por compartir tu evento en nuestra plataforma. Aquí tienes un resumen:</p>
+
+    <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin: 20px 0;">
+      <img src="${imageUrl}" alt="Imagen del evento" style="width: 100%; height: auto; display: block;" />
+      <div style="padding: 15px;">
+        <h3 style="color: #001f60; margin-top: 0;">${event.title}</h3>
+
+        <p><strong>📅 Fecha de inicio:</strong> ${formattedFirstDate}</p>
+        <p><strong>📅 Fecha de fin:</strong> ${formattedLastDate}</p>
+
+        ${
+          event.description
+            ? `<p style="margin-top: 10px;"><strong>📝 Descripción:</strong><br>${event.description}</p>`
+            : ""
+        }
+
+        <p><strong>👁️ Vistas:</strong> ${event.views || 0}</p>
+        <p><strong>❤️ Likes:</strong> ${event.likesCount || 0}</p>
+        <p><strong>📋 Reservas totales:</strong> ${reservationCount}</p>
+      </div>
+    </div>
+
+    <p style="margin-top: 20px;">Esperamos que haya sido todo un éxito.</p>
+
+    <hr style="margin: 40px 0;">
+    <p style="font-size: 14px; color: #777;">
+      Si tienes otro evento por publicar o necesitas asistencia, contáctanos en
+      <a href="mailto:proyectoterminal5@gmail.com">proyectoterminal5@gmail.com</a>.
+    </p>
+  </div>
+`;
 
       // Enviar correo
       await sendEmail(creator.email, subject, null, html);

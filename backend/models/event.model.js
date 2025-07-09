@@ -82,6 +82,7 @@ const eventSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    reminderSent: { type: Boolean, default: false },
     similarEvents: [
       {
         type: mongoose.Schema.Types.ObjectId,

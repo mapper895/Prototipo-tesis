@@ -4,6 +4,7 @@ import {
   markNotificationAsRead,
   runNotifyEventEndedManually,
   runNotifyReservationsManually,
+  sendReminder,
   sendWeeklyEventSummary,
 } from "../controllers/notification.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
@@ -20,5 +21,7 @@ router.post("/weekly-events/send", sendWeeklyEventSummary);
 router.post("/notifications/run", runNotifyReservationsManually);
 // Ruta para disparar manualmente la notificacion de eventos terminados
 router.post("/notifications/run-ended", runNotifyEventEndedManually);
+// Ruta para disparar manualmente los recordatorios de eventos proximos a los creadores
+router.post("/notifications/send-reminders", sendReminder);
 
 export default router;
