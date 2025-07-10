@@ -45,7 +45,7 @@ const EventCard = ({
       {reservation && (
         <div className="flex md:flex-row flex-col">
           <div className="md:w-3/5 w-full p-2 bg-blue-200 flex-col items-center justify-center gap-2 text-sm">
-            Reservación para el{" "}
+            Evento agendado para el{" "}
             <span className="font-bold text-md">{reservation.eventDate}</span> a
             las{" "}
             <span className="font-bold text-md">
@@ -56,7 +56,7 @@ const EventCard = ({
             className="md:w-2/5 w-full p-2 bg-red-500 flex items-center justify-center gap-2 text-sm cursor-pointer"
             onClick={() => onDelete(reservation._id)}
           >
-            Eliminar reservacion <Trash2 size={30} />
+            Eliminar evento agendado <Trash2 size={30} />
           </div>
         </div>
       )}

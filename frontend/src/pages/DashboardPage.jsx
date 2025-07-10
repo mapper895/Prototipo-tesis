@@ -154,14 +154,14 @@ const DashboardPage = ({ user }) => {
               </h3>
               <div className="grid md:grid-cols-2 grid-cols-1 gap-10 my-5">
                 {/* Evento mas likeado */}
-                {dashboardData.mostViewedEvent.likesCount > 0 ? (
+                {dashboardData.mostLikedEvent.likesCount > 0 ? (
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <h4 className="md:text-xl text-sm">
                         Evento Con Más Likes
                       </h4>
                       <div className="text-gray-500 md:text-base text-xs ">
-                        Likes: {dashboardData.mostViewedEvent.likesCount}
+                        Likes: {dashboardData.mostLikedEvent.likesCount}
                       </div>
                     </div>
                     <EventCard event={dashboardData.mostLikedEvent} />
@@ -189,7 +189,7 @@ const DashboardPage = ({ user }) => {
                   </div>
                 ) : (
                   <div>
-                    <p>No tienes eventos con likes</p>
+                    <p>No tienes eventos con views</p>
                   </div>
                 )}
               </div>
