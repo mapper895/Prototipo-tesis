@@ -1,38 +1,37 @@
-import { isSameDay, isSameWeek, isWithinInterval, parse } from "date-fns";
+import { isSameDay, isSameWeek, parse } from "date-fns";
 
 export const filterEvents = (events, filter, selectedDate) => {
-  const today = new Date();
+  const now = new Date();
 
-  const parseDate = (dateStr) => {
-    // Convierte "dd/MM/yyyy" a Date
-    const [day, month, year] = dateStr.split("/");
-    return new Date(`${year}-${month}-${day}`);
+  const formatDate = (date) => {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   if (selectedDate) {
-    return events.filter((event) =>
-      event.dates.some((dateStr) => isSameDay(parseDate(dateStr), selectedDate))
-    );
+    const selectedStr = formatDate(selectedDate);
+    return events.filter((event) => event.dates.includes(selectedStr));
   }
 
   if (filter === "today") {
-    return events.filter((event) =>
-      event.dates.some((dateStr) => isSameDay(parseDate(dateStr), today))
-    );
+    const todayStr = formatDate(now);
+    return events.filter((event) => event.dates.includes(todayStr));
   }
 
   if (filter === "week") {
-    const endOfWeek = new Date();
-    endOfWeek.setDate(today.getDate() + 6); // 7 días desde hoy
+    const today = new Date();
+    const nextWeek = new Date();
+    nextWeek.setDate(today.getDate() + 7);
 
-    return events.filter((event) =>
-      event.dates.some((dateStr) =>
-        isWithinInterval(parseDate(dateStr), {
-          start: today,
-          end: endOfWeek,
-        })
-      )
-    );
+    return events.filter((event) => {
+      return event.dates.some((dateStr) => {
+        const [day, month, year] = dateStr.split("/");
+        const date = new Date(`${year}-${month}-${day}`);
+        return date >= today && date <= nextWeek;
+      });
+    });
   }
 
   return events;

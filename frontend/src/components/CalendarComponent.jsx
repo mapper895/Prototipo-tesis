@@ -14,35 +14,31 @@ const CalendarComponent = ({ dates, selectedDate, onDateSelect }) => {
   // Función para aplicar las clases a los días
   const dayClassName = (date) => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // eliminar la hora
+    const target = new Date(date);
+    target.setHours(0, 0, 0, 0); // también quitar hora a la fecha comparada
 
-    // Resaltar la fecha de hoy
-    if (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
-    ) {
-      return "bg-blue-300 text-white font-bold";
+    if (target.getTime() === today.getTime()) {
+      return "bg-blue-300 text-white font-bold"; // fecha de hoy
     }
-    if (date < today) {
-      return "text-gray-300 font-bold";
+
+    if (target < today) {
+      return "text-gray-300 font-bold"; // fechas pasadas
     }
-    // Resaltar las fechas del array 'dates'
-    const isEventDate = eventDates.some(
-      (eventDate) =>
-        eventDate.getDate() === date.getDate() &&
-        eventDate.getMonth() === date.getMonth() &&
-        eventDate.getFullYear() === date.getFullYear()
-    );
+
+    const isEventDate = eventDates.some((eventDate) => {
+      eventDate.setHours(0, 0, 0, 0);
+      return eventDate.getTime() === target.getTime();
+    });
 
     if (isEventDate) {
-      if (selectedDate && date.getTime() === selectedDate.getTime()) {
-        return "bg-blue-500 text-white font-bold";
+      if (selectedDate && target.getTime() === selectedDate.getTime()) {
+        return "bg-blue-500 text-white font-bold"; // seleccionada
       }
-      return "bg-blue-200 rounded-[4px] text-black font-semibold"; // Fechas del array
+      return "bg-blue-200 rounded-[4px] text-black font-semibold"; // fechas disponibles
     }
 
-    // El resto de las fechas
-    return "text-gray-300 font-bold";
+    return "text-gray-300 font-bold"; // fechas no válidas
   };
 
   const handleDateSelect = (date) => {

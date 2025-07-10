@@ -54,7 +54,7 @@ const AllEventsPage = () => {
           </h2>
           <p className="xl:text-lg text-sm">
             A continuacion se muestran todos los eventos que encontramos sobre
-            tu busqueda &quot;
+            tu busqueda.
           </p>
         </div>
 
