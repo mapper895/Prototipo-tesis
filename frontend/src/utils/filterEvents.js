@@ -1,37 +1,35 @@
 import { isSameDay, isSameWeek, parse } from "date-fns";
 
 export const filterEvents = (events, filter, selectedDate) => {
-  const now = new Date();
+  const today = new Date();
 
-  const formatDate = (date) => {
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+  // Convierte una cadena "DD/MM/YYYY" en un objeto Date
+  const parseEventDate = (dateStr) => {
+    const [day, month, year] = dateStr.split("/").map(Number);
+    return new Date(year, month - 1, day);
   };
 
   if (selectedDate) {
-    const selectedStr = formatDate(selectedDate);
-    return events.filter((event) => event.dates.includes(selectedStr));
+    return events.filter((event) =>
+      event.dates.some((dateStr) =>
+        isSameDay(parseEventDate(dateStr), selectedDate)
+      )
+    );
   }
 
   if (filter === "today") {
-    const todayStr = formatDate(now);
-    return events.filter((event) => event.dates.includes(todayStr));
+    return events.filter((event) =>
+      event.dates.some((dateStr) => isSameDay(parseEventDate(dateStr), today))
+    );
   }
 
   if (filter === "week") {
-    const today = new Date();
-    const nextWeek = new Date();
-    nextWeek.setDate(today.getDate() + 7);
-
-    return events.filter((event) => {
-      return event.dates.some((dateStr) => {
-        const [day, month, year] = dateStr.split("/");
-        const date = new Date(`${year}-${month}-${day}`);
-        return date >= today && date <= nextWeek;
-      });
-    });
+    return events.filter((event) =>
+      event.dates.some(
+        (dateStr) =>
+          isSameWeek(parseEventDate(dateStr), today, { weekStartsOn: 1 }) // semana inicia en lunes
+      )
+    );
   }
 
   return events;
