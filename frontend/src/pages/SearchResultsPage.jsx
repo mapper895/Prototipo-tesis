@@ -6,15 +6,12 @@ import EventFilters from "../components/EventFilters";
 import EventCard from "../components/EventCard";
 import { filterEvents } from "../utils/filterEvents";
 import { Loader } from "lucide-react";
-import { useLocation } from "react-router-dom";
 import SmallNavbar from "../components/SmallNavbar";
 
 const AllEventsPage = () => {
   const { searchEvents, getEventsBySearch, isLoading } = useEventStore();
   const [filter, setFilter] = useState("all");
   const [selectedDate, setSelectedDate] = useState(null);
-  const location = useLocation();
-  const query = new URLSearchParams(location.search).get("query");
 
   const filteredEvents = filterEvents(searchEvents, filter, selectedDate);
   const [isMobile, setIsMobile] = useState(false);
@@ -53,11 +50,11 @@ const AllEventsPage = () => {
       <div className="max-w-screen-xl mx-auto xl:mt-20 p-4 xl:p-0">
         <div className="flex flex-col gap-5 my-5">
           <h2 className="md:text-6xl text-4xl font-light">
-            Busqueda de: {query}
+            Resultados sobre tu busqueda
           </h2>
           <p className="xl:text-lg text-sm">
-            A continuacion todos los eventos que encontramos sobre &quot;{query}
-            &quot;
+            A continuacion se muestran todos los eventos que encontramos sobre
+            tu busqueda &quot;
           </p>
         </div>
 

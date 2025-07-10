@@ -1,75 +1,59 @@
-export const filterEvents = (events, filter, selectedDate) => {
-  const now = new Date();
+import { isSameDay, isSameWeek, isWithinInterval, parse } from "date-fns";
 
-  const formatDate = (date) => {
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+export const filterEvents = (events, filter, selectedDate) => {
+  const today = new Date();
+
+  const parseDate = (dateStr) => {
+    // Convierte "dd/MM/yyyy" a Date
+    const [day, month, year] = dateStr.split("/");
+    return new Date(`${year}-${month}-${day}`);
   };
 
   if (selectedDate) {
-    const selectedStr = formatDate(selectedDate);
-    return events.filter((event) => event.dates.includes(selectedStr));
+    return events.filter((event) =>
+      event.dates.some((dateStr) => isSameDay(parseDate(dateStr), selectedDate))
+    );
   }
 
   if (filter === "today") {
-    const todayStr = formatDate(now);
-    return events.filter((event) => event.dates.includes(todayStr));
+    return events.filter((event) =>
+      event.dates.some((dateStr) => isSameDay(parseDate(dateStr), today))
+    );
   }
 
   if (filter === "week") {
-    const today = new Date();
-    const nextWeek = new Date();
-    nextWeek.setDate(today.getDate() + 7);
+    const endOfWeek = new Date();
+    endOfWeek.setDate(today.getDate() + 6); // 7 días desde hoy
 
-    return events.filter((event) => {
-      return event.dates.some((dateStr) => {
-        const [day, month, year] = dateStr.split("/");
-        const date = new Date(`${year}-${month}-${day}`);
-        return date >= today && date <= nextWeek;
-      });
-    });
+    return events.filter((event) =>
+      event.dates.some((dateStr) =>
+        isWithinInterval(parseDate(dateStr), {
+          start: today,
+          end: endOfWeek,
+        })
+      )
+    );
   }
 
   return events;
 };
 
 export const filterReservations = (reservations, filter, selectedDate) => {
-  const now = new Date();
+  return reservations.filter((reservation) => {
+    const eventDate = parse(reservation.eventDate, "dd/MM/yyyy", new Date());
 
-  const formatDate = (date) => {
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
+    if (filter === "today") {
+      return isSameDay(eventDate, new Date());
+    }
 
-  if (selectedDate) {
-    const selectedStr = formatDate(selectedDate);
-    return reservations.filter(
-      (reservation) => reservation.eventDate === selectedStr
-    );
-  }
+    if (filter === "week") {
+      return isSameWeek(eventDate, new Date(), { weekStartsOn: 1 }); // semana inicia en lunes
+    }
 
-  if (filter === "today") {
-    const todayStr = formatDate(now);
-    return reservations.filter(
-      (reservation) => reservation.eventDate === todayStr
-    );
-  }
+    if (filter === "custom" && selectedDate) {
+      return isSameDay(eventDate, selectedDate);
+    }
 
-  if (filter === "week") {
-    const today = new Date();
-    const nextWeek = new Date();
-    nextWeek.setDate(today.getDate() + 7);
-
-    return reservations.filter((reservation) => {
-      const [day, month, year] = reservation.eventDate.split("/");
-      const resDate = new Date(`${year}-${month}-${day}`);
-      return resDate >= today && resDate <= nextWeek;
-    });
-  }
-
-  return reservations;
+    return true; // "all"
+  });
 };

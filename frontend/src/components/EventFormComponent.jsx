@@ -279,7 +279,7 @@ const EventFormComponent = ({
           htmlFor="startDate"
           className="text-sm font-medium text-gray-700 block"
         >
-          Fecha de inicio
+          Fecha de inicio <span className="text-red-500">*</span>
         </label>
         <DatePicker
           selected={startDate}
@@ -297,7 +297,7 @@ const EventFormComponent = ({
           htmlFor="endDate"
           className="text-sm font-medium text-gray-700 block"
         >
-          Fecha de fin
+          Fecha de fin <span className="text-red-500">*</span>
         </label>
         <DatePicker
           selected={endDate}

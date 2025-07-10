@@ -58,6 +58,7 @@ const eventSchema = new mongoose.Schema(
     },
     dates: {
       type: [String],
+      required: true,
     },
     schedules: {
       type: [String],

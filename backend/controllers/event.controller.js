@@ -27,6 +27,16 @@ export async function createEvent(req, res) {
       costs,
     } = req.body;
 
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ message: "El título es obligatorio" });
+    }
+    if (!description || description.trim() === "") {
+      return res.status(400).json({ message: "La descripción es obligatoria" });
+    }
+    if (!category || category.trim() === "") {
+      return res.status(400).json({ message: "La categoría es obligatoria" });
+    }
+
     // Convertimos latitud y longitud a numeros
     let lat = parseFloat(latitude);
     let lng = parseFloat(longitude);
@@ -66,6 +76,12 @@ export async function createEvent(req, res) {
       lng = locationData.lng;
 
       console.log("Coordenadas obtenidas de la API: ", lat, lng);
+    }
+
+    if (!dates || !Array.isArray(dates) || dates.length === 0) {
+      return res.status(400).json({
+        message: "Debes proporcionar las fechas para el evento",
+      });
     }
 
     // const getDays = (dateISO) => {
