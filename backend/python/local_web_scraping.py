@@ -34,7 +34,7 @@ numero_paginas = int(jp_data_value)
 
 print(f"Número total de páginas: {numero_paginas}")
 
-#numero_paginas = 30
+#numero_paginas = 1
 
 
 #print(numero_paginas)

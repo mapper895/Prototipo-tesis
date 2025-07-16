@@ -150,8 +150,19 @@ export const exportDashboardToCSV = async (req, res) => {
       return new Date(year, month - 1, day); // Month is 0-indexed in JavaScript
     };
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Ignorar hora
+
+    // FILTRAMOS: solo eventos con alguna fecha en el futuro
+    const futureEvents = events.filter((event) => {
+      return event.dates.some((dateStr) => {
+        const date = convertToDate(dateStr);
+        return date >= today;
+      });
+    });
+
     // Preparamos los datos a exportar
-    const data = events.map((event) => {
+    const data = futureEvents.map((event) => {
       const sortedDates = event.dates.map(convertToDate).sort((a, b) => a - b);
       const startDate = sortedDates[0]; // Fecha de inicio
       const endDate = sortedDates[sortedDates.length - 1]; // Fecha de fin
@@ -213,8 +224,16 @@ export const exportDashboardToPDF = async (req, res) => {
       return new Date(year, month - 1, day);
     };
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // ignoramos hora
+
+    // Filtrar solo eventos futuros
+    const futureEvents = events.filter((event) =>
+      event.dates.some((dateStr) => convertToDate(dateStr) >= today)
+    );
+
     // Iteramos sobre los eventos y agregamos los detalles al PDF
-    for (const event of events) {
+    for (const event of futureEvents) {
       // Contamos los agendados para el evento
       const reservationCount = await Reservation.countDocuments({
         eventId: event._id,
